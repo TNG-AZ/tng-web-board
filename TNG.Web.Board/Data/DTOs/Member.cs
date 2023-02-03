@@ -16,7 +16,7 @@ namespace TNG.Web.Board.Data.DTOs
     public class Member
     {
         [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; }
         [Required]
         public MemberType MemberType { get; set; }
         [Required]

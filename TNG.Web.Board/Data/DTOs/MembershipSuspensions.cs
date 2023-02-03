@@ -8,7 +8,7 @@ namespace TNG.Web.Board.Data.DTOs
     public class MembershipSuspensions
     {
         [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; }
         [Required]
         [ForeignKey(nameof(Member))]
         public Guid MemberId { get; set; }
