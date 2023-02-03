@@ -13,7 +13,7 @@ namespace TNG.Web.Board.Pages.NewMember
         {
             DateTime d = Convert.ToDateTime(value);
             //date is equal to today in -7GMT timezone
-            return d.Date == TimeZoneInfo.ConvertTime(DateTime.Today, TimeZoneInfo.GetSystemTimeZones().First(tz => tz.BaseUtcOffset == TimeSpan.FromHours(-7))).Date;
+            return d.Date == TimeZoneInfo.ConvertTime(DateTime.Today, TimeZoneInfo.FindSystemTimeZoneById("US Mountain Standard Time")).Date;
 
         }
     }
@@ -24,7 +24,7 @@ namespace TNG.Web.Board.Pages.NewMember
         {
             DateTime d = Convert.ToDateTime(value);
             //date is ~18 years or more from today in -7GMT timezone
-            var today = TimeZoneInfo.ConvertTime(DateTime.Today, TimeZoneInfo.GetSystemTimeZones().First(tz => tz.BaseUtcOffset == TimeSpan.FromHours(-7)));
+            var today = TimeZoneInfo.ConvertTime(DateTime.Today, TimeZoneInfo.FindSystemTimeZoneById("US Mountain Standard Time"));
             var eligibileAge = today.AddYears(-18);
 
             if ((d.Year < eligibileAge.Year)
