@@ -85,7 +85,7 @@ namespace TNG.Web.Board.Pages.NewMember
             catch
             {
                 ErrorMessage = "Couldn't create new user";
-                ShouldRender();
+                StateHasChanged();
             }
         }
 
