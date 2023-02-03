@@ -1,8 +1,11 @@
 ﻿#nullable disable
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace TNG.Web.Board.Data.DTOs
 {
+    [Index(nameof(EmailAddress), IsUnique = true)]
+    [Index(nameof(SceneName), nameof(LegalName))]
     public class Member
     {
         [Key]
