@@ -5,6 +5,7 @@
 <EditForm Model="@formModel" OnValidSubmit="@SubmitNewMemberForm">
     <DataAnnotationsValidator />
     <ValidationSummary />
+    @ErrorMessage
 
     <label>Today's Date:</label><input type="date" required="required" @bind="formModel.TodaysDate" /><br/>
     <label>Scene Name:</label><input type="text" required="required" @bind="formModel.SceneName" /><br/>

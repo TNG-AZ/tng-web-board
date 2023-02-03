@@ -60,11 +60,33 @@ namespace TNG.Web.Board.Pages.NewMember
         [Inject]
         private ApplicationDbContext _context { get; set; }
 
+        [Inject]
+        private NavigationManager navigation { get; set; }
+
         private NewMemberForm formModel = new();
+        private string ErrorMessage { get; set; } = string.Empty;
 
         protected async void SubmitNewMemberForm()
         {
-            var a = 0;
+            try
+            {
+                await _context.Members.AddAsync(new Member()
+                {
+                    LegalName = formModel.LegalName,
+                    SceneName = formModel.SceneName,
+                    Birthday = formModel.Birthday!.Value!,
+                    EmailAddress = formModel.Email,
+                    MemberType = formModel.MemberType,
+                });
+                await _context.SaveChangesAsync();
+
+                navigation.NavigateTo("https://tngaz.org/");
+            }
+            catch
+            {
+                ErrorMessage = "Couldn't create new user";
+                ShouldRender();
+            }
         }
 
         protected void MembershipTypeChange(ChangeEventArgs e)
