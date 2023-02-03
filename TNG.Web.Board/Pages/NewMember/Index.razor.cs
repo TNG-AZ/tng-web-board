@@ -12,7 +12,7 @@ namespace TNG.Web.Board.Pages.NewMember
         public override bool IsValid(object? value)// Return a boolean value: true == IsValid, false != IsValid
         {
             DateTime d = Convert.ToDateTime(value);
-            //date is equal to today in -7GMT timezone
+            //date is equal to today in MST timezone
             return d.Date == TimeZoneInfo.ConvertTime(DateTime.Today, TimeZoneInfo.FindSystemTimeZoneById("US Mountain Standard Time")).Date;
 
         }
@@ -23,7 +23,7 @@ namespace TNG.Web.Board.Pages.NewMember
         public override bool IsValid(object? value)// Return a boolean value: true == IsValid, false != IsValid
         {
             DateTime d = Convert.ToDateTime(value);
-            //date is ~18 years or more from today in -7GMT timezone
+            //date is ~18 years or more from today in MST timezone
             var today = TimeZoneInfo.ConvertTime(DateTime.Today, TimeZoneInfo.FindSystemTimeZoneById("US Mountain Standard Time"));
             var eligibileAge = today.AddYears(-18);
 
