@@ -24,8 +24,14 @@ namespace TNG.Web.Board.Pages.NewMember
         {
             DateTime d = Convert.ToDateTime(value);
             //date is ~18 years or more from today in -7GMT timezone
-            return (TimeZoneInfo.ConvertTime(DateTime.Today, TimeZoneInfo.GetSystemTimeZones().First(tz => tz.BaseUtcOffset == TimeSpan.FromHours(-7))) - d)
-                .TotalDays / 365.2425 >= 18;
+            var today = TimeZoneInfo.ConvertTime(DateTime.Today, TimeZoneInfo.GetSystemTimeZones().First(tz => tz.BaseUtcOffset == TimeSpan.FromHours(-7)));
+            var eligibileAge = today.AddYears(-18);
+
+            if ((d.Year < eligibileAge.Year)
+                || (d.Year == eligibileAge.Year && d.Month < eligibileAge.Month)
+                || (d.Year == eligibileAge.Year && d.Month == eligibileAge.Month && d.Day <= eligibileAge.Day))
+                return true;
+            return false;
 
         }
     }
