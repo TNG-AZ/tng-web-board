@@ -1,0 +1,30 @@
+﻿@page "/newmember/"
+
+<h3>New Member Form</h3>
+
+<EditForm Model="@formModel" OnValidSubmit="@SubmitNewMemberForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <label>Today's Date:</label><input type="date" required="required" @bind="formModel.TodaysDate" /><br/>
+    <label>Scene Name:</label><input type="text" required="required" @bind="formModel.SceneName" /><br/>
+    <label>Legal Name:</label><input type="text" required="required" @bind="formModel.LegalName" /><br />
+    <label>Date of Birth:</label><input type="date" required="required" @bind="formModel.Birthday" /><br />
+    <label>Contact Email:</label><input type="email" required="required" @bind="formModel.Email" /><br />
+    <label>Membership Type:</label>
+    <select required="required" @onchange="MembershipTypeChange">
+        <option value="0">Member</option>
+        <option value="1">Guest</option>
+        <option value="2">Honorary (by board approval only)</option>
+    </select><br /><br /><br/>
+    <p>
+        I hereby acknowledge that I have read the rules, understand them and will abide by them to the best of my ability. 
+        I also certify that I am over the age of 18 and am of legal and mature mindset to view and participate in activities of adult nature. 
+        I am not here in any capacity as a law enforcement agent nor am I here as a member of the press. 
+        By my signature hereto, I assume all risks incident to my attendance at any TNG:Arizona function, 
+        and I further understand that if I should violate this agreement or conduct myself inappropriately, 
+        I may be asked to leave the function, and may not be welcome at future events.
+    </p>
+    <input type="checkbox" required="required" />I verify the above statement is true.<br />
+    <button type="submit">Submit</button>
+</EditForm>
