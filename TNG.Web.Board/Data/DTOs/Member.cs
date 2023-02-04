@@ -29,6 +29,7 @@ namespace TNG.Web.Board.Data.DTOs
         public DateTime Birthday { get; set; }
         [Required]
         public string EmailAddress { get; set; }
+        public bool ReceivedProofOfCovid19Vaccination { get; set; } = false;
 
         public virtual IQueryable<MembershipPayment> Payments { get; set; }
         public virtual IQueryable<MembershipSuspensions> Suspensions { get; set; }
