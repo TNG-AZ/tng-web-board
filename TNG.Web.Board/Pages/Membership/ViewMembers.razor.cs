@@ -27,6 +27,18 @@ namespace TNG.Web.Board.Pages.Membership
         private Expression<Func<MembershipSuspensions, bool>> IsActiveSuspension
             = (m) => m.EndDate == null || m.EndDate >= DateTime.Now;
 
+        private string SuspensionDisplay(Member member)
+        {
+            var suspension = member?.Suspensions
+                .OrderByDescending(s => s.EndDate ?? DateTime.MaxValue)
+                .FirstOrDefault(s => !s.EndDate.HasValue || s.EndDate >= DateTime.Now);
+            if (suspension != null)
+                return suspension.EndDate.HasValue
+                ? $"Suspended until {suspension.EndDate.Value:MM/dd/yyy}"
+                : "Blacklisted";
+            return string.Empty;
+        }
+
         private IEnumerable<Member> GetFilteredMembers()
             => _context.Members
             .Where(m =>
