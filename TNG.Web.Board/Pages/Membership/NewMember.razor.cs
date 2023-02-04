@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 
-namespace TNG.Web.Board.Pages.NewMember
+namespace TNG.Web.Board.Pages.Membership
 {
 
     public class IsToday : ValidationAttribute
@@ -55,13 +55,15 @@ namespace TNG.Web.Board.Pages.NewMember
         public MemberType MemberType { get; set; }
     }
 
-    public partial class Index
+    public partial class NewMember
     {
+#nullable disable
         [Inject]
         private ApplicationDbContext _context { get; set; }
 
         [Inject]
         private NavigationManager navigation { get; set; }
+#nullable enable
 
         private NewMemberForm formModel = new();
         private string ErrorMessage { get; set; } = string.Empty;
