@@ -28,7 +28,7 @@
         <td>@(member.Payments?.OrderByDescending(p => p.PaidOn).FirstOrDefault()?.PaidOn.ToString("MM/dd/yyyy") ?? "n/a")</td>
         <td>@(member.Orientations?.OrderByDescending(o => o.DateReceived).FirstOrDefault()?.DateReceived.ToString("MM/dd/yyyy") ?? "n/a")</td>
         <td>@SuspensionDisplay(member)</td>
-        <td>@(member.ReceivedProofOfCovid19Vaccination ? "Received" : "Unkown")</td>
+        <td>@(member.ReceivedProofOfCovid19Vaccination ? "Received" : "Unknown")</td>
         <td>@member.Birthday.ToString("MM/dd/yyyy")</td>
         <td>@member.EmailAddress</td>
     </tr>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
@@ -42,12 +43,11 @@ namespace TNG.Web.Board.Pages.Membership
         private IEnumerable<Member> GetFilteredMembers()
             => context.Members
             .Where(m =>
-                (string.IsNullOrEmpty(SceneNameFilter) || m.SceneName.Contains(SceneNameFilter, StringComparison.OrdinalIgnoreCase))
-                && (string.IsNullOrEmpty(LegalNameFilter) || m.LegalName.Contains(LegalNameFilter, StringComparison.OrdinalIgnoreCase))
-                && (string.IsNullOrEmpty(EmailFilter) || m.EmailAddress.Contains(EmailFilter, StringComparison.OrdinalIgnoreCase))
+                (string.IsNullOrEmpty(SceneNameFilter) || EF.Functions.Like(m.SceneName, $"%{SceneNameFilter}%"))
+                && (string.IsNullOrEmpty(LegalNameFilter) || EF.Functions.Like(m.LegalName, $"%{LegalNameFilter}%"))
+                && (string.IsNullOrEmpty(EmailFilter) || EF.Functions.Like(m.EmailAddress, $"%{EmailFilter}%"))
                 && (!SuspendedStatus.HasValue || SuspendedStatus.Value == SuspendedStatusEnum.All
                     || (SuspendedStatus.Value == SuspendedStatusEnum.No && !m.Suspensions.Any(IsActiveSuspension))
-                    || (SuspendedStatus.Value == SuspendedStatusEnum.Yes && m.Suspensions.Any(IsActiveSuspension))
-            ));
+                    || (SuspendedStatus.Value == SuspendedStatusEnum.Yes && m.Suspensions.Any(IsActiveSuspension))));
     }
 }
