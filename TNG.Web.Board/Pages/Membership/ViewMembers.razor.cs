@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Linq.Expressions;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
@@ -23,7 +24,7 @@ namespace TNG.Web.Board.Pages.Membership
         private string? SceneNameFilter { get; set; }
         private string? LegalNameFilter { get; set; }
         private string? EmailFilter { get; set; }
-        private SuspendedStatusEnum? SuspendedStatus { get; set; }
+        private SuspendedStatusEnum? SuspendedStatusFilter { get; set; }
 
         private static readonly Expression<Func<MembershipSuspensions, bool>> IsActiveSuspension
             = (m) => m.EndDate == null || m.EndDate >= DateTime.Now;
@@ -46,8 +47,13 @@ namespace TNG.Web.Board.Pages.Membership
                 (string.IsNullOrEmpty(SceneNameFilter) || EF.Functions.Like(m.SceneName, $"%{SceneNameFilter}%"))
                 && (string.IsNullOrEmpty(LegalNameFilter) || EF.Functions.Like(m.LegalName, $"%{LegalNameFilter}%"))
                 && (string.IsNullOrEmpty(EmailFilter) || EF.Functions.Like(m.EmailAddress, $"%{EmailFilter}%"))
-                && (!SuspendedStatus.HasValue || SuspendedStatus.Value == SuspendedStatusEnum.All
-                    || (SuspendedStatus.Value == SuspendedStatusEnum.No && !m.Suspensions.Any(IsActiveSuspension))
-                    || (SuspendedStatus.Value == SuspendedStatusEnum.Yes && m.Suspensions.Any(IsActiveSuspension))));
+                && (!SuspendedStatusFilter.HasValue || SuspendedStatusFilter.Value == SuspendedStatusEnum.All
+                    || (SuspendedStatusFilter.Value == SuspendedStatusEnum.No && (m.Suspensions == null || !m.Suspensions.AsQueryable().Any(IsActiveSuspension)))
+                    || (SuspendedStatusFilter.Value == SuspendedStatusEnum.Yes && m.Suspensions != null && m.Suspensions.AsQueryable().Any(IsActiveSuspension))));
+
+        private void OnSuspendedFilterChange(ChangeEventArgs e)
+        {
+            SuspendedStatusFilter = Enum.Parse<SuspendedStatusEnum>(e.Value!.ToString()!);
+        }
     }
 }

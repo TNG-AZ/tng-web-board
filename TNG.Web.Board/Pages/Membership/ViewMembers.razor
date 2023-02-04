@@ -5,16 +5,21 @@
 <table class="table">
   <thead>
     <tr>
-      <th scope="col">Scene Name</th>
+      <th scope="col">Scene Name<br/><input type="text" @bind="SceneNameFilter"/></th>
       <th scope="col">Membership Type</th>
-      <th scope="col">Legal Name</th>
+      <th scope="col">Legal Name<br/><input type="text" @bind="LegalNameFilter"/></th>
       <th scope="col">Event Attended</th>
       <th scope="col">Dues Last Paid</th>
       <th scope="col">Orientation Last Attended</th>
-      <th scope="col">Is Suspended</th>
+      <th scope="col">Is Suspended<br/>
+          <select @onchange="OnSuspendedFilterChange" value="@((int)(SuspendedStatusFilter ?? 0))">
+              <option value=@((int)SuspendedStatusEnum.All)>All</option>
+              <option value=@((int)SuspendedStatusEnum.No)>No</option>
+              <option value=@((int)SuspendedStatusEnum.Yes)>Yes</option>
+          </select></th>
       <th scope="col">COVID Vax Status</th>
       <th scope="col">Birthday</th>
-      <th scope="col">Email</th>
+      <th scope="col">Email<br/><input type="text" @bind="EmailFilter"/></th>
     </tr>
   </thead>
   <tbody>
