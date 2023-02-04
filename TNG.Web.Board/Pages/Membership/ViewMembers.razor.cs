@@ -16,7 +16,7 @@ namespace TNG.Web.Board.Pages.Membership
     {
 #nullable disable
         [Inject]
-        private ApplicationDbContext _context { get; set; }
+        private ApplicationDbContext context { get; set; }
 #nullable enable
 
         private string? SceneNameFilter { get; set; }
@@ -24,12 +24,12 @@ namespace TNG.Web.Board.Pages.Membership
         private string? EmailFilter { get; set; }
         private SuspendedStatusEnum? SuspendedStatus { get; set; }
 
-        private Expression<Func<MembershipSuspensions, bool>> IsActiveSuspension
+        private static readonly Expression<Func<MembershipSuspensions, bool>> IsActiveSuspension
             = (m) => m.EndDate == null || m.EndDate >= DateTime.Now;
 
-        private string SuspensionDisplay(Member member)
+        private static string SuspensionDisplay(Member member)
         {
-            var suspension = member?.Suspensions
+            var suspension = member?.Suspensions?
                 .OrderByDescending(s => s.EndDate ?? DateTime.MaxValue)
                 .FirstOrDefault(s => !s.EndDate.HasValue || s.EndDate >= DateTime.Now);
             if (suspension != null)
@@ -40,7 +40,7 @@ namespace TNG.Web.Board.Pages.Membership
         }
 
         private IEnumerable<Member> GetFilteredMembers()
-            => _context.Members
+            => context.Members
             .Where(m =>
                 (string.IsNullOrEmpty(SceneNameFilter) || m.SceneName.Contains(SceneNameFilter, StringComparison.OrdinalIgnoreCase))
                 && (string.IsNullOrEmpty(LegalNameFilter) || m.LegalName.Contains(LegalNameFilter, StringComparison.OrdinalIgnoreCase))
