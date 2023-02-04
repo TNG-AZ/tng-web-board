@@ -2,3 +2,34 @@
 
 <h3>Members</h3>
 
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Scene Name</th>
+      <th scope="col">Membership Type</th>
+      <th scope="col">Legal Name</th>
+      <th scope="col">Event Attended</th>
+      <th scope="col">Dues Last Paid</th>
+      <th scope="col">Orientation Last Attended</th>
+      <th scope="col">Is Suspended</th>
+      <th scope="col">Birthday</th>
+      <th scope="col">Email</th>
+    </tr>
+  </thead>
+  <tbody>
+  @foreach(var member in GetFilteredMembers())
+  {
+    <tr>
+        <td>@member.SceneName</td>
+        <td>@member.MemberType.ToString()</td>
+        <td>@member.LegalName</td>
+        <td>@member.HasAttendedSocial.ToString()</td>
+        <td>@member.Payments?.OrderByDescending(p => p.PaidOn).FirstOrDefault()?.PaidOn.ToString("MM/dd/yyyy")</td>
+        <td>@member.Orientations?.OrderByDescending(o => o.DateReceived).FirstOrDefault()?.DateReceived.ToString("MM/dd/yyyy")</td>
+        <td>@member.Suspensions?.Any(IsActiveSuspension).ToString()</td>
+        <td>@member.Birthday.ToString("MM/dd/yyyy")</td>
+        <td>@member.EmailAddress</td>
+    </tr>
+  }
+  </tbody>
+</table>

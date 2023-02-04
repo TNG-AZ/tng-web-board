@@ -30,9 +30,9 @@ namespace TNG.Web.Board.Data.DTOs
         [Required]
         public string EmailAddress { get; set; }
 
-        public virtual IEnumerable<MembershipPayment> Payments { get; set; }
-        public virtual IEnumerable<MembershipSuspensions> Suspensions { get; set; }
-        public virtual IEnumerable<MembershipNotes> Notes { get; set; }
-        public virtual IEnumerable<MembershipOrientations> Orientations { get; set; }
+        public virtual IQueryable<MembershipPayment> Payments { get; set; }
+        public virtual IQueryable<MembershipSuspensions> Suspensions { get; set; }
+        public virtual IQueryable<MembershipNotes> Notes { get; set; }
+        public virtual IQueryable<MembershipOrientations> Orientations { get; set; }
     }
 }
