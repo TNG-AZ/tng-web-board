@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 
@@ -19,7 +20,11 @@ namespace TNG.Web.Board.Pages.Membership
 #nullable enable
 
         private Member GetMember()
-            => context.Members.FirstOrDefault(m => m.Id == memberId) ?? new();
+            => context.Members
+            .Include(m => m.Suspensions)
+            .Include(m => m.Notes)
+            .Include(m => m.Payments)
+            .FirstOrDefault(m => m.Id == memberId) ?? new();
 
         private Member? _member { get; set; }
         private Member Member
@@ -52,14 +57,25 @@ namespace TNG.Web.Board.Pages.Membership
             await context.SaveChangesAsync();
 
             if (NewDuesPaid.HasValue)
-                context.Add(new MembershipPayment {  MemberId = Member.Id, PaidOn = NewDuesPaid.Value });
+            {
+                context.Add(new MembershipPayment { MemberId = Member.Id, PaidOn = NewDuesPaid.Value });
+                await context.SaveChangesAsync();
+            }
             if (NewOrientationAttended.HasValue)
-                context.Add(new MembershipOrientation {  MemberId = Member.Id, DateReceived = NewOrientationAttended.Value });
+            {
+                context.Add(new MembershipOrientation { MemberId = Member.Id, DateReceived = NewOrientationAttended.Value });
+                await context.SaveChangesAsync();
+            }
             if (NewSuspensionStartDate.HasValue)
-                context.Add(new MembershipSuspension { MemberId = Member.Id, StartDate = NewSuspensionStartDate.Value, EndDate = NewSuspensionEndDate, Reason = NewSuspensionReason});
+            {
+                context.Add(new MembershipSuspension { MemberId = Member.Id, StartDate = NewSuspensionStartDate.Value, EndDate = NewSuspensionEndDate, Reason = NewSuspensionReason });
+                await context.SaveChangesAsync();
+            }
             if (!string.IsNullOrEmpty(NewNote))
+            {
                 context.Add(new MembershipNote { MemberId = Member.Id, Note = NewNote });
-            await context.SaveChangesAsync();
+                await context.SaveChangesAsync();
+            }
 
             navigation.NavigateTo("/members/");
         }

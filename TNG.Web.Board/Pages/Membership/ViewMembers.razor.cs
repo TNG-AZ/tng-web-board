@@ -81,6 +81,9 @@ namespace TNG.Web.Board.Pages.Membership
 
         private IEnumerable<Member> GetFilteredMembers()
             => context.Members
+            .Include(m => m.Suspensions)
+            .Include(m => m.Notes)
+            .Include(m => m.Payments)
             .Where(m =>
                 (string.IsNullOrEmpty(SceneNameFilter) || EF.Functions.Like(m.SceneName, $"%{SceneNameFilter}%"))
                 && (string.IsNullOrEmpty(LegalNameFilter) || EF.Functions.Like(m.LegalName, $"%{LegalNameFilter}%"))
