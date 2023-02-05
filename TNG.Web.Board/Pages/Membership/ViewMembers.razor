@@ -6,6 +6,7 @@
 <table class="table">
   <thead>
     <tr>
+      <th></th>
       <th scope="col">Scene Name<br/><input type="text" @bind="SceneNameFilter"/></th>
       <th scope="col">Membership Type<br/>
           <select @onchange="OnMemberTypeFilterChange" value="@((int?)MemberTypeFilter)">
@@ -37,7 +38,8 @@
     var activeSuspension = member?.Suspensions?.OrderByDescending(s => s.EndDate ?? DateTime.MaxValue).FirstOrDefault(s => !s.EndDate.HasValue || s.EndDate >= DateTime.Now);
 
     <tr>
-        <td>@member!.SceneName</td>
+        <td><a href="@($"/members/edit/{member!.Id}")"><i class="bi bi-pen"/></a></td>
+        <td>@member.SceneName</td>
         <td>@member.MemberType.ToString()</td>
         <td>@member.LegalName</td>
         <td class="@(member.HasAttendedSocial ? string.Empty : "table-danger" )">@member.HasAttendedSocial.ToString()</td>

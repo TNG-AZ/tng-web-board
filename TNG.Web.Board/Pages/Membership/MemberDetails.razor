@@ -1,0 +1,21 @@
+﻿@page "/members/edit/{memberId:guid?}"
+
+<h3>Member Details</h3>
+
+<EditForm Model="Member" OnValidSubmit="UpdateMember">
+    <label>Scene Name:</label><input type="text" required="required" @bind="Member.SceneName" /><br />
+    <label>Legal Name:</label><input type="text" required="required" @bind="Member.LegalName" /><br />
+    <label>Date of Birth:</label><input type="date" required="required" @bind="Member.Birthday" /><br />
+    <label>Contact Email:</label><input type="email" required="required" @bind="Member.EmailAddress" /><br />
+    <label>Membership Type:</label>
+    <select required="required" @onchange="MembershipTypeChange" value="@((int)Member.MemberType)">
+        <option value="0">Member</option>
+        <option value="1">Guest</option>
+        <option value="2">Honorary (by board approval only)</option>
+    </select><br/>
+    <input type="checkbox" @bind="Member.HasAttendedSocial" /> Has met social attendance requirement<br/>
+    <input type="checkbox" @bind="Member.ReceivedProofOfCovid19Vaccination" /> Has submitted proof of COVID-19 vaccination<br />
+    <button type="submit">Update</button>
+</EditForm>
+
+
