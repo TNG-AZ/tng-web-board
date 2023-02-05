@@ -14,6 +14,6 @@ namespace TNG.Web.Board.Data
 
         public virtual DbSet<Member> Members { get; set; }
         public virtual DbSet<MembershipPayment> MembershipPayments { get; set; }
-        public virtual DbSet<MembershipSuspensions> MembershipSuspensions { get; set; }
+        public virtual DbSet<MembershipSuspension> MembershipSuspensions { get; set; }
     }
 }

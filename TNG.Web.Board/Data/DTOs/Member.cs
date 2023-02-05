@@ -32,8 +32,8 @@ namespace TNG.Web.Board.Data.DTOs
         public bool ReceivedProofOfCovid19Vaccination { get; set; } = false;
 
         public virtual IQueryable<MembershipPayment> Payments { get; set; }
-        public virtual IQueryable<MembershipSuspensions> Suspensions { get; set; }
-        public virtual IQueryable<MembershipNotes> Notes { get; set; }
-        public virtual IQueryable<MembershipOrientations> Orientations { get; set; }
+        public virtual IQueryable<MembershipSuspension> Suspensions { get; set; }
+        public virtual IQueryable<MembershipNote> Notes { get; set; }
+        public virtual IQueryable<MembershipOrientation> Orientations { get; set; }
     }
 }

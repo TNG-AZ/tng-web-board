@@ -6,8 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TNG.Web.Board.Data.DTOs
 {
-    [Index(nameof(DateAdded), AllDescending = true)]
-    public class MembershipNotes
+    [Index(nameof(DateReceived), AllDescending = true)]
+    public class MembershipOrientation
     {
         [Key]
         public Guid Id { get; set; }
@@ -15,9 +15,7 @@ namespace TNG.Web.Board.Data.DTOs
         [ForeignKey(nameof(Member))]
         public Guid MemberId { get; set; }
         [Required]
-        public DateTime DateAdded { get; set; } = DateTime.Now;
-        [Required]
-        public string Note { get; set; }
+        public DateTime DateReceived { get; set; }
 
         public virtual Member Member { get; set; }
     }

@@ -1,13 +1,11 @@
 ﻿#nullable disable
 
-using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TNG.Web.Board.Data.DTOs
 {
-    [Index(nameof(DateReceived), AllDescending = true)]
-    public class MembershipOrientations
+    public class MembershipSuspension
     {
         [Key]
         public Guid Id { get; set; }
@@ -15,7 +13,9 @@ namespace TNG.Web.Board.Data.DTOs
         [ForeignKey(nameof(Member))]
         public Guid MemberId { get; set; }
         [Required]
-        public DateTime DateReceived { get; set; }
+        public DateTime StartDate { get; set;} = DateTime.Now;
+        public DateTime? EndDate { get; set;}
+        public string Reason { get; set; }
 
         public virtual Member Member { get; set; }
     }

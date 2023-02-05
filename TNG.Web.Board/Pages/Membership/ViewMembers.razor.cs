@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Linq;
 using System.Linq.Expressions;
 using TNG.Web.Board.Data;
@@ -14,6 +15,13 @@ namespace TNG.Web.Board.Pages.Membership
         No
     }
 
+    public enum DateStatusEnum
+    {
+        Good,
+        Warning,
+        Danger
+    }
+
     public partial class ViewMembers
     {
 #nullable disable
@@ -25,15 +33,45 @@ namespace TNG.Web.Board.Pages.Membership
         private string? LegalNameFilter { get; set; }
         private string? EmailFilter { get; set; }
         private SuspendedStatusEnum? SuspendedStatusFilter { get; set; }
+        private MemberType? MemberTypeFilter { get; set; }
 
-        private static readonly Expression<Func<MembershipSuspensions, bool>> IsActiveSuspension
+        private static DateStatusEnum GetDateStatus(DateTime? date)
+        {
+            if ( date == null || date > DateTime.Now.AddYears(-1))
+                return DateStatusEnum.Danger;
+            if (date > DateTime.Now.AddMonths(-1))
+                return DateStatusEnum.Warning;
+            return DateStatusEnum.Good;
+        }
+
+        private static DateStatusEnum GetBirthdayStatus(DateTime date)
+        {
+            if (date < DateTime.Now.AddYears(-40))
+                return DateStatusEnum.Danger;
+            if (date < DateTime.Now.AddYears(-39).AddMonths(-11))
+                return DateStatusEnum.Warning;
+            return DateStatusEnum.Good;
+
+        }
+
+        private static readonly Dictionary<DateStatusEnum, string> DateStatusClasses 
+            = new() {
+                { DateStatusEnum.Danger, "table-danger" },
+                { DateStatusEnum.Warning, "table-warning" },
+                { DateStatusEnum.Good, string.Empty }
+            };
+
+        private static string GetDateClass(DateTime? date)
+            => DateStatusClasses[GetDateStatus(date)];
+
+        private static string GetBirthdayClass(DateTime date)
+            => DateStatusClasses[GetBirthdayStatus(date)];
+
+        private static readonly Expression<Func<MembershipSuspension, bool>> IsActiveSuspension
             = (m) => m.EndDate == null || m.EndDate >= DateTime.Now;
 
-        private static string SuspensionDisplay(Member member)
+        private static string SuspensionDisplay(MembershipSuspension? suspension)
         {
-            var suspension = member?.Suspensions?
-                .OrderByDescending(s => s.EndDate ?? DateTime.MaxValue)
-                .FirstOrDefault(s => !s.EndDate.HasValue || s.EndDate >= DateTime.Now);
             if (suspension != null)
                 return suspension.EndDate.HasValue
                 ? $"Suspended until {suspension.EndDate.Value:MM/dd/yyy}"
@@ -49,11 +87,14 @@ namespace TNG.Web.Board.Pages.Membership
                 && (string.IsNullOrEmpty(EmailFilter) || EF.Functions.Like(m.EmailAddress, $"%{EmailFilter}%"))
                 && (!SuspendedStatusFilter.HasValue || SuspendedStatusFilter.Value == SuspendedStatusEnum.All
                     || (SuspendedStatusFilter.Value == SuspendedStatusEnum.No && (m.Suspensions == null || !m.Suspensions.AsQueryable().Any(IsActiveSuspension)))
-                    || (SuspendedStatusFilter.Value == SuspendedStatusEnum.Yes && m.Suspensions != null && m.Suspensions.AsQueryable().Any(IsActiveSuspension))));
+                    || (SuspendedStatusFilter.Value == SuspendedStatusEnum.Yes && m.Suspensions != null && m.Suspensions.AsQueryable().Any(IsActiveSuspension)))
+                && (!MemberTypeFilter.HasValue || m.MemberType == MemberTypeFilter)
+            );
 
         private void OnSuspendedFilterChange(ChangeEventArgs e)
-        {
-            SuspendedStatusFilter = Enum.Parse<SuspendedStatusEnum>(e.Value!.ToString()!);
-        }
+            => SuspendedStatusFilter = Enum.Parse<SuspendedStatusEnum>(e.Value!.ToString()!);
+        private void OnMemberTypeFilterChange(ChangeEventArgs e)
+            => MemberTypeFilter = string.IsNullOrEmpty(e.Value.ToString()) ? null : Enum.Parse<MemberType>(e.Value!.ToString()!);
+
     }
 }

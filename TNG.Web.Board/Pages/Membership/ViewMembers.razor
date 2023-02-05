@@ -1,4 +1,5 @@
 ﻿@page "/members/"
+@using TNG.Web.Board.Data.DTOs;
 
 <h3>Members</h3>
 
@@ -6,7 +7,13 @@
   <thead>
     <tr>
       <th scope="col">Scene Name<br/><input type="text" @bind="SceneNameFilter"/></th>
-      <th scope="col">Membership Type</th>
+      <th scope="col">Membership Type<br/>
+          <select @onchange="OnMemberTypeFilterChange" value="@((int?)MemberTypeFilter)">
+              <option value="">All</option>
+              <option value=@((int)MemberType.Member)>Member</option>
+              <option value=@((int)MemberType.Guest)>Guest</option>
+              <option value=@((int)MemberType.Honorary)>Honorary</option>
+          </select></th>
       <th scope="col">Legal Name<br/><input type="text" @bind="LegalNameFilter"/></th>
       <th scope="col">Event Attended</th>
       <th scope="col">Dues Last Paid</th>
@@ -25,16 +32,20 @@
   <tbody>
   @foreach(var member in GetFilteredMembers())
   {
+    var paidOnDate = member.Payments?.OrderByDescending(p => p.PaidOn).FirstOrDefault()?.PaidOn;
+    var orientationOnDate = member.Orientations?.OrderByDescending(o => o.DateReceived).FirstOrDefault()?.DateReceived;
+    var activeSuspension = member?.Suspensions?.OrderByDescending(s => s.EndDate ?? DateTime.MaxValue).FirstOrDefault(s => !s.EndDate.HasValue || s.EndDate >= DateTime.Now);
+
     <tr>
-        <td>@member.SceneName</td>
+        <td>@member!.SceneName</td>
         <td>@member.MemberType.ToString()</td>
         <td>@member.LegalName</td>
-        <td>@member.HasAttendedSocial.ToString()</td>
-        <td>@(member.Payments?.OrderByDescending(p => p.PaidOn).FirstOrDefault()?.PaidOn.ToString("MM/dd/yyyy") ?? "n/a")</td>
-        <td>@(member.Orientations?.OrderByDescending(o => o.DateReceived).FirstOrDefault()?.DateReceived.ToString("MM/dd/yyyy") ?? "n/a")</td>
-        <td>@SuspensionDisplay(member)</td>
-        <td>@(member.ReceivedProofOfCovid19Vaccination ? "Received" : "Unknown")</td>
-        <td>@member.Birthday.ToString("MM/dd/yyyy")</td>
+        <td class="@(member.HasAttendedSocial ? string.Empty : "table-danger" )">@member.HasAttendedSocial.ToString()</td>
+        <td class="@GetDateClass(paidOnDate)">@(paidOnDate?.ToString("MM/dd/yyyy") ?? "n/a")</td>
+        <td class="@GetDateClass(orientationOnDate)">@(orientationOnDate?.ToString("MM/dd/yyyy") ?? "n/a")</td>
+        <td class="@(activeSuspension == null ? string.Empty : "table-danger")">@SuspensionDisplay(activeSuspension)</td>
+        <td class="@(member.ReceivedProofOfCovid19Vaccination ? string.Empty : "table-warning")">@(member.ReceivedProofOfCovid19Vaccination ? "Received" : "Unknown")</td>
+        <td class="@(member.MemberType == MemberType.Member ? GetBirthdayClass(member.Birthday) : string.Empty)">@member.Birthday.ToString("MM/dd/yyyy")</td>
         <td>@member.EmailAddress</td>
     </tr>
   }
