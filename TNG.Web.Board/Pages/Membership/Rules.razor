@@ -1,0 +1,23 @@
+﻿@{
+    var title = "The Next Generation: Arizona (TNG:Arizona): Member and Guest Agreement";
+    var rules = new List<string>
+    {
+        "I am between the ages of 18 and 39, or I am a guest of a current TNG:Arizona member.",
+        "No illegal substances or paraphernalia of any kind will be permitted on the premises during a membership only event.",
+        "No one is permitted into a membership only event if they appear to be intoxicated or under the influence of any illegal mind or mood altering substances. Anyone found in such a state will be escorted from the premises and may be subject to disciplinary action.",
+        "No firearms are allowed on the premises during a membership only event.",
+        "Prostitution, solicitation, and negotiation of compensation for sexual services according to Arizona state law are illegal and NOT permitted. Scene professionals are not permitted to attend a TNG:Arizona event as the paid escort of an attendee. If illegal activities are discovered, you will be escorted from the premises and may be subject to disciplinary action.",
+        "TNG:Arizona is not a dating service. We provide an environment in which like-minded people can socialize and meet. Anyone attending a TNG:Arizona is solely responsible for their own social actions.",
+        "TNG:Arizona does not tolerate disrespect, prejudice, or any overtly offensive behavior. TNG:Arizona expects all attendees to treat others with dignity, respect, and the highest regard.",
+        "Attendees at a TNG:Arizona party are responsible for their own actions and negotiations. None of TNG:Arizona, any member, the owners of the establishment where a TNG:Arizona event is being held, nor any agents, successors, or assigns of any aforementioned shall be liable to attendees for injury to person or property incurred as a result of attendance of an event",
+        "TNG:Arizona requires all information obtained at a TNG:Arizona event to remain personal and confidential for the privacy and safety of all attendees."
+    };
+}
+
+<h3>@title</h3>
+<ol type="1">
+@foreach(var rule in rules)
+{
+    <li>@rule</li>
+}
+</ol>
