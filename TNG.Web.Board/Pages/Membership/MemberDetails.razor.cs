@@ -30,8 +30,18 @@ namespace TNG.Web.Board.Pages.Membership
 
         private bool AddDuesPaidToggle { get; set; } = false;
         private DateTime? NewDuesPaid { get; set; }
+
         private bool AddOrientationDateToggle { get; set; } = false;
         private DateTime? NewOrientationAttended { get; set; }
+
+        private bool AddSuspensionToggle { get; set; } = false;
+        private DateTime? NewSuspensionStartDate { get; set; }
+        private DateTime? NewSuspensionEndDate { get; set; }
+        private string? NewSuspensionReason { get; set; }
+
+        private bool AddNoteToggle { get; set; } = false;
+        private string? NewNote { get; set; }
+        private bool ViewNotesToggle { get; set; } = false;
 
         private async void UpdateMember()
         {
@@ -45,6 +55,10 @@ namespace TNG.Web.Board.Pages.Membership
                 context.Add(new MembershipPayment {  MemberId = Member.Id, PaidOn = NewDuesPaid.Value });
             if (NewOrientationAttended.HasValue)
                 context.Add(new MembershipOrientation {  MemberId = Member.Id, DateReceived = NewOrientationAttended.Value });
+            if (NewSuspensionStartDate.HasValue)
+                context.Add(new MembershipSuspension { MemberId = Member.Id, StartDate = NewSuspensionStartDate.Value, EndDate = NewSuspensionEndDate, Reason = NewSuspensionReason});
+            if (!string.IsNullOrEmpty(NewNote))
+                context.Add(new MembershipNote { MemberId = Member.Id, Note = NewNote });
             await context.SaveChangesAsync();
 
             navigation.NavigateTo("/members/");
@@ -54,6 +68,15 @@ namespace TNG.Web.Board.Pages.Membership
         {
             var membershipType = (MemberType)int.Parse(e.Value!.ToString()!);
             Member.MemberType = membershipType;
+        }
+
+        private static string SuspensionDisplay(MembershipSuspension? suspension)
+        {
+            if (suspension != null)
+                return suspension.EndDate.HasValue
+                ? $"Suspended until {suspension.EndDate.Value:MM/dd/yyy}"
+                : "Blacklisted";
+            return "In good standing";
         }
     }
 }

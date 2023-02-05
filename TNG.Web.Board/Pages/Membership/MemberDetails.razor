@@ -1,12 +1,15 @@
 ﻿@page "/members/edit/{memberId:guid?}"
+@using Microsoft.AspNetCore.Html;
 @{
     var paidOnDate = Member.Payments?.OrderByDescending(p => p.PaidOn).FirstOrDefault()?.PaidOn;
     var orientationOnDate = Member.Orientations?.OrderByDescending(o => o.DateReceived).FirstOrDefault()?.DateReceived;
+    var activeSuspension = Member?.Suspensions?.OrderByDescending(s => s.EndDate ?? DateTime.MaxValue).FirstOrDefault(s => !s.EndDate.HasValue || s.EndDate >= DateTime.Now);
 }
 
 <h3>Member Details</h3>
 
 <EditForm Model="Member" OnValidSubmit="UpdateMember">
+    <h4>Demographics</h4>
     <label>Scene Name:</label><input type="text" required="required" @bind="Member.SceneName" /><br />
     <label>Legal Name:</label><input type="text" required="required" @bind="Member.LegalName" /><br />
     <label>Date of Birth:</label><input type="date" required="required" @bind="Member.Birthday" /><br />
@@ -17,6 +20,8 @@
         <option value="1">Guest</option>
         <option value="2">Honorary (by board approval only)</option>
     </select><br/>
+
+    <h4>Eligibility</h4>
     <input type="checkbox" @bind="Member.HasAttendedSocial" /> Has met social attendance requirement<br/>
     <p>Dues last paid on: @(paidOnDate?.ToString("MM/dd/yyyy") ?? "n/a")</p>
     <button type="button" @onclick=@(() => AddDuesPaidToggle = !AddDuesPaidToggle )>Add Dues</button><br />
@@ -31,6 +36,30 @@
         <label>Orientation attended:</label><input type="date" @bind="NewOrientationAttended" /><br/>
     }
     <input type="checkbox" @bind="Member.ReceivedProofOfCovid19Vaccination" /> Has submitted proof of COVID-19 vaccination<br />
+
+    <h4>Membership Notes</h4>
+    <p>Suspension Status : @SuspensionDisplay(activeSuspension) @(activeSuspension?.Reason != null ? $"; Reason: {activeSuspension.Reason}" : string.Empty)</p>
+    
+    <button type="button" @onclick=@(() => AddSuspensionToggle = !AddSuspensionToggle)>Add Suspension</button><br />
+    @if (AddSuspensionToggle)
+    {
+        <label>From: </label><input type="date" @bind="NewSuspensionStartDate" /><br/>
+        <label>To (leave blank for blacklist):</label><input type="date" @bind="NewSuspensionEndDate" /><br/>
+        <label>Reason:</label><textarea @bind="NewSuspensionReason"/><br />
+    }
+    <button type="button" @onclick=@(() => AddNoteToggle = !AddNoteToggle)>Add Note</button>
+    <button type="button" @onclick=@(() => ViewNotesToggle = !ViewNotesToggle)>View Notes</button><br/>
+    @if (AddNoteToggle)
+    {
+        <label>New note:</label><textarea @bind="NewNote"/><br />
+    }
+    @if (ViewNotesToggle && (Member.Notes?.Any() ?? false))
+    {
+        foreach(var note in Member.Notes.OrderByDescending(n => n.DateAdded))
+        {
+            <p>@($"{note.DateAdded.ToString("MM/dd/yyyy")} - {note.Note}")</p>
+        }
+    }
     <button type="submit">Update</button>
 </EditForm>
 
