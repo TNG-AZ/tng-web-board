@@ -37,9 +37,9 @@ namespace TNG.Web.Board.Pages.Membership
 
         private static DateStatusEnum GetDateStatus(DateTime? date)
         {
-            if ( date == null || date > DateTime.Now.AddYears(-1))
+            if (date == null || date < DateTime.Now.AddYears(-1))
                 return DateStatusEnum.Danger;
-            if (date > DateTime.Now.AddMonths(-1))
+            if (date < DateTime.Now.AddMonths(-11))
                 return DateStatusEnum.Warning;
             return DateStatusEnum.Good;
         }

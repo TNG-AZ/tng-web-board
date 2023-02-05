@@ -28,6 +28,11 @@ namespace TNG.Web.Board.Pages.Membership
             { return _member ??= GetMember(); }
         }
 
+        private bool AddDuesPaidToggle { get; set; } = false;
+        private DateTime? NewDuesPaid { get; set; }
+        private bool AddOrientationDateToggle { get; set; } = false;
+        private DateTime? NewOrientationAttended { get; set; }
+
         private async void UpdateMember()
         {
             if (memberId.HasValue)
@@ -35,7 +40,13 @@ namespace TNG.Web.Board.Pages.Membership
             else
                 context.Add(Member);
             await context.SaveChangesAsync();
-            memberId = Member.Id;
+
+            if (NewDuesPaid.HasValue)
+                context.Add(new MembershipPayment {  MemberId = Member.Id, PaidOn = NewDuesPaid.Value });
+            if (NewOrientationAttended.HasValue)
+                context.Add(new MembershipOrientation {  MemberId = Member.Id, DateReceived = NewOrientationAttended.Value });
+            await context.SaveChangesAsync();
+
             navigation.NavigateTo("/members/");
         }
 
