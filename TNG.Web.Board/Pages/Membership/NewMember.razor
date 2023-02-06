@@ -2,31 +2,56 @@
 
 <h3>New Member Form</h3>
 
-<EditForm Model="@formModel" OnValidSubmit="@SubmitNewMemberForm">
+<EditForm Model="@formModel" OnValidSubmit="@SubmitNewMemberForm" class="col-lg-16 col-xl-6">
     <DataAnnotationsValidator />
     <ValidationSummary />
     @ErrorMessage
+    <div class="form-group">
+        <label>Today's Date:</label>
+        <input type="date" class="form-control" required="required" @bind="formModel.TodaysDate" />
+    </div>
+    <div class="form-group">
+        <label>Scene Name:</label>
+        <input type="text" class="form-control" required="required" @bind="formModel.SceneName" />
+    </div>
+    <div class="form-group">
+        <label>Legal Name:</label>
+        <input type="text" class="form-control" required="required" @bind="formModel.LegalName" />
+        <small class="form-text text-muted">This will remain confidential</small>
+    </div>
+    <div class="form-group">
+        <label>Date of Birth:</label>
+        <input type="date" class="form-control" required="required" @bind="formModel.Birthday" />
+        <small class="form-text text-muted">This will remain confidential</small>
+    </div>
+    <div class="form-group">
+        <label>Contact Email:</label>
+        <input type="email" class="form-control" required="required" @bind="formModel.Email" />
+        <small class="form-text text-muted">This will remain confidential</small>
+    </div>
+    <div class="form-group">
+        <label>Membership Type:</label>
+        <select required="required" class="form-control" @onchange="MembershipTypeChange">
+            <option value="0">Member</option>
+            <option value="1">Guest</option>
+            <option value="2">Honorary (by board approval only)</option>
+        </select>
+    </div>
 
-    <label>Today's Date:</label><input type="date" required="required" @bind="formModel.TodaysDate" /><br/>
-    <label>Scene Name:</label><input type="text" required="required" @bind="formModel.SceneName" /><br/>
-    <label>Legal Name:</label><input type="text" required="required" @bind="formModel.LegalName" /><br />
-    <label>Date of Birth:</label><input type="date" required="required" @bind="formModel.Birthday" /><br />
-    <label>Contact Email:</label><input type="email" required="required" @bind="formModel.Email" /><br />
-    <label>Membership Type:</label>
-    <select required="required" @onchange="MembershipTypeChange">
-        <option value="0">Member</option>
-        <option value="1">Guest</option>
-        <option value="2">Honorary (by board approval only)</option>
-    </select><br /><br /><br/>
-    <Rules /><br/><br/>
+    <Rules />
+
+    <h3>Acknowledgement</h3>
     <p>
-        I hereby acknowledge that I have read the rules, understand them and will abide by them to the best of my ability. 
-        I also certify that I am over the age of 18 and am of legal and mature mindset to view and participate in activities of adult nature. 
-        I am not here in any capacity as a law enforcement agent nor am I here as a member of the press. 
-        By my signature hereto, I assume all risks incident to my attendance at any TNG:Arizona function, 
-        and I further understand that if I should violate this agreement or conduct myself inappropriately, 
+        I hereby acknowledge that I have read the rules, understand them and will abide by them to the best of my ability.
+        I also certify that I am over the age of 18 and am of legal and mature mindset to view and participate in activities of adult nature.
+        I am not here in any capacity as a law enforcement agent nor am I here as a member of the press.
+        By my acknowledgement hereto, I assume all risks incident to my attendance at any TNG:Arizona function,
+        and I further understand that if I should violate this agreement or conduct myself inappropriately,
         I may be asked to leave the function, and may not be welcome at future events.
     </p>
-    <input type="checkbox" required="required" />I verify the above statement is true.<br />
+
+    <div class="form-check">
+        <input type="checkbox" class="form-check-input" required="required" /><label class="form-check-label">I verify the above statement is true.</label>
+    </div>
     <button type="submit">Submit</button>
 </EditForm>
