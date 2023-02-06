@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.InteropServices;
 using TNG.Web.Board.Areas.Identity;
 using TNG.Web.Board.Data;
 
@@ -13,13 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        options.UseSqlServer(connectionString);
-    else
-        options.UseMySQL();
-});
-    
+    options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
