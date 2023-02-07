@@ -24,6 +24,7 @@ namespace TNG.Web.Board.Pages.Membership
             .Include(m => m.Suspensions)
             .Include(m => m.Notes)
             .Include(m => m.Payments)
+            .Include(m => m.Orientations)
             .FirstOrDefault(m => m.Id == memberId) ?? new();
 
         private Member? _member { get; set; }
