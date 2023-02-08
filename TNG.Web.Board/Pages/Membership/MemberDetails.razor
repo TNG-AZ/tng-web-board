@@ -98,34 +98,42 @@
                 <button type="button" @onclick=@(() => AddSuspension() ) class="btn btn-outline-primary btn-sm">Submit</button>
             }
         </div>
+    }
+    <button type="submit">Update</button>
+</EditForm>
+<br/><br/>
+@if(Member.Id != default)
+{
+    <h5>Notes</h5>
+    <button type="button" @onclick=@(() => AddNoteToggle = !AddNoteToggle) class="btn btn-primary btn-sm">Add Note</button>
+    <button type="button" @onclick=@(() => ViewNotesToggle = !ViewNotesToggle) class="btn btn-primary btn-sm">View Notes</button>
 
-        <h5>Notes</h5>
-        <button type="button" @onclick=@(() => AddNoteToggle = !AddNoteToggle) class="btn btn-primary btn-sm">Add Note</button>
-        <button type="button" @onclick=@(() => ViewNotesToggle = !ViewNotesToggle) class="btn btn-primary btn-sm">View Notes</button>
-
-        <br />
-        @if (AddNoteToggle)
-        {
-            <div class="form-group">
-                <label>New note:</label>
-                <textarea class="form-control" @bind="NewNote" /><br />
-                <label>Note tags (comma separated values, optional):</label>
-                <input type="text" @bind="NewNoteTags">
-                <button type="button" @onclick=@(() => AddMemberNote() ) class="btn btn-outline-primary btn-sm">Submit</button>
-            </div>
-        }
-        @if (ViewNotesToggle && (Member.Notes?.Any() ?? false))
-        {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Date Added</th>
-                        <th>Note</th>
-                        <th>Tags</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @foreach (var note in Member.Notes.OrderByDescending(n => n.DateAdded))
+    <br />
+    @if (AddNoteToggle)
+    {
+        <div class="form-group">
+            <label>New note:</label>
+            <textarea class="form-control" @bind="NewNote" /><br />
+            <label>Note tags (comma separated values, optional):</label>
+            <input type="text" @bind="NewNoteTags">
+            <button type="button" @onclick=@(() => AddMemberNote() ) class="btn btn-outline-primary btn-sm">Submit</button>
+        </div>
+    }
+    @if (ViewNotesToggle && (Member.Notes?.Any() ?? false))
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date Added</th>
+                    <th>Note</th>
+                    <th>
+                        Tags
+                        <input type="text" @bind="NotesTagsFilter" />
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var note in GetFilteredNotes())
                 {
                     <tr>
                         <td>@note.DateAdded.ToString("MM/dd/yyyy")</td>
@@ -133,12 +141,8 @@
                         <td>@(string.Join(", ", note.NoteTags?.Select(t => t.Tag.Name).OrderBy(n => n) ?? Enumerable.Empty<string>()))</td>
                     </tr>
                 }
-                </tbody>
-            </table>
-            
-        }
+            </tbody>
+        </table>
 
-        <br />
     }
-    <button type="submit">Update</button>
-</EditForm>
+}

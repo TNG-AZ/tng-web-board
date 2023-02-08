@@ -61,6 +61,21 @@ namespace TNG.Web.Board.Pages.Membership
         private string? NewNoteTags { get; set; }
         private bool ViewNotesToggle { get; set; } = false;
 
+        private string? NotesTagsFilter { get; set; }
+
+        private static IEnumerable<string> GetTags(string tags)
+            => tags.ToLower().Split(',').Select(t => t.Trim()).Where(t => !string.IsNullOrEmpty(t)).Distinct();
+
+        private IEnumerable<MembershipNote> GetFilteredNotes()
+        {
+            var filterTags = Enumerable.Empty<string>();
+            if (!string.IsNullOrEmpty(NotesTagsFilter))
+            {
+                filterTags = GetTags(NotesTagsFilter);
+            }
+            return Member.Notes.Where(n => !filterTags.Any() || (n.NoteTags?.Any(t => filterTags.Contains(t.Tag.Name.ToLower())) ?? false));
+        }
+
         private async void UpdateMember()
         {
             try
@@ -171,7 +186,7 @@ namespace TNG.Web.Board.Pages.Membership
 
                 if (!string.IsNullOrEmpty(NewNoteTags))
                 {
-                    var tags = NewNoteTags.ToLower().Split(',').Select(t => t.Trim()).Distinct();
+                    var tags = GetTags(NewNoteTags);
 
                     var newTags = tags.Where(t => !(context.Tags?.Select(t => t.Name).Any(n => EF.Functions.Like(n, t)) ?? false));
                     context.AddRange(newTags.Select(t => new Tag { Name = t }));
