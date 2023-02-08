@@ -1,10 +1,5 @@
 ﻿@page "/members/edit/{memberId:guid?}"
 @using Microsoft.AspNetCore.Html;
-@{
-    var paidOnDate = Member.Payments?.OrderByDescending(p => p.PaidOn).FirstOrDefault()?.PaidOn;
-    var orientationOnDate = Member.Orientations?.OrderByDescending(o => o.DateReceived).FirstOrDefault()?.DateReceived;
-    var activeSuspension = Member?.Suspensions?.OrderByDescending(s => s.EndDate ?? DateTime.MaxValue).FirstOrDefault(s => !s.EndDate.HasValue || s.EndDate >= DateTime.Now);
-}
 
 <h3>Member Details</h3>
 
@@ -44,8 +39,13 @@
         <input type="checkbox" class="form-check-input" @bind="Member.HasAttendedSocial" /><label class="form-check-label">Has met social attendance requirement</label>
     </div>
     <div class="form-group">
-        <label>Dues last paid on: @(paidOnDate?.ToString("MM/dd/yyyy") ?? "n/a")</label>
-        <button type="button" @onclick=@(() => AddDuesPaidToggle = !AddDuesPaidToggle )>Add Dues</button><br />
+        <label>Dues last paid on: @(PaidOnDate?.ToString("MM/dd/yyyy") ?? "n/a")</label>
+        <button type="button" @onclick=@(() => AddDuesPaidToggle = !AddDuesPaidToggle ) class="btn btn-primary btn-sm">Add Dues</button>
+        @if (PaidOnDate.HasValue)
+        {
+            <button type="button" onclick=@(() => DeleteDues()) class="btn btn-outline-warning btn-sm">Delete Orientation</button>
+        }
+        <br />
         @if (AddDuesPaidToggle)
         {
             <label>Dues paid:</label>
@@ -53,8 +53,13 @@
         }
     </div>
     <div class="form-group">
-        <label>Last orientation attended: @(orientationOnDate?.ToString("MM/dd/yyyy") ?? "n/a")</label>
-        <button type="button" @onclick=@(() => AddOrientationDateToggle = !AddOrientationDateToggle )>Add Orientation</button><br />
+        <label>Last orientation attended: @(OrientationOnDate?.ToString("MM/dd/yyyy") ?? "n/a")</label>
+        <button type="button" @onclick=@(() => AddOrientationDateToggle = !AddOrientationDateToggle ) class="btn btn-primary btn-sm">Add Orientation</button>
+        @if(OrientationOnDate.HasValue)
+        {
+            <button type="button" onclick=@(() => DeleteOrientation()) class="btn btn-outline-warning btn-sm">Delete Orientation</button>
+        }
+        <br />
         @if (AddOrientationDateToggle)
         {
             <label>Orientation attended:</label>
@@ -67,43 +72,55 @@
 
     <br/>
 
-    <h4>Membership Notes</h4>
-
-    <div class="form-group">
-        <label>Suspension Status : @SuspensionDisplay(activeSuspension) @(activeSuspension?.Reason != null ? $"; Reason: {activeSuspension.Reason}" : string.Empty)</label>
-        <button type="button" @onclick=@(() => AddSuspensionToggle = !AddSuspensionToggle )>Add Suspension</button><br />
-        @if (AddSuspensionToggle)
-        {
-            <label>From: </label>
-            <input type="date" class="form-control" @bind="NewSuspensionStartDate" />
-
-            <label>To (leave blank for blacklist):</label>
-            <input type="date" class="form-control" @bind="NewSuspensionEndDate" />
-
-            <label>Reason:</label>
-            <textarea class="form-control" @bind="NewSuspensionReason" />
-        }
-    </div>
-
-    <h5>Notes</h5>
-    <button type="button" @onclick=@(() => AddNoteToggle = !AddNoteToggle)>Add Note</button>
-    <button type="button" @onclick=@(() => ViewNotesToggle = !ViewNotesToggle)>View Notes</button><br/>
-    @if (AddNoteToggle)
+    
+    @if(Member.Id != default)
     {
+        <h4>Membership Notes</h4>
+
         <div class="form-group">
-            <label>New note:</label>
-            <textarea class="form-control" @bind="NewNote" /><br />
+            <label>Suspension Status : @SuspensionDisplay() @(ActiveSuspension?.Reason != null ? $"; Reason: {ActiveSuspension.Reason}" : string.Empty)</label>
+            <button type="button" @onclick=@(() => AddSuspensionToggle = !AddSuspensionToggle ) class="btn btn-danger btn-sm">Add Suspension</button><br />
+            @if (ActiveSuspension is not null)
+            {
+                <button type="button" onclick=@(() => EndSuspension()) class="btn btn-warning btn-sm">End Suspension</button>
+                <button type="button" onclick=@(() => DeleteSuspension()) class="btn btn-outline-warning btn-sm">Delete Suspension</button>
+            }
+            @if (AddSuspensionToggle)
+            {
+                <label>From: </label>
+                <input type="date" class="form-control" @bind="NewSuspensionStartDate" />
+
+                <label>To (leave blank for blacklist):</label>
+                <input type="date" class="form-control" @bind="NewSuspensionEndDate" />
+
+                <label>Reason:</label>
+                <textarea class="form-control" @bind="NewSuspensionReason" />
+                <button type="button" @onclick=@(() => AddSuspension() ) class="btn btn-outline-primary btn-sm">Submit</button>
+            }
         </div>
-    }
-    @if (ViewNotesToggle && (Member.Notes?.Any() ?? false))
-    {
-        foreach(var note in Member.Notes.OrderByDescending(n => n.DateAdded))
+
+        <h5>Notes</h5>
+        <button type="button" @onclick=@(() => AddNoteToggle = !AddNoteToggle) class="btn btn-primary btn-sm">Add Note</button>
+        <button type="button" @onclick=@(() => ViewNotesToggle = !ViewNotesToggle) class="btn btn-primary btn-sm">View Notes</button>
+
+        <br />
+        @if (AddNoteToggle)
         {
-            <p>@($"{note.DateAdded.ToString("MM/dd/yyyy")} - {note.Note}")</p>
+            <div class="form-group">
+                <label>New note:</label>
+                <textarea class="form-control" @bind="NewNote" /><br />
+                <button type="button" @onclick=@(() => AddMemberNote() ) class="btn btn-outline-primary btn-sm">Submit</button>
+            </div>
         }
+        @if (ViewNotesToggle && (Member.Notes?.Any() ?? false))
+        {
+            foreach (var note in Member.Notes.OrderByDescending(n => n.DateAdded))
+            {
+                <p>@($"{note.DateAdded.ToString("MM/dd/yyyy")} - {note.Note}")</p>
+            }
+        }
+
+        <br />
     }
-    <br/>
     <button type="submit">Update</button>
 </EditForm>
-
-
