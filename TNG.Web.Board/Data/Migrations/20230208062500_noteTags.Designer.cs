@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TNG.Web.Board.Data;
 
@@ -11,9 +12,11 @@ using TNG.Web.Board.Data;
 namespace TNG.Web.Board.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230208062500_noteTags")]
+    partial class noteTags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -377,12 +380,12 @@ namespace TNG.Web.Board.Data.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("NoteTagMappings");
+                    b.ToTable("NoteTag");
                 });
 
             modelBuilder.Entity("TNG.Web.Board.Data.DTOs.Tag", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -390,12 +393,12 @@ namespace TNG.Web.Board.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tag");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

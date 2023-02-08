@@ -109,15 +109,33 @@
             <div class="form-group">
                 <label>New note:</label>
                 <textarea class="form-control" @bind="NewNote" /><br />
+                <label>Note tags (comma separated values, optional):</label>
+                <input type="text" @bind="NewNoteTags">
                 <button type="button" @onclick=@(() => AddMemberNote() ) class="btn btn-outline-primary btn-sm">Submit</button>
             </div>
         }
         @if (ViewNotesToggle && (Member.Notes?.Any() ?? false))
         {
-            foreach (var note in Member.Notes.OrderByDescending(n => n.DateAdded))
-            {
-                <p>@($"{note.DateAdded.ToString("MM/dd/yyyy")} - {note.Note}")</p>
-            }
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Date Added</th>
+                        <th>Note</th>
+                        <th>Tags</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var note in Member.Notes.OrderByDescending(n => n.DateAdded))
+                {
+                    <tr>
+                        <td>@note.DateAdded.ToString("MM/dd/yyyy")</td>
+                        <td>@note.Note</td>
+                        <td>@(string.Join(", ", note.NoteTags?.Select(t => t.Tag.Name).OrderBy(n => n) ?? Enumerable.Empty<string>()))</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            
         }
 
         <br />

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Azure;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
@@ -23,6 +24,8 @@ namespace TNG.Web.Board.Pages.Membership
             => context.Members
             .Include(m => m.Suspensions)
             .Include(m => m.Notes)
+            .ThenInclude(n => n.NoteTags)
+            .ThenInclude(n => n.Tag)
             .Include(m => m.Payments)
             .Include(m => m.Orientations)
             .FirstOrDefault(m => m.Id == memberId) ?? new();
@@ -55,6 +58,7 @@ namespace TNG.Web.Board.Pages.Membership
 
         private bool AddNoteToggle { get; set; } = false;
         private string? NewNote { get; set; }
+        private string? NewNoteTags { get; set; }
         private bool ViewNotesToggle { get; set; } = false;
 
         private async void UpdateMember()
@@ -142,25 +146,41 @@ namespace TNG.Web.Board.Pages.Membership
             StateHasChanged();
         }
 
-        private async Task AddNote(string note)
+        private async Task<MembershipNote> AddNote(string note)
         {
             if (!string.IsNullOrEmpty(note))
             {
-                context.Add(new MembershipNote
+                var noteEntity = context.MemberNotes.Add(new MembershipNote
                 {
                     MemberId = Member.Id,
                     Note = note
-                });
+                }).Entity;
                 await context.SaveChangesAsync();
+
+                return noteEntity;
             }
+            return await Task.FromResult<MembershipNote>(default);
         }
 
         private async void AddMemberNote()
         {
             if (!string.IsNullOrEmpty(NewNote))
             {
-                await AddNote(NewNote);
+                var note = await AddNote(NewNote);
                 NewNote = string.Empty;
+
+                if (!string.IsNullOrEmpty(NewNoteTags))
+                {
+                    var tags = NewNoteTags.ToLower().Split(',').Select(t => t.Trim()).Distinct();
+
+                    var newTags = tags.Where(t => !(context.Tags?.Select(t => t.Name).Any(n => EF.Functions.Like(n, t)) ?? false));
+                    context.AddRange(newTags.Select(t => new Tag { Name = t }));
+                    await context.SaveChangesAsync();
+
+                    var tagEntities = context.Tags.Where(e => tags.Contains(e.Name.ToLower()));
+                    context.AddRange(tagEntities.Select(t => new NoteTag { TagId = t.Id, NoteId = note.Id }));
+                    await context.SaveChangesAsync();
+                }
                 StateHasChanged();
             }
         }

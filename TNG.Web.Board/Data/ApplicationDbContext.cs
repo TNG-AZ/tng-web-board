@@ -17,5 +17,7 @@ namespace TNG.Web.Board.Data
         public virtual DbSet<MembershipOrientation> MemberOrientations { get; set; }
         public virtual DbSet<MembershipPayment> MemberDuesPayments { get; set; }
         public virtual DbSet<MembershipSuspension> MemberSuspensions { get; set; }
+        public virtual DbSet<Tag> Tags { get; set; }
+        public virtual DbSet<NoteTag> NoteTagMappings { get; set; }
     }
 }
