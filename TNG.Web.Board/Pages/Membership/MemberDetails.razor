@@ -99,7 +99,8 @@
             }
         </div>
     }
-    <button type="submit">Update</button>
+    <button type="submit" class="btn btn-primary">Update</button><br />
+    <button type="button" class="btn btn-danger" @onclick="DeleteMember">Delete Member</button>
 </EditForm>
 <br/><br/>
 @if(Member.Id != default)

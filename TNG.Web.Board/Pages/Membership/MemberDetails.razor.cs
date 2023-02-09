@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.JSInterop;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 
@@ -20,6 +21,8 @@ namespace TNG.Web.Board.Pages.Membership
 
         [Inject]
         private NavigationManager navigation { get; set; }
+        [Inject]
+        private IJSRuntime JsRuntime { get; set; }
 #nullable enable
 
         private Member GetMember()
@@ -221,6 +224,22 @@ namespace TNG.Web.Board.Pages.Membership
                 context.Remove(Orientation);
                 await context.SaveChangesAsync();
                 StateHasChanged();
+            }
+        }
+
+        private async void DeleteMember()
+        {
+            bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure?");
+            if (confirmed)
+            {
+                context.RemoveRange(Member.Orientations.Where(o => Member.Orientations.Select(mo => mo.Id).Contains(o.Id)));
+                context.RemoveRange(Member.Payments.Where(p => Member.Payments.Select(mp => mp.Id).Contains(p.Id)));
+                context.RemoveRange(Member.Notes.Where(n => Member.Notes.Select(mn => mn.Id).Contains(n.Id)));
+                context.RemoveRange(Member.Suspensions.Where(s => Member.Suspensions.Select(ms => ms.Id).Contains(s.Id)));
+                context.Remove(Member);
+                await context.SaveChangesAsync();
+                await JsRuntime.InvokeVoidAsync("alert", "Successfully deleted");
+                navigation.NavigateTo("/members/");
             }
         }
     }
