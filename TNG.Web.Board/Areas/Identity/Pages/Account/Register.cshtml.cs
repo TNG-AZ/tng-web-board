@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -12,12 +13,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using TNG.Web.Board.Data;
 
 namespace TNG.Web.Board.Areas.Identity.Pages.Account
 {
@@ -35,7 +38,8 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
             IUserStore<IdentityUser> userStore,
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IConfiguration configuration)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -102,8 +106,8 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
             [Compare(nameof(ActualSecretCode), ErrorMessage = "Wrong code, (don't) try again")]
             public string SecretCode { get; set; }
 
-            public string? ActualSecretCode
-                => Environment.GetEnvironmentVariable("TNGRegistrationCode");
+            public string ActualSecretCode
+                => SecretCodeService.GetCode() ?? string.Empty;
         }
 
 
