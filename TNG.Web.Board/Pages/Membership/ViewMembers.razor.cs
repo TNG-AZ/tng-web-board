@@ -48,7 +48,7 @@ namespace TNG.Web.Board.Pages.Membership
 
         private static DateStatusEnum GetBirthdayStatus(DateTime date)
         {
-            if (date < DateTime.Now.AddYears(-40))
+            if (date < DateTime.Now.AddYears(-40) || date > DateTime.Now.AddYears(-18))
                 return DateStatusEnum.Danger;
             if (date < DateTime.Now.AddYears(-39).AddMonths(-11))
                 return DateStatusEnum.Warning;
