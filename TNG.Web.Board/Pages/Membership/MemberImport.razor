@@ -1,0 +1,54 @@
+﻿@page "/members/import/"
+
+<h3>Member Import</h3>
+
+<label>Separator: </label><input type="text" @bind="ImportSeparator" /><br/>
+<label>File to import:</label><InputFile OnChange="@LoadFile"/>
+@if(ParseSuccess.HasValue && !ParseSuccess.Value)
+{
+    <p>Failed to parse CSV</p>
+}
+@if (SuccessfulCommits.HasValue)
+{
+    @if (SuccessfulCommits < 0)
+    {
+        <p>Members is null</p>
+    }
+    else
+    {
+        <p>Comitted @SuccessfulCommits members to db</p>
+    }
+}
+@if ((Members?.Any() ?? false) && (ParseSuccess ?? false))
+{
+    <h3>Import Preview</h3>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Delete</th>
+                <th>Legal Name </th>
+                <th>Scene Name</th>
+                <th>Birthday</th>
+                <th>Email Address</th>
+                <th>Covid-19 Proof of Vax</th>
+                <th>Start Membership On</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach(var member in Members)
+        {
+            <tr>
+                <td><button type="button" @onclick=@(() => Members.Remove(member))>Delete</button></td>
+                <td><input type="text" @bind="member.LegalName"/></td>
+                <td><input type="text" @bind="member.SceneName"/></td>
+                <td><input type="date" @bind="member.Birthday"/></td>
+                <td><input type="text" @bind="member.Email"/></td>
+                <td><input type="checkbox" @bind="member.SceneName"/></td>
+                <td><input type="date" @bind="member.MemberSince"/></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <button type="button" @onclick="CommitMembers">Commit to DB</button>
+}

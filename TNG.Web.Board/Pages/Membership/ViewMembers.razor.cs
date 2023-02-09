@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace TNG.Web.Board.Pages.Membership
         Danger
     }
 
+    [Authorize]
     public partial class ViewMembers
     {
 #nullable disable

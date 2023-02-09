@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using TNG.Web.Board.Data;
@@ -6,6 +7,7 @@ using TNG.Web.Board.Data.DTOs;
 
 namespace TNG.Web.Board.Pages.Membership
 {
+    [Authorize]
     public partial class MemberDetails
     {
         [Parameter]
@@ -21,7 +23,7 @@ namespace TNG.Web.Board.Pages.Membership
 #nullable enable
 
         private Member GetMember()
-            => context.Members
+            => context.Members?
             .Include(m => m.Suspensions)
             .Include(m => m.Notes)
             .ThenInclude(n => n.NoteTags)

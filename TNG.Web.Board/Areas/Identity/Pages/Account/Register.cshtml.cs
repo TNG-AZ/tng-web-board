@@ -97,6 +97,13 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+            [Required(AllowEmptyStrings = false, ErrorMessage = "Must provide the secret code to register")]
+            [Compare(nameof(ActualSecretCode), ErrorMessage = "Wrong code, (don't) try again")]
+            public string SecretCode { get; set; }
+
+            public string? ActualSecretCode
+                => Environment.GetEnvironmentVariable("TNGRegistrationCode");
         }
 
 
