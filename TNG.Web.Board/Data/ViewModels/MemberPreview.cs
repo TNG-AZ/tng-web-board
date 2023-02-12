@@ -9,7 +9,7 @@ namespace TNG.Web.Board.Data.ViewModels
         public MemberType? MemberType { get; set; }
         public string? LegalName { get; set; }
         public string? SceneName { get; set; }
-        public DateTime Birthday { get; set; }
+        public DateTime? Birthday { get; set; }
         public string? Email { get; set; }
         public bool? Covid19VaxProofReceived { get; set; }
         public DateTime? MemberSince { get; set; }
