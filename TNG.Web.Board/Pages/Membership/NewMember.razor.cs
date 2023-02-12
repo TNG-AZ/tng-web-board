@@ -82,13 +82,10 @@ namespace TNG.Web.Board.Pages.Membership
                     MemberType = formModel.MemberType,
                 });
                 await _context.SaveChangesAsync();
-
-                navigation.NavigateTo("https://tngaz.org/");
             }
-            catch
+            finally
             {
-                ErrorMessage = "Couldn't create new user";
-                StateHasChanged();
+                navigation.NavigateTo("/");
             }
         }
 
