@@ -95,3 +95,24 @@ a, .btn-link {
     font-weight: bold;
     font-size: 400%;
 }
+
+#hero {
+    background: url("https://upload.wikimedia.org/wikipedia/commons/9/9d/Flag_of_Arizona.svg") top center;
+    background-size: cover;
+    background-attachment: fixed;
+    position: relative;
+}
+
+#hero:before {
+    content: "";
+    background: rgba(255, 255, 255, 0.8);
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+#main {
+    padding: 80px 0;
+}
