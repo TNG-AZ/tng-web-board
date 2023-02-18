@@ -78,14 +78,14 @@ namespace TNG.Web.Board.Pages.Events
             StateHasChanged();
         }
 
-        private async void RsvpNotGoing(string eventId)
+        private async void RsvpMaybeGoing(string eventId)
         {
             var rsvp = await context.EventRsvps.FirstOrDefaultAsync(r => r.MemberId == Member!.Id && eventId == r.EventId)
-                ?? new() { EventId = eventId, MemberId = Member!.Id, Status = EventRsvpStatus.NotGoing };
+                ?? new() { EventId = eventId, MemberId = Member!.Id, Status = EventRsvpStatus.MaybeGoing };
             if (rsvp.Id == default)
                 context.Add(rsvp);
             else
-                rsvp.Status = EventRsvpStatus.NotGoing;
+                rsvp.Status = EventRsvpStatus.MaybeGoing;
 
             await context.SaveChangesAsync();
             StateHasChanged();

@@ -6,7 +6,7 @@
     {
         {"NA", new() { "btn-primary", "btn-outline-primary" } },
         {"Going", new() { "btn-success", "btn-outline-success" } },
-        {"NotGoing", new() { "btn-secondary", "btn-outline-secondary" }}
+        {"MaybeGoing", new() { "btn-secondary", "btn-outline-secondary" }}
     };
 }
 <div class="container">
@@ -18,7 +18,7 @@
             <form class="form-inline">
                     <button type="button" @onclick=@(() => RsvpDelete(calendarEvent.Id)) class="btn @(rsvp is null ? rsvpClasses["NA"][0] : rsvpClasses["NA"][1])">N/A</button>
                     <button type="button" @onclick=@(() => RsvpGoing(calendarEvent.Id)) class="btn @(rsvp is not null && rsvp == EventRsvpStatus.Going ? rsvpClasses["Going"][0] : rsvpClasses["Going"][1])">Going</button>
-                    <button type="button" @onclick=@(() => RsvpNotGoing(calendarEvent.Id)) class="btn @(rsvp is not null && rsvp == EventRsvpStatus.NotGoing ? rsvpClasses["NotGoing"][0] : rsvpClasses["NotGoing"][1])">Not Going</button>
+                    <button type="button" @onclick=@(() => RsvpMaybeGoing(calendarEvent.Id)) class="btn @(rsvp is not null && rsvp == EventRsvpStatus.MaybeGoing ? rsvpClasses["MaybeGoing"][0] : rsvpClasses["MaybeGoing"][1])">Maybe Going</button>
             </form>
         </div>
         <div class="card-body">

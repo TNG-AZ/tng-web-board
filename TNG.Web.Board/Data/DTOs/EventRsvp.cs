@@ -8,7 +8,7 @@ namespace TNG.Web.Board.Data.DTOs
     public enum EventRsvpStatus
     {
         Going,
-        NotGoing
+        MaybeGoing
     }
 
     public class EventRsvp
