@@ -15,6 +15,7 @@
         var rsvp = Member?.Events?.FirstOrDefault(e => e.EventId == calendarEvent.Id)?.Status;
         var going = GetRsvpMemberList(calendarEvent.Id, EventRsvpStatus.Going) ?? string.Empty;
         var maybe = GetRsvpMemberList(calendarEvent.Id, EventRsvpStatus.MaybeGoing) ?? string.Empty;
+        var description = calendarEvent.Description;
         <div class="card">
         <div class="card-header">
             <form class="form-inline">
@@ -26,7 +27,7 @@
         <div class="card-body">
                 <h3 class="card-title"><a href="@calendarEvent.HtmlLink">@calendarEvent.Summary</a></h3>
             <h5>@($"Happening on {calendarEvent.Start.DateTime:MM/dd/yyyy} at {calendarEvent.Start.DateTime:hh:mm tt}")</h5>
-            <p class="card-text">@StringTools.RemoveHtml(calendarEvent.Description.Substring(0, Math.Min(calendarEvent.Description.Length, 300)))@(calendarEvent.Description.Length > 100 ? "..." : string.Empty)</p>
+            <p class="card-text">@StringTools.RemoveHtml(description.Substring(0, Math.Min(description.Length, 300)))@(description.Length > 100 ? "..." : string.Empty)</p>
             @if (!string.IsNullOrEmpty(going))
             {
                 <p>Going: @going.Substring(0, Math.Min(going.Length, 100))@(going.Length > 100 ? "..." : string.Empty)</p>
