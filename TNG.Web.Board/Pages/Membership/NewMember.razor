@@ -1,6 +1,9 @@
 ﻿@page "/members/new"
 
 <h3>New Member Form</h3>
+@{
+    formModel.Email = auth.GetIdentity().Result?.Name;
+}
 
 <EditForm Model="@formModel" OnValidSubmit="@SubmitNewMemberForm" class="col-lg-12 col-xl-6">
     <DataAnnotationsValidator />

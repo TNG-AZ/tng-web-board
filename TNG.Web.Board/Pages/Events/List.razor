@@ -1,8 +1,32 @@
 ﻿@page "/events/"
-
-<ul>
+@using TNG.Web.Board.Data.DTOs;
+@using TNG.Web.Board.Utilities;
+@{
+    var rsvpClasses = new Dictionary<string, List<string>>
+    {
+        {"NA", new() { "btn-primary", "btn-outline-primary" } },
+        {"Going", new() { "btn-success", "btn-outline-success" } },
+        {"NotGoing", new() { "btn-secondary", "btn-outline-secondary" }}
+    };
+}
+<div class="container">
 @foreach(var calendarEvent in GetUpcomingEvents())
 {
-    <li>@($"{calendarEvent.Summary}, happening on {calendarEvent.Start.DateTime:MM/dd/yyyy} at {calendarEvent.Start.DateTime:hh:mm tt}")</li>
+        var rsvp = Member?.Events?.FirstOrDefault(e => e.EventId == calendarEvent.Id)?.Status;
+        <div class="card text-center">
+        <div class="card-header">
+            <form class="form-inline">
+                    <button type="button" @onclick=@(() => RsvpDelete(calendarEvent.Id)) class="btn @(rsvp is null ? rsvpClasses["NA"][0] : rsvpClasses["NA"][1])">N/A</button>
+                    <button type="button" @onclick=@(() => RsvpGoing(calendarEvent.Id)) class="btn @(rsvp is not null && rsvp == EventRsvpStatus.Going ? rsvpClasses["Going"][0] : rsvpClasses["Going"][1])">Going</button>
+                    <button type="button" @onclick=@(() => RsvpNotGoing(calendarEvent.Id)) class="btn @(rsvp is not null && rsvp == EventRsvpStatus.NotGoing ? rsvpClasses["NotGoing"][0] : rsvpClasses["NotGoing"][1])">Not Going</button>
+            </form>
+        </div>
+        <div class="card-body">
+                <h3 class="card-title"><a href="@calendarEvent.HtmlLink">@calendarEvent.Summary</a></h3>
+            <h5>@($"Happening on {calendarEvent.Start.DateTime:MM/dd/yyyy} at {calendarEvent.Start.DateTime:hh:mm tt}")</h5>
+            <p class="card-text">@StringTools.RemoveHtml(calendarEvent.Description.Substring(0, 300))@(calendarEvent.Description.Length > 100 ? "..." : string.Empty)</p>
+        </div>
+    </div>
+    <br/>
 }
-</ul>
+</div>

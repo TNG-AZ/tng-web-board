@@ -20,5 +20,6 @@ namespace TNG.Web.Board.Data
         public virtual DbSet<MembershipSuspension> MemberSuspensions { get; set; }
         public virtual DbSet<Tag> Tags { get; set; }
         public virtual DbSet<NoteTag> NoteTagMappings { get; set; }
+        public virtual DbSet<EventRsvp> EventRsvps { get; set; }
     }
 }

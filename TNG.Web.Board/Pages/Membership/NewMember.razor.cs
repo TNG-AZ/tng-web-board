@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
+using TNG.Web.Board.Utilities;
 
 namespace TNG.Web.Board.Pages.Membership
 {
@@ -64,6 +65,8 @@ namespace TNG.Web.Board.Pages.Membership
 
         [Inject]
         private NavigationManager navigation { get; set; }
+        [Inject]
+        private AuthUtilities auth { get; set; }
 #nullable enable
 
         private NewMemberForm formModel = new();
