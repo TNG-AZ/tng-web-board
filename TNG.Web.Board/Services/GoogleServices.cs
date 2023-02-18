@@ -5,11 +5,11 @@ using Google.Apis.Services;
 
 namespace TNG.Web.Board.Services
 {
-    public class GoogleCalendar
+    public class GoogleServices
     {
         public readonly CalendarService Calendar;
 
-        public GoogleCalendar(IConfiguration Configuration)
+        public GoogleServices(IConfiguration Configuration)
         {
             string[] Scopes = { CalendarService.Scope.Calendar };
 

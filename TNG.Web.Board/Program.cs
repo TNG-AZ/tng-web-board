@@ -29,7 +29,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
-builder.Services.AddSingleton<GoogleCalendar>();
+builder.Services.AddSingleton<GoogleServices>();
 builder.Services.AddScoped<AuthUtilities>();
 
 var app = builder.Build();

@@ -18,7 +18,7 @@ namespace TNG.Web.Board.Pages.Events
         [Inject]
         private ApplicationDbContext context { get; set; }
         [Inject]
-        public GoogleCalendar Google { get; set; }
+        public GoogleServices Google { get; set; }
         [Inject]
         public IConfiguration Configuration { get; set; }
         [Inject]
@@ -27,7 +27,7 @@ namespace TNG.Web.Board.Pages.Events
         private AuthUtilities auth { get; set; }
 #nullable enable
 
-        private Member _member { get; set; }
+        private Member? _member { get; set; }
         private Member? Member
 
         {
