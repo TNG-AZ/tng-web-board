@@ -92,5 +92,9 @@ namespace TNG.Web.Board.Pages.Events
             await context.SaveChangesAsync();
             StateHasChanged();
         }
+
+        private string GetRsvpMemberList(string eventId, EventRsvpStatus status)
+            => string.Join(", ", context.EventRsvps?.Where(e => e.EventId == eventId && e.Status == status)
+                .Select(e => e.Member.SceneName) ?? Enumerable.Empty<string>());
     }
 }
