@@ -1,4 +1,5 @@
 ﻿using Google.Apis.Calendar.v3.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using System.Dynamic;
@@ -10,6 +11,7 @@ using TNG.Web.Board.Utilities;
 
 namespace TNG.Web.Board.Pages.Events
 {
+    [Authorize]
     public partial class List
     {
 #nullable disable
