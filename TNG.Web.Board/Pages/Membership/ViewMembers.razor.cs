@@ -23,7 +23,7 @@ namespace TNG.Web.Board.Pages.Membership
         Danger
     }
 
-    [Authorize]
+    [Authorize(Roles = "Boardmember")]
     public partial class ViewMembers
     {
 #nullable disable

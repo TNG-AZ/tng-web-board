@@ -88,7 +88,6 @@ a, .btn-link {
 }
 
 .title-header {
-    font-family: "Playfair Display";
     letter-spacing: 0.0em;
     direction: ltr;
     line-height: 1.0em;
@@ -97,7 +96,7 @@ a, .btn-link {
 }
 
 #hero {
-    background: url("https://upload.wikimedia.org/wikipedia/commons/9/9d/Flag_of_Arizona.svg") top center;
+    background: url("/img/gir_flag.png") top center;
     background-size: cover;
     background-attachment: fixed;
     position: relative;
@@ -114,7 +113,6 @@ a, .btn-link {
 }
 
 #main {
-    font-family: "Playfair Display";
     letter-spacing: 0.0em;
     direction: ltr;
     line-height: 1.0em;
@@ -141,4 +139,53 @@ a, .btn-link {
 
 #about-socials-image {
     background-image: url('https://lh3.googleusercontent.com/L5x-dF6EqCJtrmjTQb4dgune-M_W-XpFusbMQdTuwysaxz4ZjF4nDC2SYcOb9ZpN2j7tGrHEBOmnaR8D=s606');
+}
+
+/*Social Media Styling*/
+.social-logo {
+    width: 25px;
+}
+.github-logo {
+    content: url("/img/github-mark.svg");
+}
+
+.fetlife-logo {
+    content: url("/img/fetlife.svg");
+}
+
+.discord-logo {
+    content: url("/img/discord-mark-blue.svg");
+}
+
+.facebook-logo {
+    content: url("/img/facebook.svg")
+}
+
+#hero .icon-boxes {
+    margin-top: 100px;
+}
+
+.row {
+    --bs-gutter-x: 1.5rem;
+    --bs-gutter-y: 0;
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: calc(-1 * var(--bs-gutter-y));
+    margin-right: calc(-.5 * var(--bs-gutter-x));
+    margin-left: calc(-.5 * var(--bs-gutter-x));
+}
+
+#hero .icon-box {
+    padding: 50px 30px;
+    position: relative;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 0 29px 0 rgba(18, 66, 101, 0.08);
+    transition: all 0.3s ease-in-out;
+    border-radius: 8px;
+    z-index: 1;
+}
+
+#hero .icon-box:hover {
+    transform: scale(1.08);
 }

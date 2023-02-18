@@ -14,6 +14,11 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using TNG.Web.Board.Data;
+using TNG.Web.Board.Utilities;
+using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Plugins;
+using System.Security.Claims;
 
 namespace TNG.Web.Board.Areas.Identity.Pages.Account
 {
@@ -21,9 +26,13 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<IdentityUser> signInManager,
+            UserManager<IdentityUser> userManager, 
+            ILogger<LoginModel> logger)
         {
+            _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
         }
@@ -82,6 +91,10 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
             /// </summary>
             [Display(Name = "Remember me?")]
             public bool RememberMe { get; set; }
+
+            [EmptyOrEqual(nameof(ActualSecretCode), ErrorMessage = "Wrong code, (don't) try again")]
+            public string SecretCode { get; set; }
+            public string ActualSecretCode => SecretCodeService.GetCode() ?? string.Empty;
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -114,7 +127,17 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
+                    var user = _userManager.Users.First(u => EF.Functions.Like(u.Email, Input.Email));
                     _logger.LogInformation("User logged in.");
+                    if (!string.IsNullOrEmpty(Input.SecretCode) && Input.SecretCode.Equals(Input.ActualSecretCode))
+                    {
+                        
+                        if (!(await _userManager.IsInRoleAsync(user, RolesEnum.Boardmember.ToString())))
+                        {
+                            await _userManager.AddToRoleAsync(user, RolesEnum.Boardmember.ToString());
+                            await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                        }
+                    }
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

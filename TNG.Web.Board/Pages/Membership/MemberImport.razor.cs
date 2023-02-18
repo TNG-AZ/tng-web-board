@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace TNG.Web.Board.Pages.Membership
 {
-    [Authorize]
+    [Authorize(Roles = "Boardmember")]
     public partial class MemberImport
     {
 #nullable disable

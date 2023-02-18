@@ -1,4 +1,10 @@
 ﻿@page "/"
+
+@using TNG.Web.Board.Pages.Shared
+@using TNG.Web.Board.Services;
+@inject IConfiguration conf
+@inject GoogleCalendar calendar
+
 <section id="hero" class="row align-items-center" style="min-height:100vh;">
     <div class="col-md-12 col-lg-6">
         <h1 class="text-center align-middle title-header">
@@ -11,18 +17,18 @@
         <h2>Our Purpose</h2>
         <ul>
             <li>
-                To provide a safe environment where people between the ages of 18 and 39 who are interested in BDSM and the kink and fetish lifestyles can have fun discovering and exploring alternative lifestyles, and can meet like-minded people
+                To provide a safe environment where people between the ages of 18 and 39 who are interested in BDSM and the kink and fetish lifestyles can have fun discovering and exploring alternative lifestyles, and can meet like-minded people.
             </li>
             <li>
                 To provide education and instruction about BSDM and the kink and fetish lifestyles and to teach the skills needed to engage in these lifestyles in a safe manner.
             </li>
             <li>
-                To foster ties with other BDSM, kink and fetish organizations, and
-            </li>
-            <li>
                 To promote public understanding and acceptance of BDSM and the kink and fetish lifestyles.
             </li>
         </ul>
+    </div>
+    <div class="container position-relative aos-init aos-animate">
+        <SocialMedia />
     </div>
 </section>
 
@@ -30,16 +36,17 @@
     <h2 class="text-center col-12">What we do</h2><br />
     <div class="col-sm-12 col-md-6 col-lg-4">
         <div id="about-socials-image" class="about-images"></div>
+        <br/>
         <p class="text-center">Social Mixers</p>
     </div>
     <div class="col-sm-12 col-md-6 col-lg-4">
         <div id="about-parties-image" class="about-images"></div>
-        <br />
+        <br/>
         <p class="text-center">Member Exclusive Parties</p>
     </div>
     <div class="col-sm-12 col-md-6 col-lg-4">
         <div id="about-educational-image" class="about-images"></div>
-        <br />
+        <br/>
         <p class="text-center">Educational Events</p>
     </div>
 </section>

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using TNG.Web.Board.Areas.Identity;
 using TNG.Web.Board.Data;
+using TNG.Web.Board.Services;
+using TNG.Web.Board.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,10 +24,12 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = false;
 })
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
+builder.Services.AddSingleton<GoogleCalendar>();
 
 var app = builder.Build();
 
@@ -54,5 +58,6 @@ app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
 SecretCodeService.SetCode(builder.Configuration["TNGRegistrationCode"]);
+await RolesData.SeedRoles(app.Services);
 
 app.Run();

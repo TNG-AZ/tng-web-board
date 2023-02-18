@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using TNG.Web.Board.Data;
+using TNG.Web.Board.Utilities;
 
 namespace TNG.Web.Board.Areas.Identity.Pages.Account
 {
@@ -102,11 +103,10 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
 
-            [Required(AllowEmptyStrings = false, ErrorMessage = "Must provide the secret code to register")]
-            [Compare(nameof(ActualSecretCode), ErrorMessage = "Wrong code, (don't) try again")]
+            [EmptyOrEqual(nameof(ActualSecretCode), ErrorMessage = "Wrong code, (don't) try again")]
             public string SecretCode { get; set; }
 
-            public string ActualSecretCode
+            public string ActualSecretCode 
                 => SecretCodeService.GetCode() ?? string.Empty;
         }
 
@@ -120,7 +120,6 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
@@ -128,6 +127,9 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
+
+                if (!string.IsNullOrEmpty(Input.SecretCode) && Input.SecretCode.Equals(Input.ActualSecretCode))
+                    await _userManager.AddToRoleAsync(user, RolesEnum.Boardmember.ToString());
 
                 if (result.Succeeded)
                 {

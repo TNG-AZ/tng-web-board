@@ -8,7 +8,7 @@ using TNG.Web.Board.Data.DTOs;
 
 namespace TNG.Web.Board.Pages.Membership
 {
-    [Authorize]
+    [Authorize(Roles = "Boardmember")]
     public partial class MemberDetails
     {
         [Parameter]

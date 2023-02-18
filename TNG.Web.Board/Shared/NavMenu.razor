@@ -27,6 +27,19 @@
             </NavLink>
             <AuthorizeView>
                 <Authorized>
+                    <NavLink class="nav-link" @onclick="()=>expandMemberNav = !expandMemberNav">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span>My Profile
+                    </NavLink>
+                    @if (expandMemberNav)
+                    {
+                        <NavLink class="nav-link" href="/events" Match="NavLinkMatch.All">
+                            <span class="oi oi-calendar" aria-hidden="true"> </span> RSVP
+                        </NavLink>
+                    }
+                </Authorized>
+            </AuthorizeView>
+            <AuthorizeView Roles="Boardmember">
+                <Authorized>
                     <NavLink class="nav-link" @onclick="()=>expandSubNav = !expandSubNav">
                         <span class="oi oi-list-rich" aria-hidden="true"></span> Admin Tools
                     </NavLink>
@@ -53,6 +66,8 @@
     private bool collapseNavMenu = true;
 
     private bool expandSubNav = false;
+
+    private bool expandMemberNav = false;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 

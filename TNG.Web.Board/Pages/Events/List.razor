@@ -1,0 +1,8 @@
+﻿@page "/events/"
+
+<ul>
+@foreach(var calendarEvent in GetUpcomingEvents())
+{
+    <li>@($"{calendarEvent.Summary}, happening on {calendarEvent.Start.DateTime:MM/dd/yyyy} at {calendarEvent.Start.DateTime:hh:mm tt}")</li>
+}
+</ul>
