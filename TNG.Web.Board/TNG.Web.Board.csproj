@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-TNG.Web.Board-ecf69355-791d-4f86-9ade-8bdbe0bf046a</UserSecretsId>
+	<ContainerImageName>tng-www</ContainerImageName>
+	<ContainerImageTag>1.0.5</ContainerImageTag>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,6 +21,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Build.Containers" Version="0.3.2" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.3" />
+	<ContainerPort Include="8080" Type="tcp" />
   </ItemGroup>
 
 </Project>
