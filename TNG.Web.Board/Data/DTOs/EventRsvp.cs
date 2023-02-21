@@ -24,6 +24,10 @@ namespace TNG.Web.Board.Data.DTOs
         [Required]
         public EventRsvpStatus Status { get; set; }
 
+        public bool? Attended { get; set; }
+        public bool? Approved { get; set; }
+        public bool? Paid { get; set; }
+
         public virtual Member Member { get; set; }
     }
 }
