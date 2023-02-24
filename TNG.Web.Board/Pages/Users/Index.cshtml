@@ -6,12 +6,13 @@
 
 @{
     Layout = "_Layout";
+    var users = UserManager.Users;
 }
 
 <h3>Users</h3>
 <div class="row">
     <div class="col-md-12">
-        @if (UserManager.Users?.Any() ?? false)
+        @if (users?.Any() ?? false)
         {
             <form id="delete" method="post"></form>
             <table class="table-md table-bordered col-1 w-100">
@@ -34,7 +35,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var userRec in UserManager.Users)
+                    @foreach (var userRec in users)
                     {
                         <tr class="d-table-row my-0">
                             <td>
