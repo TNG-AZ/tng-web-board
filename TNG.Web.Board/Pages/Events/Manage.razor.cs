@@ -91,22 +91,22 @@ namespace TNG.Web.Board.Pages.Events
                 _ => "table-success"
             };
 
-        private void TogglePaid(EventRsvp rsvp)
+        private async Task TogglePaid(EventRsvp rsvp)
         {
             rsvp.Paid = !(rsvp?.Paid ?? false);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             StateHasChanged();
         }
-        private void ToggleAttended(EventRsvp rsvp)
+        private async Task ToggleAttended(EventRsvp rsvp)
         {
             rsvp.Attended = !(rsvp?.Attended ?? false);
-            context.SaveChanges(); 
+            await context.SaveChangesAsync();
             StateHasChanged();
         }
-        private void ToggleApproved(EventRsvp rsvp)
+        private async Task ToggleApproved(EventRsvp rsvp)
         {
             rsvp.Approved = !(rsvp?.Approved ?? false);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             StateHasChanged();
         }
     }
