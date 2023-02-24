@@ -31,13 +31,13 @@
                     <td>
                         <CollapsibleCard CardHeaderTitle="Actions">
                             <CardBody>
-                                <button type="button" @onclick=@(async () => ToggleApproved(rsvp))>
+                                <button type="button" @onclick=@(async () => await ToggleApproved(rsvp))>
                                     @(rsvp.Approved ?? false ? "Undo Approval" : "Approve")
                                 </button><br/>
-                                <button type="button" @onclick=@(async () => TogglePaid(rsvp))>
+                                <button type="button" @onclick=@(async () => await TogglePaid(rsvp))>
                                     @(rsvp.Paid ?? false ? "Undo Payment" : "Mark as Paid")
                                 </button><br/>
-                                <button type="button" @onclick=@(async () => ToggleAttended(rsvp))>
+                                <button type="button" @onclick=@(async () => await ToggleAttended(rsvp))>
                                     @(rsvp.Attended ?? false ? "Undo Check-In" : "Mark as Here")
                                 </button>
                             </CardBody>
