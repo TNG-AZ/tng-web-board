@@ -27,13 +27,14 @@ namespace TNG.Web.Board.Pages.Events
         private Event CalendarEvent
             => _event ??= google.Calendar.Events.Get(configuration["CalendarId"], eventId).Execute();
 
+        private List<EventRsvp>? _eventRsvp { get; set; }
         private IEnumerable<EventRsvp> Rsvps
-            => context.EventRsvps
+            => _eventRsvp ??= context.EventRsvps
                 .Include(e => e.Member)
                 .Include(e => e.Member.Suspensions)
                 .Include(e => e.Member.Orientations)
                 .Include(e => e.Member.Payments)
-                .Where(e => e.EventId == eventId);
+                .Where(e => e.EventId == eventId).ToList();
 
         private enum IssuesStatus
         {
