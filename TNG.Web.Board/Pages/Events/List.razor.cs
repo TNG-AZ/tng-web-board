@@ -56,42 +56,44 @@ namespace TNG.Web.Board.Pages.Events
             .Where(e => e.Start?.DateTime is not null && e.Start.DateTime >= DateTime.Now.AddDays(-2) && e.Start.DateTime < DateTime.Now.AddMonths(1))
             .OrderBy(e => e.Start.DateTime);
 
-        private async void RsvpDelete(string eventId)
-        {
-            var rsvp = await context.EventRsvps.FirstOrDefaultAsync(r => r.MemberId == Member!.Id && eventId == r.EventId);
-            if (rsvp is null)
-                return;
 
-            context.EventRsvps.Remove(rsvp);
-            await context.SaveChangesAsync();
+        private async Task RsvpDelete(string eventId)
+        {
+            try
+            {
+                var rsvp = await context.EventRsvps.FirstOrDefaultAsync(r => r.MemberId == Member!.Id && eventId == r.EventId);
+                if (rsvp is null)
+                    return;
+
+                context.EventRsvps.Remove(rsvp);
+                await context.SaveChangesAsync();
+            }
+            catch { }
             StateHasChanged();
         }
 
-        private async void RsvpGoing(string eventId)
+        private async Task RsvpChange(string eventId, EventRsvpStatus status)
         {
-            var rsvp = await context.EventRsvps.FirstOrDefaultAsync(r => r.MemberId == Member!.Id && eventId == r.EventId)
-                ?? new() { EventId = eventId, MemberId = Member!.Id, Status = EventRsvpStatus.Going};
-            if (rsvp.Id == default)
-                context.Add(rsvp);
-            else
-                rsvp.Status = EventRsvpStatus.Going;
+            try
+            {
+                var rsvp = await context.EventRsvps.FirstOrDefaultAsync(r => r.MemberId == Member!.Id && eventId == r.EventId)
+                ?? new() { EventId = eventId, MemberId = Member!.Id, Status = EventRsvpStatus.Going };
+                if (rsvp.Id == default)
+                    context.Add(rsvp);
+                else
+                    rsvp.Status = status;
 
-            await context.SaveChangesAsync();
+                await context.SaveChangesAsync();
+            }
+            catch { }
             StateHasChanged();
         }
 
-        private async void RsvpMaybeGoing(string eventId)
-        {
-            var rsvp = await context.EventRsvps.FirstOrDefaultAsync(r => r.MemberId == Member!.Id && eventId == r.EventId)
-                ?? new() { EventId = eventId, MemberId = Member!.Id, Status = EventRsvpStatus.MaybeGoing };
-            if (rsvp.Id == default)
-                context.Add(rsvp);
-            else
-                rsvp.Status = EventRsvpStatus.MaybeGoing;
+        private async Task RsvpGoing(string eventId)
+            => await RsvpChange(eventId, EventRsvpStatus.Going);
 
-            await context.SaveChangesAsync();
-            StateHasChanged();
-        }
+        private async Task RsvpMaybeGoing(string eventId)
+            => await RsvpChange(eventId, EventRsvpStatus.MaybeGoing);
 
         private string GetRsvpMemberList(string eventId, EventRsvpStatus status)
             => string.Join(", ", context.EventRsvps?.Where(e => e.EventId == eventId && e.Status == status)

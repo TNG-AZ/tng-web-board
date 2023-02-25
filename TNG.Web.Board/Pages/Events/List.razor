@@ -20,9 +20,9 @@
         <div class="card">
         <div class="card-header">
             <form class="form-inline">
-                    <button type="button" @onclick=@(() => RsvpDelete(calendarEvent.Id)) class="btn @(rsvp is null ? rsvpClasses["NA"][0] : rsvpClasses["NA"][1])">N/A</button>
-                    <button type="button" @onclick=@(() => RsvpGoing(calendarEvent.Id)) class="btn @(rsvp is not null && rsvp == EventRsvpStatus.Going ? rsvpClasses["Going"][0] : rsvpClasses["Going"][1])">Going</button>
-                    <button type="button" @onclick=@(() => RsvpMaybeGoing(calendarEvent.Id)) class="btn @(rsvp is not null && rsvp == EventRsvpStatus.MaybeGoing ? rsvpClasses["MaybeGoing"][0] : rsvpClasses["MaybeGoing"][1])">Maybe Going</button>
+                    <button type="button" @onclick=@(async () => await RsvpDelete(calendarEvent.Id)) class="btn @(rsvp is null ? rsvpClasses["NA"][0] : rsvpClasses["NA"][1])">N/A</button>
+                    <button type="button" @onclick=@(async () => await RsvpGoing(calendarEvent.Id)) class="btn @(rsvp is not null && rsvp == EventRsvpStatus.Going ? rsvpClasses["Going"][0] : rsvpClasses["Going"][1])">Going</button>
+                    <button type="button" @onclick=@(async () => await RsvpMaybeGoing(calendarEvent.Id)) class="btn @(rsvp is not null && rsvp == EventRsvpStatus.MaybeGoing ? rsvpClasses["MaybeGoing"][0] : rsvpClasses["MaybeGoing"][1])">Maybe Going</button>
                     <AuthorizeView Roles="Boardmember">
                         <Authorized>
                             <button type="button" @onclick=@(() => navigation.NavigateTo($"/events/manage/{calendarEvent.Id}")) class="btn">Manage RSVP</button>
