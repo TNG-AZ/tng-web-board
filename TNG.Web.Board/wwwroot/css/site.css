@@ -189,3 +189,10 @@ a, .btn-link {
 #hero .icon-box:hover {
     transform: scale(1.08);
 }
+
+.badge .close {
+    margin-left: .25rem;
+    color: inherit;
+    font-size: 100%;
+    text-shadow: 0 1px 0 rgba(#000, .5);
+}

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TNG.Web.Board.Data;
 
@@ -11,9 +12,11 @@ using TNG.Web.Board.Data;
 namespace TNG.Web.Board.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230226055803_memberFetishes")]
+    partial class memberFetishes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -270,7 +273,7 @@ namespace TNG.Web.Board.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Fetishes");
+                    b.ToTable("Fetish");
                 });
 
             modelBuilder.Entity("TNG.Web.Board.Data.DTOs.Member", b =>
@@ -337,7 +340,7 @@ namespace TNG.Web.Board.Data.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.ToTable("MembersFetishes");
+                    b.ToTable("MemberFetish");
                 });
 
             modelBuilder.Entity("TNG.Web.Board.Data.DTOs.MembershipNote", b =>
