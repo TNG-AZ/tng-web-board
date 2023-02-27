@@ -70,6 +70,9 @@ namespace TNG.Web.Board.Pages.Fetishes
                 }
                 _context.Add(new MemberFetish { MemberId = Member.Id, FetishId = fetish.Id, Role = NewFetishRole, WillingToTeach = NewFetishWillingToTeach });
                 await _context.SaveChangesAsync();
+
+                NewFetishName = string.Empty;
+                NewFetishWillingToTeach = false;
                 StateHasChanged();
             }
         }
