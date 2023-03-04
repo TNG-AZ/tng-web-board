@@ -33,6 +33,7 @@ namespace TNG.Web.Board.Pages.Membership
             .ThenInclude(n => n.Tag)
             .Include(m => m.Payments)
             .Include(m => m.Orientations)
+            .Include(m => m.MemberDiscords)
             .FirstOrDefault(m => m.Id == memberId) ?? new();
 
         private Member? _member { get; set; }
@@ -241,6 +242,31 @@ namespace TNG.Web.Board.Pages.Membership
                 await JsRuntime.InvokeVoidAsync("alert", "Successfully deleted");
                 navigation.NavigateTo("/members/");
             }
+        }
+
+        private long? NewDiscordId { get; set; }
+
+        private async Task AddDiscordId()
+        {
+            if (!NewDiscordId.HasValue)
+                return;
+            try
+            {
+                context.Add(new MemberDiscordIntegration() {  MemberId = Member.Id, DiscordId = NewDiscordId.Value });
+                await context.SaveChangesAsync();
+                NewDiscordId = null;
+                StateHasChanged();
+            }
+            finally
+            {
+            }
+        }
+
+        private async Task UnlinkDiscord(Guid linkId)
+        {
+            context.Remove(context.MembersDiscordIntegrations.First(d => d.Id == linkId));
+            await context.SaveChangesAsync();
+            StateHasChanged();
         }
     }
 }

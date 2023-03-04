@@ -23,5 +23,6 @@ namespace TNG.Web.Board.Data
         public virtual DbSet<EventRsvp> EventRsvps { get; set; }
         public virtual DbSet<Fetish> Fetishes { get; set;}
         public virtual DbSet<MemberFetish> MembersFetishes { get; set; }
+        public virtual DbSet<MemberDiscordIntegration> MembersDiscordIntegrations { get; set;}
     }
 }

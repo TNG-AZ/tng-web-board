@@ -38,5 +38,6 @@ namespace TNG.Web.Board.Data.DTOs
         public virtual List<MembershipOrientation> Orientations { get; set; }
         public virtual List<EventRsvp> Events { get; set; }
         public virtual List<MemberFetish> MemberFetishes { get; set; }
+        public virtual List<MemberDiscordIntegration> MemberDiscords { get; set; }
     }
 }

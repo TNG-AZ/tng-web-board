@@ -30,6 +30,19 @@
             <option value="2">Honorary (by board approval only)</option>
         </select>
     </div>
+    @if (Member.Id != default)
+    {
+        <div class="form-group">
+            <label>Discord Member ID</label><input type="number" @bind=@NewDiscordId /><button type="button" @onclick=@(async () => await AddDiscordId())>Add</button>
+            <br/>
+            <span>Currently linked Discord Ids</span>
+            @foreach (var discord in Member.MemberDiscords)
+            {
+                <span class="badge badge-pill badge-secondary">@discord.DiscordId<button type="button" class="close" data-dismiss="alert" aria-label="Close" @onclick=@(async () => await UnlinkDiscord(discord.Id))><span aria-hidden="true">&times;</span></button></span>
+            }
+        </div>
+    }
+    
 
     <br/>
 
