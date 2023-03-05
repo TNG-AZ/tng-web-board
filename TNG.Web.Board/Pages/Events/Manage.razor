@@ -1,11 +1,60 @@
 ﻿@page "/events/manage/{eventId}"
 @using TNG.Web.Board.Data.DTOs;
 @using TNG.Web.Board.Utilities;
+@using Blazored.TextEditor
 @{
     var startTime = CalendarEvent.Start.DateTime.ToAZTime();
 }
 <h3 class="card-title"><a href="@CalendarEvent.HtmlLink">@CalendarEvent.Summary</a></h3>
 <h5>@($"Happening on {startTime:MM/dd/yyyy} at {startTime:hh:mm tt}")</h5>
+
+<CollapsibleCard CardHeaderTitle="Email">
+    <CardBody>
+        <input type="radio" name="emailList" value="@EmailListEnum.All" checked="@(EmailList?.Equals(EmailListEnum.All))" @onchange="EmailListOnChange" />
+        <label>All</label>
+        <br/>
+        <input type="radio" name="emailList" value="@EmailListEnum.GoodStanding" checked="@(EmailList?.Equals(EmailListEnum.GoodStanding))" @onchange="EmailListOnChange" />
+        <label>Members in Good Standing</label>
+        <br />
+        <input type="radio" name="emailList" value="@EmailListEnum.ApprovedAndPaid" checked="@(EmailList?.Equals(EmailListEnum.ApprovedAndPaid))" @onchange="EmailListOnChange" />
+        <label>Approved and Paid Members</label>
+        <br />
+        <label>Subject:</label><input type="text" @bind=@EmailSubject>
+        
+        <BlazoredTextEditor @ref="@QuillHtml">
+            <ToolbarContent>
+                <select class="ql-header">
+                    <option selected=""></option>
+                    <option value="1"></option>
+                    <option value="2"></option>
+                    <option value="3"></option>
+                    <option value="4"></option>
+                    <option value="5"></option>
+                </select>
+                <span class="ql-formats">
+                    <button class="ql-bold"></button>
+                    <button class="ql-italic"></button>
+                    <button class="ql-underline"></button>
+                    <button class="ql-strike"></button>
+                </span>
+                <span class="ql-formats">
+                    <select class="ql-color"></select>
+                    <select class="ql-background"></select>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-list" value="ordered"></button>
+                    <button class="ql-list" value="bullet"></button>
+                </span>
+                <span class="ql-formats">
+                    <button class="ql-link"></button>
+                </span>
+            </ToolbarContent>
+            <EditorContent>
+            </EditorContent>
+        </BlazoredTextEditor>
+        <button type="button" @onclick=@(async () => await SendEmailToList())>Send Email</button>
+    </CardBody>
+</CollapsibleCard>
 
 <div class="table-responsive">
     <table class="table">

@@ -1,7 +1,9 @@
-﻿using Google.Apis.Calendar.v3.Data;
+﻿using Blazored.TextEditor;
+using Google.Apis.Calendar.v3.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 using TNG.Web.Board.Services;
@@ -48,7 +50,7 @@ namespace TNG.Web.Board.Pages.Events
             public List<string> Issues { get; set; } = new();
         }
 
-        private MembershipIssues GetMembershipIssues(Member member)
+        private static MembershipIssues GetMembershipIssues(Member member)
         {
             var status = new MembershipIssues();
 
@@ -109,6 +111,50 @@ namespace TNG.Web.Board.Pages.Events
             rsvp.Approved = !(rsvp?.Approved ?? false);
             await context.SaveChangesAsync();
             StateHasChanged();
+        }
+
+        private enum EmailListEnum
+        {
+            All,
+            GoodStanding,
+            ApprovedAndPaid
+        }
+
+        BlazoredTextEditor QuillHtml;
+
+        private EmailListEnum? EmailList { get; set; }
+
+        private string? EmailSubject { get; set; }
+
+        private void EmailListOnChange(ChangeEventArgs args)
+        {
+            EmailList = Enum.TryParse<EmailListEnum>(args.Value?.ToString(), out var value) ? value : null;
+        }
+
+        private async Task SendEmailToList()
+        {
+            if (EmailList is not null && Rsvps.Any())
+            {
+                var members = EmailList switch
+                {
+                    EmailListEnum.All => Rsvps.Select(r => r.Member),
+                    EmailListEnum.ApprovedAndPaid => Rsvps.Where(r => (r.Approved ?? false) && (r.Paid ?? false)).Select(r => r.Member),
+                    EmailListEnum.GoodStanding => Rsvps.Select(r => r.Member).Where(m => GetMembershipIssues(m).Status == null),
+                    _ => Enumerable.Empty<Member>()
+                };
+
+                if (members.Any())
+                {
+                    var emails = members.Select(m => m.EmailAddress);
+                    var content = await QuillHtml.GetHTML();
+                    await google.EmailListAsync(emails, EmailSubject ?? "New message about an event you are attending", content);
+
+                    EmailList = null;
+                    EmailSubject = null;
+                    await QuillHtml.LoadHTMLContent("Message has been sent");
+                    StateHasChanged();
+                }
+            }
         }
     }
 }

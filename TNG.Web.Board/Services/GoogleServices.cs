@@ -41,14 +41,17 @@ namespace TNG.Web.Board.Services
         private static string GetEmailRaw(string toEmail, string subject, string body)
             => Base64UrlEncoder.Encode($"To: {toEmail}\r\nSubject: {subject}\r\nContent-Type: text/html;charset=utf-8\r\n\r\n{body}");
 
-        public Task SendEmailAsync(string email, string subject, string htmlMessage)
+        private static string GetEmailBccRaw(string toEmail, string subject, string body)
+            => Base64UrlEncoder.Encode($"Bcc: {toEmail}\r\nSubject: {subject}\r\nContent-Type: text/html;charset=utf-8\r\n\r\n{body}");
+
+        public async  Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            try
-            {
-                Gmail.Users.Messages.Send(new Message { Raw = GetEmailRaw(email, subject, htmlMessage) }, "me").Execute();
-            }
-            catch { }
-            return Task.CompletedTask;
+            Gmail.Users.Messages.Send(new Message { Raw = GetEmailRaw(email, subject, htmlMessage) }, "me").Execute();
+        }
+
+        public async Task EmailListAsync(IEnumerable<string> emails, string subject, string body)
+        {
+            Gmail.Users.Messages.Send(new Message { Raw = GetEmailBccRaw(string.Join(", ", emails), subject, body) }, "me").Execute();
         }
     }
 }
