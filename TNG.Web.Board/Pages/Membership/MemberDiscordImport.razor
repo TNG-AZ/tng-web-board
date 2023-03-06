@@ -1,0 +1,14 @@
+﻿@page "/members/import/discord"
+
+<h3>Member Import</h3>
+
+<label>Separator: </label>
+<input type="text" @bind="ImportSeparator" />
+<br />
+<label>File to import:</label>
+<InputFile OnChange="@LoadFile" />
+@if ((FailedCommits??0) > 0 || (SuccessfulCommits??0) > 0)
+{
+    <p>Successful: @SuccessfulCommits</p><br/>
+    <p>Failed: @FailedCommits</p><br/>
+}
