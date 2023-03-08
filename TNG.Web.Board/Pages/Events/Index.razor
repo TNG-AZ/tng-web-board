@@ -34,7 +34,7 @@
     </div>
     <div class="card-body">
         <h5>@($"Happening on {startTime:MM/dd/yyyy} at {startTime:hh:mm tt}")</h5>
-        <p class="card-text">@StringTools.RemoveHtml(description)</p>
+        <p class="card-text">@((MarkupString)description)</p>
         @if (!string.IsNullOrEmpty(going))
         {
             <p>Going: @going</p>
