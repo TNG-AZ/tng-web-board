@@ -1,0 +1,47 @@
+﻿@page "/events/{eventId}"
+@using TNG.Web.Board.Data.DTOs;
+@using TNG.Web.Board.Utilities;
+@{
+    var rsvpClasses = new Dictionary<string, List<string>>
+    {
+        {"NA", new() { "btn-primary", "btn-outline-primary" } },
+        {"Going", new() { "btn-success", "btn-outline-success" } },
+        {"MaybeGoing", new() { "btn-secondary", "btn-outline-secondary" }}
+    };
+
+    var rsvp = Member?.Events?.FirstOrDefault(e => e.EventId == CalendarEvent.Id)?.Status;
+    var going = GetRsvpMemberList(CalendarEvent.Id, EventRsvpStatus.Going) ?? string.Empty;
+    var maybe = GetRsvpMemberList(CalendarEvent.Id, EventRsvpStatus.MaybeGoing) ?? string.Empty;
+    var startTime = CalendarEvent.Start.DateTime.ToAZTime();
+    var description = CalendarEvent.Description;
+}
+
+<h1>@CalendarEvent.Summary</h1>
+<a href="/about">For more information about TNG COVID-19 policies, please see ABOUT page.</a>
+<br/>
+<div class="card">
+    <div class="card-header">
+        <form class="form-inline">
+            <button type="button" @onclick=@(async () => await RsvpDelete(CalendarEvent.Id)) class="btn @(rsvp is null ? rsvpClasses["NA"][0] : rsvpClasses["NA"][1])">N/A</button>
+            <button type="button" @onclick=@(async () => await RsvpGoing(CalendarEvent.Id)) class="btn @(rsvp is not null && rsvp == EventRsvpStatus.Going ? rsvpClasses["Going"][0] : rsvpClasses["Going"][1])">Going</button>
+            <button type="button" @onclick=@(async () => await RsvpMaybeGoing(CalendarEvent.Id)) class="btn @(rsvp is not null && rsvp == EventRsvpStatus.MaybeGoing ? rsvpClasses["MaybeGoing"][0] : rsvpClasses["MaybeGoing"][1])">Maybe Going</button>
+            <AuthorizeView Roles="Boardmember">
+                <Authorized>
+                    <button type="button" @onclick=@(() => navigation.NavigateTo($"/events/manage/{CalendarEvent.Id}")) class="btn">Manage RSVP</button>
+                </Authorized>
+            </AuthorizeView>
+        </form>
+    </div>
+    <div class="card-body">
+        <h5>@($"Happening on {startTime:MM/dd/yyyy} at {startTime:hh:mm tt}")</h5>
+        <p class="card-text">@StringTools.RemoveHtml(description)</p>
+        @if (!string.IsNullOrEmpty(going))
+        {
+            <p>Going: @going</p>
+        }
+        @if (!string.IsNullOrEmpty(maybe))
+        {
+            <p>Maybe Going: @maybe</p>
+        }
+    </div>
+</div>

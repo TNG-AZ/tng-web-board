@@ -32,7 +32,7 @@
             </form>
         </div>
         <div class="card-body">
-            <h3 class="card-title"><a href="@calendarEvent.HtmlLink">@calendarEvent.Summary</a></h3>
+            <h3 class="card-title"><a href="@($"/events/{calendarEvent.Id}")">@calendarEvent.Summary</a></h3>
                 <h5>@($"Happening on {startTime:MM/dd/yyyy} at {startTime:hh:mm tt}")</h5>
             <p class="card-text">@StringTools.RemoveHtml(description.Substring(0, Math.Min(description.Length, 300)))@(description.Length > 100 ? "..." : string.Empty)</p>
             @if (!string.IsNullOrEmpty(going))

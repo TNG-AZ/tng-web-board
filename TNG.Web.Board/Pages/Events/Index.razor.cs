@@ -1,9 +1,6 @@
 ﻿using Google.Apis.Calendar.v3.Data;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using System.Dynamic;
-using System.Runtime.CompilerServices;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 using TNG.Web.Board.Services;
@@ -11,8 +8,11 @@ using TNG.Web.Board.Utilities;
 
 namespace TNG.Web.Board.Pages.Events
 {
-    public partial class List
+    public partial class Index
     {
+        [Parameter]
+        public string? eventId { get; set; }
+
 #nullable disable
         [Inject]
         private ApplicationDbContext context { get; set; }
@@ -39,14 +39,21 @@ namespace TNG.Web.Board.Pages.Events
         private string CalendarId
             => Configuration["CalendarId"] ?? throw new ArgumentNullException(nameof(CalendarId));
 
-        private Google.Apis.Calendar.v3.Data.Events GetEvents()
-            => Google.Calendar.Events.List(CalendarId).Execute();
-
-        private IEnumerable<Event> GetUpcomingEvents()
-            => GetEvents().Items
-            .Where(e => e.Start?.DateTime is not null && e.Start.DateTime >= DateTime.Now.AddDays(-2) && e.Start.DateTime < DateTime.Now.AddMonths(1))
-            .OrderBy(e => e.Start.DateTime);
-
+        private Event? _calendarEvent { get; set; }
+        private Event? CalendarEvent
+        {
+            get
+            {
+                if (_calendarEvent is not null)
+                    return _calendarEvent;
+                if (string.IsNullOrEmpty(eventId))
+                {
+                    navigation.NavigateTo("/calendar/");
+                    return default;
+                }
+                return _calendarEvent ??= Google.Calendar.Events.Get(CalendarId, eventId).Execute();
+            }
+        }
 
         private async Task RsvpDelete(string eventId)
         {

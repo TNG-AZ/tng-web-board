@@ -19,13 +19,16 @@
             <NavLink class="nav-link" href="/calendar" Match="NavLinkMatch.All">
                 <span class="oi oi-calendar" aria-hidden="true"></span> Calendar
             </NavLink>
-            <NavLink class="nav-link" href="mailto:tng.az.board@gmail.com">
+            <NavLink class="nav-link" href="/events" Match="NavLinkMatch.All">
+                <span class="oi oi-calendar" aria-hidden="true"> </span>RSVP
+            </NavLink>
+            <NavLink class="nav-link" href="mailto:tng.az.board@gmail.com" Match="NavLinkMatch.All">
                 <span class="oi oi-envelope-closed" aria-hidden="true"></span>Contact Us
             </NavLink>
-            <NavLink class="nav-link" href="/members/new">
+            <NavLink class="nav-link" href="/members/new" Match="NavLinkMatch.All">
                 <span class="oi oi-plus" aria-hidden="true"></span>New Member Form
             </NavLink>
-            <NavLink class="nav-link" href="https://tng-az.github.io/">
+            <NavLink class="nav-link" href="https://tng-az.github.io/" Match="NavLinkMatch.All">
                 <span class="oi oi-pencil" aria-hidden="true"></span>Art Site
             </NavLink>
             <AuthorizeView>
@@ -35,9 +38,6 @@
                     </NavLink>
                     @if (expandMemberNav)
                     {
-                        <NavLink class="nav-link" href="/events" Match="NavLinkMatch.All">
-                            <span class="oi oi-calendar" aria-hidden="true"> </span>RSVP
-                        </NavLink>
                         <NavLink class="nav-link" href="/fetishes/manage" Match="NavLinkMatch.All">
                             <span class="bi bi-arrow-through-heart-fill" aria-hidden="true"> </span>Fetishes
                         </NavLink>
@@ -54,13 +54,13 @@
                         <NavLink class="nav-link" href="/members" Match="NavLinkMatch.All">
                             View Members
                         </NavLink>
-                        <NavLink class="nav-link" href="/members/edit">
+                        <NavLink class="nav-link" href="/members/edit" Match="NavLinkMatch.All">
                             Add Member
                         </NavLink>
-                        <NavLink class="nav-link" href="/members/import">
+                        <NavLink class="nav-link" href="/members/import" Match="NavLinkMatch.All">
                             Import Member CSV
                         </NavLink>
-                        <NavLink class="nav-link" href="/members/import/discord">
+                        <NavLink class="nav-link" href="/members/import/discord" Match="NavLinkMatch.All">
                             Import Disord CSV
                         </NavLink>
                     }

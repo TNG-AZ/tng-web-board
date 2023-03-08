@@ -35,10 +35,13 @@ namespace TNG.Web.Board.Pages.Fetishes
         }
 
         private Member? GetMember()
-            => _context.Members
+        {
+            var name = auth.GetIdentity().Result?.Name ?? string.Empty;
+            return _context.Members
                 .Include(m => m.MemberFetishes)
                 .ThenInclude(mf => mf.Fetish)
-                .FirstOrDefault(m => EF.Functions.Like(m.EmailAddress, auth.GetIdentity().Result.Name ?? string.Empty));
+                .FirstOrDefault(m => EF.Functions.Like(m.EmailAddress, name));
+        } 
 
         private List<Fetish>? _fetishes { get; set; }
         private List<Fetish> Fetishes
