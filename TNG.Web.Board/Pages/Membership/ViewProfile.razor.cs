@@ -4,9 +4,11 @@ using TNG.Web.Board.Data.DTOs;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Utilities;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TNG.Web.Board.Pages.Membership
 {
+    [Authorize]
     public partial class ViewProfile
     {
         [Parameter]
