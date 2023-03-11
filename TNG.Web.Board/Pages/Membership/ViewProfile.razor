@@ -1,8 +1,12 @@
 ﻿@page "/members/view/{memberId:guid?}"
 
+@if (UserMember is null)
+{
+    navigation.NavigateTo("/members/new");
+}
 @if(!EnableEdit || !EditSceneNameToggle)
 {
-    <h3>@ViewMember.SceneName</h3>
+    <h3>@ViewMember?.SceneName</h3>
 }
 else
 {
@@ -12,7 +16,7 @@ else
 
 @if(EnableEdit & !EditSceneNameToggle)
 {
-    <button type="button" @onclick=@(() => { NewSceneName = UserMember.SceneName; EditSceneNameToggle = !EditSceneNameToggle;})>Edit scene name</button>
+    <button type="button" @onclick=@(() => { NewSceneName = UserMember?.SceneName; EditSceneNameToggle = !EditSceneNameToggle;})>Edit scene name</button>
 }
 <h4>About</h4>
 <p>TODO - implement about sections</p>
@@ -44,7 +48,7 @@ else
     </EditForm>
 }
 
-@foreach (var fetish in ViewMember.MemberFetishes)
+@foreach (var fetish in ViewMember?.MemberFetishes)
 {
     <span class="badge badge-pill badge-secondary">@fetish.Fetish.Name@(!string.IsNullOrEmpty(fetish.Role?.ToString()) ? $" ({fetish.Role.ToString()})" : string.Empty)@(fetish.WillingToTeach ?? false ? " (Willing to teach)" : string.Empty)
     @if (EnableEdit)
