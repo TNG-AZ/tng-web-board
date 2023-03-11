@@ -40,11 +40,16 @@ namespace TNG.Web.Board.Pages.Events
             => Configuration["CalendarId"] ?? throw new ArgumentNullException(nameof(CalendarId));
 
         private Google.Apis.Calendar.v3.Data.Events GetEvents()
-            => Google.Calendar.Events.List(CalendarId).Execute();
+        {
+            var request = Google.Calendar.Events.List(CalendarId);
+            request.SingleEvents = true;
+            request.TimeMin = DateTime.Now.AddDays(-2);
+            request.TimeMax = DateTime.Now.AddMonths(1);
+            return request.Execute();
+        }
 
         private IEnumerable<Event> GetUpcomingEvents()
             => GetEvents().Items
-            .Where(e => e.Start?.DateTime is not null && e.Start.DateTime >= DateTime.Now.AddDays(-2) && e.Start.DateTime < DateTime.Now.AddMonths(1))
             .OrderBy(e => e.Start.DateTime);
 
 
