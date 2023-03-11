@@ -13,6 +13,13 @@
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
+            <AuthorizeView>
+                <Authorized>
+                    <NavLink class="nav-link" href="/members/view/" Match="NavLinkMatch.All">
+                        <span class="bi bi-person-circle" aria-hidden="true"></span>My Profile
+                    </NavLink>
+                </Authorized>
+            </AuthorizeView>
             <NavLink class="nav-link" href="/about" Match="NavLinkMatch.All">
                 <span class="bi bi-book" aria-hidden="true"></span> About
             </NavLink>
@@ -31,19 +38,6 @@
             <NavLink class="nav-link" href="https://tng-az.github.io/" Match="NavLinkMatch.All">
                 <span class="oi oi-pencil" aria-hidden="true"></span>Art Site
             </NavLink>
-            <AuthorizeView>
-                <Authorized>
-                    <NavLink class="nav-link" @onclick="()=>expandMemberNav = !expandMemberNav">
-                        <span class="oi oi-list-rich" aria-hidden="true"></span>My Profile
-                    </NavLink>
-                    @if (expandMemberNav)
-                    {
-                        <NavLink class="nav-link" href="/fetishes/manage" Match="NavLinkMatch.All">
-                            <span class="bi bi-arrow-through-heart-fill" aria-hidden="true"> </span>Fetishes
-                        </NavLink>
-                    }
-                </Authorized>
-            </AuthorizeView>
             <AuthorizeView Roles="Boardmember">
                 <Authorized>
                     <NavLink class="nav-link" @onclick="()=>expandSubNav = !expandSubNav">
