@@ -28,7 +28,7 @@ namespace TNG.Web.Board.Pages.Membership
             //date is ~18 years or more from today in MST timezone
             var eligibileAge = DateTime.Now.ToAZTime().AddYears(-18);
 
-            return d.Date >= eligibileAge.Date;
+            return d.Date <= eligibileAge.Date;
         }
     }
 
