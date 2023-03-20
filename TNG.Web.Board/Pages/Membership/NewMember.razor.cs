@@ -15,7 +15,7 @@ namespace TNG.Web.Board.Pages.Membership
         {
             DateTime d = Convert.ToDateTime(value);
             //date is equal to today in MST timezone
-            return d.Date == TimeZoneInfo.ConvertTime(DateTime.Today, TimeZoneInfo.FindSystemTimeZoneById("US Mountain Standard Time")).Date;
+            return d.Date == DateTime.Now.ToAZTime().Date;
 
         }
     }
@@ -26,15 +26,9 @@ namespace TNG.Web.Board.Pages.Membership
         {
             DateTime d = Convert.ToDateTime(value);
             //date is ~18 years or more from today in MST timezone
-            var today = TimeZoneInfo.ConvertTime(DateTime.Today, TimeZoneInfo.FindSystemTimeZoneById("US Mountain Standard Time"));
-            var eligibileAge = today.AddYears(-18);
+            var eligibileAge = DateTime.Now.ToAZTime().AddYears(-18);
 
-            if ((d.Year < eligibileAge.Year)
-                || (d.Year == eligibileAge.Year && d.Month < eligibileAge.Month)
-                || (d.Year == eligibileAge.Year && d.Month == eligibileAge.Month && d.Day <= eligibileAge.Day))
-                return true;
-            return false;
-
+            return d.Date >= eligibileAge.Date;
         }
     }
 
