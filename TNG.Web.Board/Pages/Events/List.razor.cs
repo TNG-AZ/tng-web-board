@@ -89,7 +89,7 @@ namespace TNG.Web.Board.Pages.Events
             try
             {
                 var rsvp = await context.EventRsvps.FirstOrDefaultAsync(r => r.MemberId == Member!.Id && eventId == r.EventId)
-                ?? new() { EventId = eventId, MemberId = Member!.Id, Status = EventRsvpStatus.Going };
+                ?? new() { EventId = eventId, MemberId = Member!.Id, Status = status };
                 if (rsvp.Id == default)
                     context.Add(rsvp);
                 else
