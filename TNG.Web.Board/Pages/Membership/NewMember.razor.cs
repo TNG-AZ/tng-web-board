@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.JSInterop;
 using System.ComponentModel.DataAnnotations;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
@@ -55,12 +56,14 @@ namespace TNG.Web.Board.Pages.Membership
     {
 #nullable disable
         [Inject]
-        private ApplicationDbContext _context { get; set; }
+        private ApplicationDbContext context { get; set; }
 
         [Inject]
         private NavigationManager navigation { get; set; }
         [Inject]
         private AuthUtilities auth { get; set; }
+        [Inject]
+        private IJSRuntime jSRuntime { get; set; }
 #nullable enable
 
         private NewMemberForm formModel = new();
@@ -68,9 +71,15 @@ namespace TNG.Web.Board.Pages.Membership
 
         protected async void SubmitNewMemberForm()
         {
+            if (formModel.Email is not null && context.Members.Any(m => EF.Functions.Like(m.EmailAddress, formModel.Email)))
+            {
+                ErrorMessage = "Membership form already submitted for this user";
+                await jSRuntime.InvokeVoidAsync("scrollToTop");
+                return;
+            }
             try
             {
-                await _context.Members.AddAsync(new Member()
+                await context.Members.AddAsync(new Member()
                 {
                     LegalName = formModel.LegalName,
                     SceneName = formModel.SceneName,
@@ -78,7 +87,7 @@ namespace TNG.Web.Board.Pages.Membership
                     EmailAddress = formModel.Email,
                     MemberType = formModel.MemberType,
                 });
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             finally
             {
