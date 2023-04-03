@@ -3,7 +3,7 @@
 
 <h3>New Member Form</h3>
 @{
-    var userEmail = formModel.Email = auth.GetIdentity().Result?.Name;
+    var userEmail = auth.GetIdentity().Result?.Name;
     if (!string.IsNullOrEmpty(userEmail))
     {
         if (context.Members.Any(m => EF.Functions.Like(m.EmailAddress, userEmail)))
