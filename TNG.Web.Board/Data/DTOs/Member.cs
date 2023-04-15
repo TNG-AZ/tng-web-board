@@ -31,6 +31,7 @@ namespace TNG.Web.Board.Data.DTOs
         [Required]
         public string EmailAddress { get; set; }
         public bool ReceivedProofOfCovid19Vaccination { get; set; } = false;
+        public bool PrivateProfile { get; set; } = false;
 
         public virtual List<MembershipPayment> Payments { get; set; }
         public virtual List<MembershipSuspension> Suspensions { get; set; }

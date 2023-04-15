@@ -19,6 +19,10 @@ else
     <button type="button" @onclick=@(() => { NewSceneName = UserMember?.SceneName; EditSceneNameToggle = !EditSceneNameToggle;})>Edit scene name</button>
 }
 <h4>About</h4>
+@if (EnableEdit)
+{
+    <button type="button" @onclick="@(async () => await TogglePrivate())">@TogglePrivateButtonText</button>
+}
 <p>TODO - implement about sections</p>
 <h4>Fetishes</h4>
 @if (EnableEdit)

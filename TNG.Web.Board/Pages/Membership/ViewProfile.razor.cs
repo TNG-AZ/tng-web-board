@@ -133,5 +133,16 @@ namespace TNG.Web.Board.Pages.Membership
             await context.SaveChangesAsync();
             StateHasChanged();
         }
+
+        private string TogglePrivateButtonText
+            => ViewMember.PrivateProfile
+                ? "Make Profile Public"
+                : "Make Profile Private";
+
+        private async Task TogglePrivate()
+        {
+            ViewMember.PrivateProfile = !ViewMember.PrivateProfile;
+            await context.SaveChangesAsync();
+        }
     }
 }

@@ -14,8 +14,9 @@
 @foreach(var calendarEvent in GetUpcomingEvents())
 {
         var rsvp = Member?.Events?.FirstOrDefault(e => e.EventId == calendarEvent.Id)?.Status;
-        var going = GetRsvpMemberList(calendarEvent.Id, EventRsvpStatus.Going) ?? string.Empty;
-        var maybe = GetRsvpMemberList(calendarEvent.Id, EventRsvpStatus.MaybeGoing) ?? string.Empty;
+        var isBoard = authStateProvider.GetAuthenticationStateAsync().Result.User.IsInRole("Boardmember");
+        var going = GetRsvpMemberList(calendarEvent.Id, EventRsvpStatus.Going, isBoard) ?? string.Empty;
+        var maybe = GetRsvpMemberList(calendarEvent.Id, EventRsvpStatus.MaybeGoing, isBoard) ?? string.Empty;
         var startTime = calendarEvent.Start.DateTime.ToAZTime();
         var description = calendarEvent.Description;
         <div class="card">

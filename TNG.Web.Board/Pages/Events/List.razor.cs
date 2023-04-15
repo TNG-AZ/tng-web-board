@@ -1,6 +1,7 @@
 ﻿using Google.Apis.Calendar.v3.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Dynamic;
 using System.Runtime.CompilerServices;
@@ -24,6 +25,8 @@ namespace TNG.Web.Board.Pages.Events
         private NavigationManager navigation { get; set; }
         [Inject]
         private AuthUtilities auth { get; set; }
+        [Inject]
+        private AuthenticationStateProvider authStateProvider { get; set; }
 #nullable enable
 
         private Member? _member { get; set; }
@@ -107,8 +110,17 @@ namespace TNG.Web.Board.Pages.Events
         private async Task RsvpMaybeGoing(string eventId)
             => await RsvpChange(eventId, EventRsvpStatus.MaybeGoing);
 
-        private string GetRsvpMemberList(string eventId, EventRsvpStatus status)
-            => string.Join(", ", context.EventRsvps?.Where(e => e.EventId == eventId && e.Status == status)
+        private string GetRsvpMemberList(string eventId, EventRsvpStatus status, bool isBoardMember)
+        {
+            var viewableMemberIds = new List<Guid>();
+            if (Member is not null)
+            {
+                viewableMemberIds.Add(Member.Id);
+            }
+            return string.Join(", ", context.EventRsvps?.Where(e =>
+                    e.EventId == eventId && e.Status == status
+                    && (viewableMemberIds.Contains(e.MemberId) || !e.Member.PrivateProfile || isBoardMember))
                 .Select(e => e.Member.SceneName) ?? Enumerable.Empty<string>());
+        }
     }
 }
