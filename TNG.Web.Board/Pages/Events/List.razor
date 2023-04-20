@@ -18,7 +18,7 @@
         var going = GetRsvpMemberList(calendarEvent.Id, EventRsvpStatus.Going, isBoard) ?? string.Empty;
         var maybe = GetRsvpMemberList(calendarEvent.Id, EventRsvpStatus.MaybeGoing, isBoard) ?? string.Empty;
         var startTime = calendarEvent.Start.DateTime.ToAZTime();
-        var description = calendarEvent.Description;
+        var description = calendarEvent.Description ?? string.Empty;
         <div class="card">
         <div class="card-header">
             <form class="form-inline">
