@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Blazored.Modal" Version="7.1.0" />
     <PackageReference Include="Blazored.TextEditor" Version="1.0.8" />
     <PackageReference Include="Google.Apis.Calendar.v3" Version="1.59.0.2759" />
     <PackageReference Include="Google.Apis.Gmail.v1" Version="1.60.0.2958" />
@@ -23,6 +24,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Build.Containers" Version="0.3.2" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.3" />
+    <PackageReference Include="Square" Version="26.0.0" />
 	<ContainerPort Include="8080" Type="tcp" />
   </ItemGroup>
 

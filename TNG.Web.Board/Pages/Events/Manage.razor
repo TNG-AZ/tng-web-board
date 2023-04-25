@@ -89,6 +89,7 @@
                                 <button type="button" @onclick=@(async () => await ToggleAttended(rsvp))>
                                     @(rsvp.Attended ?? false ? "Undo Check-In" : "Mark as Here")
                                 </button>
+                                <button type="button" @onclick=@(() => ShowInvoiceModal(rsvp.Member))>Send Event Invoice</button>
                             </CardBody>
                         </CollapsibleCard>
                     </td>

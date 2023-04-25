@@ -1,3 +1,4 @@
+using Blazored.Modal;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -43,8 +44,10 @@ builder.Services.AddRazorPages(options =>
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 builder.Services.AddSingleton<GoogleServices>();
+builder.Services.AddSingleton<SquareService>();
 builder.Services.AddScoped<AuthUtilities>();
 builder.Services.AddSingleton<IEmailSender, GoogleServices>();
+builder.Services.AddBlazoredModal();
 
 var app = builder.Build();
 

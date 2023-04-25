@@ -4,6 +4,12 @@
 {
     navigation.NavigateTo("/members/new");
 }
+<AuthorizeView Roles="Boardmember">
+    <Authorized>
+        <button @onclick="@(async () => await GenerateDuesInvoice())">Send Dues Invoice</button>
+    </Authorized>
+</AuthorizeView>
+
 @if(!EnableEdit || !EditSceneNameToggle)
 {
     <h3>@ViewMember?.SceneName</h3>

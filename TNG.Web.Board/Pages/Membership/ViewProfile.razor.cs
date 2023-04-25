@@ -5,6 +5,9 @@ using TNG.Web.Board.Data;
 using TNG.Web.Board.Utilities;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using TNG.Web.Board.Services;
+using Square.Models;
 
 namespace TNG.Web.Board.Pages.Membership
 {
@@ -23,6 +26,8 @@ namespace TNG.Web.Board.Pages.Membership
 
         [Inject]
         private NavigationManager navigation { get; set; }
+        [Inject]
+        private SquareService square { get; set; }
 #nullable enable
 
         private Member? GetMember()
@@ -67,6 +72,18 @@ namespace TNG.Web.Board.Pages.Membership
         {
             var name = auth.GetIdentity().Result?.Name ?? string.Empty;
             return context.Members?.Include(m => m.MemberFetishes).ThenInclude(mf => mf.Fetish).FirstOrDefault(m => EF.Functions.Like(m.EmailAddress, name));
+        }
+
+        private async Task GenerateDuesInvoice()
+        {
+            var duesCents = 1200;
+            var lineItems = new List<OrderLineItem>
+            {
+                new(quantity:"1", name:"Membership Dues", basePriceMoney:new(duesCents, "USD"))
+            };
+            var email = ViewMember!.EmailAddress;
+            var dueDate = DateTime.Now.ToAZTime().AddDays(7);
+            await square.CreateInvoice(email, lineItems, dueDate);
         }
 
         private bool EnableEdit

@@ -1,4 +1,6 @@
-﻿using Blazored.TextEditor;
+﻿using Blazored.Modal;
+using Blazored.Modal.Services;
+using Blazored.TextEditor;
 using Google.Apis.Calendar.v3.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
@@ -23,6 +25,8 @@ namespace TNG.Web.Board.Pages.Events
         private GoogleServices google { get; set; }
         [Inject]
         private IConfiguration configuration { get; set; }
+        [CascadingParameter] 
+        private IModalService Modal { get; set; }
 #nullable enable
 
         private Event? _event { get; set; }
@@ -155,6 +159,18 @@ namespace TNG.Web.Board.Pages.Events
                     StateHasChanged();
                 }
             }
+        }
+
+        private void ShowInvoiceModal(Member invoiceMember)
+        {
+            var parameters = new ModalParameters()
+                .Add(nameof(EventInvoice.InvoiceMember), invoiceMember)
+                .Add(nameof(EventInvoice.CalendarEvent), CalendarEvent);
+            var options = new ModalOptions()
+            {
+                Class = "blazored-modal size-large"
+            };
+            Modal.Show<EventInvoice>("Create Invoice", parameters, options);
         }
     }
 }
