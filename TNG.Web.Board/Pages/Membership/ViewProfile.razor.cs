@@ -5,9 +5,9 @@ using TNG.Web.Board.Data;
 using TNG.Web.Board.Utilities;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using TNG.Web.Board.Services;
 using Square.Models;
+using System.Configuration;
 
 namespace TNG.Web.Board.Pages.Membership
 {
@@ -15,7 +15,11 @@ namespace TNG.Web.Board.Pages.Membership
     public partial class ViewProfile
     {
         [Parameter]
-        public Guid? memberId { get; set; }
+        public string? profileUrl { get; set; }
+
+        private Guid? _memberId { get; set; }
+        private Guid? MemberId
+            => _memberId ??= Guid.TryParse(profileUrl, out var tmp) ? tmp : null;
 
 
 #nullable disable
@@ -34,16 +38,18 @@ namespace TNG.Web.Board.Pages.Membership
             => context.Members?
             .Include(m => m.MemberFetishes)
             .ThenInclude(mf => mf.Fetish)
-            .FirstOrDefault(m => m.Id == memberId);
+            .FirstOrDefault(m => m.Id == MemberId || EF.Functions.Like(m.ProfileUrl, profileUrl));
 
         private Member? _viewMember { get; set; }
         private Member? ViewMember
         {
             get
             {
-                if (memberId is null && (_viewMember ??= GetUserMember()) is not null)
+                if (_viewMember is not null)
                     return _viewMember;
-                if (memberId is not null && (_viewMember ??= GetMember()) is not null)
+                if (profileUrl is null && (_viewMember ??= GetUserMember()) is not null)
+                    return _viewMember;
+                if (profileUrl is not null && (_viewMember ??= GetMember()) is not null)
                     return _viewMember;
                 else
                 {
@@ -89,23 +95,7 @@ namespace TNG.Web.Board.Pages.Membership
         private bool EnableEdit
             => ViewMember?.Id == UserMember?.Id;
 
-        private bool EditSceneNameToggle;
-
-        private string? NewSceneName { get; set; }
-
-        private async Task SubmitSceneName()
-        {
-            if (!string.IsNullOrEmpty(NewSceneName))
-            {
-                UserMember!.SceneName = NewSceneName;
-                context.Update(UserMember);
-                await context.SaveChangesAsync();
-
-                EditSceneNameToggle = false;
-
-                StateHasChanged();
-            }
-        }
+        private bool EditToggle;
 
         private List<Fetish>? _fetishes { get; set; }
         private List<Fetish> Fetishes
@@ -160,6 +150,19 @@ namespace TNG.Web.Board.Pages.Membership
         {
             ViewMember.PrivateProfile = !ViewMember.PrivateProfile;
             await context.SaveChangesAsync();
+        }
+
+        private async Task SaveUser()
+        {
+            if (string.IsNullOrWhiteSpace(UserMember!.SceneName))
+                return;
+            if (string.IsNullOrEmpty(UserMember!.ProfileUrl?.Trim()))
+                UserMember.ProfileUrl = null;
+            if (string.IsNullOrEmpty(UserMember!.AboutMe?.Trim()))
+                UserMember.AboutMe = null;
+            await context.SaveChangesAsync();
+            EditToggle = false;
+            StateHasChanged();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿@page "/members/view/{memberId:guid?}"
+﻿@page "/members/view/"
+@page "/members/view/{profileUrl}"
 
 @if (UserMember is null)
 {
@@ -10,26 +11,37 @@
     </Authorized>
 </AuthorizeView>
 
-@if(!EnableEdit || !EditSceneNameToggle)
+@if(EnableEdit)
 {
-    <h3>@ViewMember?.SceneName</h3>
+    <button type="button" @onclick=@(() => {EditToggle = !EditToggle;})>Toggle Edit Mode</button>
+}
+@if (EditToggle)
+{
+    <br/><button type="button" @onclick="@(async () => await TogglePrivate())">@TogglePrivateButtonText</button>
+    <EditForm Model="UserMember" OnValidSubmit=@(async () => await SaveUser()) class="col-lg-12 col-xl-6">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form-group">
+            <label>Scene Name:</label>
+            <input type="text" class="form-control" required="required" @bind="UserMember!.SceneName" />
+        </div>
+        <div class="form-group">
+            <label>Profile URL (/members/view/yourURLHere)</label>
+            <input type="text" class="form-control" @bind="UserMember!.ProfileUrl" />
+        </div>
+        <div class="form-group">
+            <label>About Me:</label><br/>
+            <textarea @bind="UserMember!.AboutMe" />
+        </div>
+        <button type="submit">Submit</button>
+    </EditForm>
 }
 else
 {
-    <label>Scene Name: </label><input type="text" @bind=@NewSceneName /><br>
-    <button type="button" @onclick="@(async () => await SubmitSceneName())">Submit</button>
+    <h3>@ViewMember?.SceneName</h3>
+    <h4>About</h4>
+    <p>@ViewMember?.AboutMe</p>
 }
-
-@if(EnableEdit & !EditSceneNameToggle)
-{
-    <button type="button" @onclick=@(() => { NewSceneName = UserMember?.SceneName; EditSceneNameToggle = !EditSceneNameToggle;})>Edit scene name</button>
-}
-<h4>About</h4>
-@if (EnableEdit)
-{
-    <button type="button" @onclick="@(async () => await TogglePrivate())">@TogglePrivateButtonText</button>
-}
-<p>TODO - implement about sections</p>
 <h4>Fetishes</h4>
 @if (EnableEdit)
 {

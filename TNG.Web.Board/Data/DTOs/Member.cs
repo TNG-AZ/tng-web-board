@@ -1,6 +1,7 @@
 ﻿#nullable disable
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Net;
 
 namespace TNG.Web.Board.Data.DTOs
@@ -32,6 +33,12 @@ namespace TNG.Web.Board.Data.DTOs
         public string EmailAddress { get; set; }
         public bool ReceivedProofOfCovid19Vaccination { get; set; } = false;
         public bool PrivateProfile { get; set; } = false;
+#nullable enable
+        [Column(TypeName = "NVARCHAR(20)")]
+        public string? ProfileUrl { get; set; }
+        [Column(TypeName = "TEXT")]
+        public string? AboutMe { get; set; }
+#nullable disable
 
         public virtual List<MembershipPayment> Payments { get; set; }
         public virtual List<MembershipSuspension> Suspensions { get; set; }
