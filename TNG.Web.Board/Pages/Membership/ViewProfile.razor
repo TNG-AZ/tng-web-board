@@ -7,7 +7,8 @@
 }
 <AuthorizeView Roles="Boardmember">
     <Authorized>
-        <button @onclick="@(async () => await GenerateDuesInvoice())">Send Dues Invoice</button>
+        <button @onclick="@(async () => await GenerateDuesInvoice())">Send Dues Invoice</button><br/>
+        <a href="/members/edit/@ViewMember?.Id">Manage DB Entry</a><br />
     </Authorized>
 </AuthorizeView>
 
