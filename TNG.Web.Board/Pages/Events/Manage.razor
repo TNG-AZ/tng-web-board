@@ -99,7 +99,9 @@
                             </CardBody>
                         </CollapsibleCard>
                     </td>
-                    <td class=@GetRsvpStatus(rsvp, issues)>@rsvp.Member.SceneName</td>
+                    <td class=@GetRsvpStatus(rsvp, issues)>
+                        <a href="/members/view/@rsvp.Member.Id">@rsvp.Member.SceneName</a>
+                    </td>
                     <td>@rsvp.Status.ToString()@(rsvp.Member.MemberType == MemberType.Guest ? " - Guest" : string.Empty)</td>
                     <td>@rsvp.Notes</td>
                     <td class="@(!approved ? "table-warning" : string.Empty)">@(approved.ToString())</td>
