@@ -160,6 +160,9 @@ namespace TNG.Web.Board.Pages.Membership
                 UserMember.ProfileUrl = null;
             if (string.IsNullOrEmpty(UserMember!.AboutMe?.Trim()))
                 UserMember.AboutMe = null;
+            if (UserMember!.ProfileUrl is not null && context.Members.Any(m => m.Id != UserMember.Id && EF.Functions.Like(m.ProfileUrl, UserMember.ProfileUrl)))
+                return;
+
             await context.SaveChangesAsync();
             EditToggle = false;
             StateHasChanged();

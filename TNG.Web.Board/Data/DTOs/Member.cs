@@ -34,6 +34,7 @@ namespace TNG.Web.Board.Data.DTOs
         public bool ReceivedProofOfCovid19Vaccination { get; set; } = false;
         public bool PrivateProfile { get; set; } = false;
 #nullable enable
+        [StringLength(20)]
         [Column(TypeName = "NVARCHAR(20)")]
         public string? ProfileUrl { get; set; }
         [Column(TypeName = "TEXT")]
