@@ -172,5 +172,16 @@ namespace TNG.Web.Board.Pages.Events
             };
             Modal.Show<EventInvoice>("Create Invoice", parameters, options);
         }
+
+        private void ShowNotesModal(EventRsvp rsvp)
+        {
+            var parameters = new ModalParameters()
+                .Add(nameof(RSVPNotes.Rsvp), rsvp);
+            var options = new ModalOptions()
+            {
+                Class = "blazored-modal size-large"
+            };
+            Modal.Show<RSVPNotes>("Add Notes", parameters, options);
+        }
     }
 }

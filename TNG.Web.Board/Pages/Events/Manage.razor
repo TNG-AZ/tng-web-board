@@ -63,6 +63,7 @@
                 <th>Actions</th>
                 <th>Scene Name</th>
                 <th>Status</th>
+                <th>Notes</th>
                 <th>Approval</th>
                 <th>Paid</th>
                 <th>Proof of vax received</th>
@@ -88,13 +89,19 @@
                                 </button><br/>
                                 <button type="button" @onclick=@(async () => await ToggleAttended(rsvp))>
                                     @(rsvp.Attended ?? false ? "Undo Check-In" : "Mark as Here")
-                                </button>
-                                <button type="button" @onclick=@(() => ShowInvoiceModal(rsvp.Member))>Send Event Invoice</button>
+                                </button><br />
+                                <button type="button" @onclick=@(() => ShowInvoiceModal(rsvp.Member))>
+                                    Send Event Invoice
+                                </button><br />
+                                <button type="button" @onclick=@(() => ShowNotesModal(rsvp))>
+                                    Manage Notes
+                                </button><br />
                             </CardBody>
                         </CollapsibleCard>
                     </td>
                     <td class=@GetRsvpStatus(rsvp, issues)>@rsvp.Member.SceneName</td>
                     <td>@rsvp.Status.ToString()@(rsvp.Member.MemberType == MemberType.Guest ? " - Guest" : string.Empty)</td>
+                    <td>@rsvp.Notes</td>
                     <td class="@(!approved ? "table-warning" : string.Empty)">@(approved.ToString())</td>
                     <td class="@(!paid ? "table-warning" : string.Empty)">@(paid.ToString())</td>
                     <td class="@(!hasVaxProof ? "table-warning" : string.Empty)">@(hasVaxProof.ToString())</td>

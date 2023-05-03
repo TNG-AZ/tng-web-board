@@ -30,6 +30,10 @@ namespace TNG.Web.Board.Data.DTOs
         public bool? Approved { get; set; }
         public bool? Paid { get; set; }
 
+#nullable enable
+        public string? Notes { get; set; }
+#nullable disable
+
         public virtual Member Member { get; set; }
     }
 }

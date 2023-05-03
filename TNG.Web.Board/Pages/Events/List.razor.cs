@@ -1,4 +1,6 @@
-﻿using Google.Apis.Calendar.v3.Data;
+﻿using Blazored.Modal;
+using Blazored.Modal.Services;
+using Google.Apis.Calendar.v3.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -7,6 +9,7 @@ using System.Dynamic;
 using System.Runtime.CompilerServices;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
+using TNG.Web.Board.Pages.Shared;
 using TNG.Web.Board.Services;
 using TNG.Web.Board.Utilities;
 
@@ -27,6 +30,8 @@ namespace TNG.Web.Board.Pages.Events
         private AuthUtilities auth { get; set; }
         [Inject]
         private AuthenticationStateProvider authStateProvider { get; set; }
+        [CascadingParameter]
+        private IModalService Modal { get; set; }
 #nullable enable
 
         private Member? _member { get; set; }
@@ -121,6 +126,17 @@ namespace TNG.Web.Board.Pages.Events
                     e.EventId == eventId && e.Status == status
                     && (viewableMemberIds.Contains(e.MemberId) || !e.Member.PrivateProfile || isBoardMember))
                 .Select(e => e.Member.SceneName) ?? Enumerable.Empty<string>());
+        }
+
+        private void ShowNotesModal(EventRsvp rsvp)
+        {
+            var parameters = new ModalParameters()
+                .Add(nameof(RSVPNotes.Rsvp), rsvp);
+            var options = new ModalOptions()
+            {
+                Class = "blazored-modal size-large"
+            };
+            Modal.Show<RSVPNotes>("Add Notes", parameters, options);
         }
     }
 }

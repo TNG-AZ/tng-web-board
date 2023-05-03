@@ -13,7 +13,8 @@
     <a href="/about">For more information about TNG COVID-19 policies, please see ABOUT page.</a>
 @foreach(var calendarEvent in GetUpcomingEvents())
 {
-        var rsvp = Member?.Events?.FirstOrDefault(e => e.EventId == calendarEvent.Id)?.Status;
+        var rsvp = Member?.Events?.FirstOrDefault(e => e.EventId == calendarEvent.Id);
+        var rsvpStatus = rsvp?.Status;
         var isBoard = authStateProvider.GetAuthenticationStateAsync().Result.User.IsInRole("Boardmember");
         var going = GetRsvpMemberList(calendarEvent.Id, EventRsvpStatus.Going, isBoard) ?? string.Empty;
         var maybe = GetRsvpMemberList(calendarEvent.Id, EventRsvpStatus.MaybeGoing, isBoard) ?? string.Empty;
@@ -22,9 +23,13 @@
         <div class="card">
         <div class="card-header">
             <form class="form-inline">
-                    <button type="button" @onclick=@(async () => await RsvpDelete(calendarEvent.Id)) class="btn @(rsvp is null ? rsvpClasses["NA"][0] : rsvpClasses["NA"][1])">N/A</button>
-                    <button type="button" @onclick=@(async () => await RsvpGoing(calendarEvent.Id)) class="btn @(rsvp is not null && rsvp == EventRsvpStatus.Going ? rsvpClasses["Going"][0] : rsvpClasses["Going"][1])">Going</button>
-                    <button type="button" @onclick=@(async () => await RsvpMaybeGoing(calendarEvent.Id)) class="btn @(rsvp is not null && rsvp == EventRsvpStatus.MaybeGoing ? rsvpClasses["MaybeGoing"][0] : rsvpClasses["MaybeGoing"][1])">Maybe Going</button>
+                    <button type="button" @onclick=@(async () => await RsvpDelete(calendarEvent.Id)) class="btn @(rsvpStatus is null ? rsvpClasses["NA"][0] : rsvpClasses["NA"][1])">N/A</button>
+                    <button type="button" @onclick=@(async () => await RsvpGoing(calendarEvent.Id)) class="btn @(rsvpStatus is not null && rsvpStatus == EventRsvpStatus.Going ? rsvpClasses["Going"][0] : rsvpClasses["Going"][1])">Going</button>
+                    <button type="button" @onclick=@(async () => await RsvpMaybeGoing(calendarEvent.Id)) class="btn @(rsvpStatus is not null && rsvpStatus == EventRsvpStatus.MaybeGoing ? rsvpClasses["MaybeGoing"][0] : rsvpClasses["MaybeGoing"][1])">Maybe Going</button>
+                    @if(rsvp is not null)
+                    {
+                        <button type="button" class="btn" @onclick=@(() => ShowNotesModal(rsvp))>Manage +1s</button>
+                    }
                     <AuthorizeView Roles="Boardmember">
                         <Authorized>
                             <button type="button" @onclick=@(() => navigation.NavigateTo($"/events/manage/{calendarEvent.Id}")) class="btn">Manage RSVP</button>
