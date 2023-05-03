@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using TNG.Web.Board.Services;
 using Square.Models;
 using System.Configuration;
+using Microsoft.JSInterop;
 
 namespace TNG.Web.Board.Pages.Membership
 {
@@ -32,6 +33,8 @@ namespace TNG.Web.Board.Pages.Membership
         private NavigationManager navigation { get; set; }
         [Inject]
         private SquareService square { get; set; }
+        [Inject]
+        private IJSRuntime js { get; set; }
 #nullable enable
 
         private Member? GetMember()
@@ -90,6 +93,7 @@ namespace TNG.Web.Board.Pages.Membership
             var email = ViewMember!.EmailAddress;
             var dueDate = DateTime.Now.ToAZTime().AddDays(7);
             await square.CreateInvoice(email, lineItems, dueDate);
+            await js.InvokeVoidAsync("alert", "Dues invoice has been sent");
         }
 
         private bool EnableEdit
