@@ -28,7 +28,7 @@
                     <button type="button" @onclick=@(async () => await RsvpMaybeGoing(calendarEvent.Id)) class="btn @(rsvpStatus is not null && rsvpStatus == EventRsvpStatus.MaybeGoing ? rsvpClasses["MaybeGoing"][0] : rsvpClasses["MaybeGoing"][1])">Maybe Going</button>
                     @if(rsvp is not null)
                     {
-                        <button type="button" class="btn" @onclick=@(() => ShowNotesModal(rsvp))>Manage +1s</button>
+                        <button type="button" class="btn btn-info" @onclick=@(() => ShowNotesModal(rsvp))>Manage +1s</button>
                     }
                     <AuthorizeView Roles="Boardmember">
                         <Authorized>

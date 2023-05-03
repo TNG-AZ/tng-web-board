@@ -23,6 +23,12 @@ namespace TNG.Web.Board.Pages.Events
         {
             try
             {
+                if (string.IsNullOrEmpty(Rsvp.Notes?.Trim()))
+                    Rsvp.Notes = null;
+
+                context.EventRsvps.Attach(Rsvp);
+                context.Entry(Rsvp).State = EntityState.Modified;
+
                 await context.SaveChangesAsync();
                 await BlazoredModal.CloseAsync();
             }
