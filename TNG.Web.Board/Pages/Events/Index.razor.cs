@@ -1,4 +1,6 @@
-﻿using Google.Apis.Calendar.v3.Data;
+﻿using Blazored.Modal;
+using Blazored.Modal.Services;
+using Google.Apis.Calendar.v3.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using TNG.Web.Board.Data;
@@ -24,6 +26,8 @@ namespace TNG.Web.Board.Pages.Events
         private NavigationManager navigation { get; set; }
         [Inject]
         private AuthUtilities auth { get; set; }
+        [CascadingParameter]
+        private IModalService Modal { get; set; }
 #nullable enable
 
         private Member? _member { get; set; }
@@ -112,5 +116,16 @@ namespace TNG.Web.Board.Pages.Events
         private string GetRsvpMemberList(string eventId, EventRsvpStatus status)
             => string.Join(", ", context.EventRsvps?.Where(e => e.EventId == eventId && e.Status == status)
                 .Select(e => e.Member.SceneName) ?? Enumerable.Empty<string>());
+
+        private void ShowNotesModal(EventRsvp rsvp)
+        {
+            var parameters = new ModalParameters()
+                .Add(nameof(RSVPNotes.Rsvp), rsvp);
+            var options = new ModalOptions()
+            {
+                Class = "blazored-modal size-large"
+            };
+            Modal.Show<RSVPNotes>("Add Notes", parameters, options);
+        }
     }
 }
