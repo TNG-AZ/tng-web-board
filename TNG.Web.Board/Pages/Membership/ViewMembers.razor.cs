@@ -56,12 +56,22 @@ namespace TNG.Web.Board.Pages.Membership
 
         }
 
+        private static DateStatusEnum GetDMTrainingStatus(DateTime date)
+        {
+            if (date < DateTime.Now.AddYears(-1))
+                return DateStatusEnum.Warning;
+            return DateStatusEnum.Good;
+        }
+
         private static readonly Dictionary<DateStatusEnum, string> DateStatusClasses 
             = new() {
                 { DateStatusEnum.Danger, "table-danger" },
                 { DateStatusEnum.Warning, "table-warning" },
                 { DateStatusEnum.Good, string.Empty }
             };
+
+        private static string GetDMTrainingClass(DateTime date)
+            => DateStatusClasses[GetDMTrainingStatus(date)];
 
         private static string GetDateClass(DateTime? date)
             => DateStatusClasses[GetDateStatus(date)];

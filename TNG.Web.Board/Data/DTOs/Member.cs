@@ -34,6 +34,7 @@ namespace TNG.Web.Board.Data.DTOs
         public string EmailAddress { get; set; }
         public bool ReceivedProofOfCovid19Vaccination { get; set; } = false;
         public bool PrivateProfile { get; set; } = false;
+        public DateTime? LastDMTrainingDate { get; set; }
 #nullable enable
         [StringLength(20)]
         [Column(TypeName = "NVARCHAR(20)")]

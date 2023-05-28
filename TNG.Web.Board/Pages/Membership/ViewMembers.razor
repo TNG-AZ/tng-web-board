@@ -29,6 +29,7 @@
       <th scope="col">COVID Vax Status</th>
       <th scope="col">Birthday</th>
       <th scope="col">Email<br/><input type="text" @bind="EmailFilter"/></th>
+      <th>DM Training Date</th>
       <th scope="col">Date Form Completed</th>
     </tr>
   </thead>
@@ -54,7 +55,8 @@
         <td class="@(member.ReceivedProofOfCovid19Vaccination ? string.Empty : "table-warning")">@(member.ReceivedProofOfCovid19Vaccination ? "Received" : "Unknown")</td>
         <td class="@(member.MemberType == MemberType.Member ? GetBirthdayClass(member.Birthday) : string.Empty)">@member.Birthday.ToString("MM/dd/yyyy")</td>
         <td>@member.EmailAddress</td>
-        <td>@(addedDate.HasValue ? addedDate.Value.ToString("yyyy-MM-dd") : string.Empty)</td>
+        <td class="@(member.LastDMTrainingDate.HasValue ? GetDMTrainingClass(member.LastDMTrainingDate.Value) : string.Empty)">@member.LastDMTrainingDate?.ToString("yyyy-MM-dd")</td>
+        <td>@addedDate?.ToString("yyyy-MM-dd")</td>
     </tr>
   }
   </tbody>

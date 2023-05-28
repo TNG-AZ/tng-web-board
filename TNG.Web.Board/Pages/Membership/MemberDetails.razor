@@ -30,6 +30,10 @@
             <option value="2">Honorary (by board approval only)</option>
         </select>
     </div>
+    <div class="form-group">
+        <label>Last DM Orientation</label>
+        <input type="date" class="form-control" @bind="Member.LastDMTrainingDate" />
+    </div>
     @if (Member.Id != default)
     {
         <div class="form-group">
