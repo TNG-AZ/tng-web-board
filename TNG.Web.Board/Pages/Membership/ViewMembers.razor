@@ -1,5 +1,6 @@
 ﻿@page "/members/"
 @using TNG.Web.Board.Data.DTOs;
+@using TNG.Web.Board.Utilities;
 
 <h3>Members</h3><a href="/members/edit"><i class="bi bi-person-plus"></i></a>
 
@@ -28,6 +29,7 @@
       <th scope="col">COVID Vax Status</th>
       <th scope="col">Birthday</th>
       <th scope="col">Email<br/><input type="text" @bind="EmailFilter"/></th>
+      <th scope="col">Date Form Completed</th>
     </tr>
   </thead>
   <tbody>
@@ -36,6 +38,9 @@
     var paidOnDate = member.Payments?.OrderByDescending(p => p.PaidOn).FirstOrDefault()?.PaidOn;
     var orientationOnDate = member.Orientations?.OrderByDescending(o => o.DateReceived).FirstOrDefault()?.DateReceived;
     var activeSuspension = member?.Suspensions?.OrderByDescending(s => s.EndDate ?? DateTime.MaxValue).FirstOrDefault(s => !s.EndDate.HasValue || s.EndDate >= DateTime.Now);
+    var addedDate = member!.AddedDate.HasValue ? DateTime.SpecifyKind(member.AddedDate.Value, DateTimeKind.Utc).ToAZTime()
+        : (DateTime?)null;
+
 
     <tr>
         <td><a href="@($"/members/edit/{member!.Id}")"><i class="bi bi-pen"/></a></td>
@@ -49,6 +54,7 @@
         <td class="@(member.ReceivedProofOfCovid19Vaccination ? string.Empty : "table-warning")">@(member.ReceivedProofOfCovid19Vaccination ? "Received" : "Unknown")</td>
         <td class="@(member.MemberType == MemberType.Member ? GetBirthdayClass(member.Birthday) : string.Empty)">@member.Birthday.ToString("MM/dd/yyyy")</td>
         <td>@member.EmailAddress</td>
+        <td>@(addedDate.HasValue ? addedDate.Value.ToString("yyyy-MM-dd") : string.Empty)</td>
     </tr>
   }
   </tbody>

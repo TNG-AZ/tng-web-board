@@ -19,6 +19,7 @@ namespace TNG.Web.Board.Data.DTOs
     {
         [Key]
         public Guid Id { get; set; }
+        public DateTime? AddedDate { get; set; } = DateTime.UtcNow;
         [Required]
         public MemberType MemberType { get; set; }
         [Required]
