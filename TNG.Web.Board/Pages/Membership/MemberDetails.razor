@@ -24,7 +24,7 @@
     </div>
     <div class="form-group">
         <label>Membership Type:</label>
-        <select required="required" class="form-control" @onchange="MembershipTypeChange">
+        <select required="required" class="form-control" @onchange="MembershipTypeChange" value="@((int)Member.MemberType)">
             <option value="0">Member</option>
             <option value="1">Guest</option>
             <option value="2">Honorary (by board approval only)</option>
