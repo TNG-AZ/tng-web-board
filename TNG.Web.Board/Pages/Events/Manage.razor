@@ -68,6 +68,7 @@
                 <th>Paid</th>
                 <th>Proof of vax received</th>
                 <th>Membership Issues</th>
+                <th>Timestamp</th>
             </tr>
         </thead>
         <tbody>
@@ -77,6 +78,8 @@
                 var approved = rsvp.Approved ?? false;
                 var paid = rsvp.Paid ?? false;
                 var hasVaxProof = rsvp.Member.ReceivedProofOfCovid19Vaccination;
+                var addedDate = rsvp!.AddedDate.HasValue ? DateTime.SpecifyKind(rsvp.AddedDate.Value, DateTimeKind.Utc).ToAZTime()
+                : (DateTime?)null;
                 <tr>
                     <td>
                         <CollapsibleCard CardHeaderTitle="Actions">
@@ -110,6 +113,9 @@
                     <td class="@(issues.Status switch { IssuesStatus.Danger => "table-danger", IssuesStatus.Warning => "table-warning", _ => string.Empty })">
                         @string.Join(" ", issues.Issues)
                     </td>
+                    <td>
+                        @(addedDate.HasValue ? $"{ addedDate.Value.ToString("yyyy-MM-dd")} {addedDate.Value.ToString("HH:mm")}" : string.Empty)
+                   </td>
                 </tr>
             }
         </tbody>
