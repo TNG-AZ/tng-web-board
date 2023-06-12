@@ -2,6 +2,7 @@
 using Blazored.Modal.Services;
 using Google.Apis.Calendar.v3.Data;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
@@ -26,6 +27,8 @@ namespace TNG.Web.Board.Pages.Events
         private NavigationManager navigation { get; set; }
         [Inject]
         private AuthUtilities auth { get; set; }
+        [Inject]
+        private AuthenticationStateProvider authStateProvider { get; set; }
         [CascadingParameter]
         private IModalService Modal { get; set; }
 #nullable enable
@@ -61,50 +64,66 @@ namespace TNG.Web.Board.Pages.Events
 
         private async Task RsvpDelete(string eventId)
         {
-            if (Member is null)
-            {
-                if (string.IsNullOrEmpty(auth.GetIdentity().Result?.Name))
-                    navigation.NavigateTo("/Identity/Account/Login", true);
-                else
-                    navigation.NavigateTo("/members/new");
-                return;
-            }
             try
             {
-                var rsvp = await context.EventRsvps.FirstOrDefaultAsync(r => r.MemberId == Member!.Id && eventId == r.EventId);
-                if (rsvp is null)
+                shouldRender = false;
+                if (Member is null)
+                {
+                    if (string.IsNullOrEmpty(auth.GetIdentity().Result?.Name))
+                        navigation.NavigateTo("/Identity/Account/Login", true);
+                    else
+                        navigation.NavigateTo("/members/new");
                     return;
+                }
+                try
+                {
+                    var rsvp = await context.EventRsvps.FirstOrDefaultAsync(r => r.MemberId == Member!.Id && eventId == r.EventId);
+                    if (rsvp is null)
+                        return;
 
-                context.EventRsvps.Remove(rsvp);
-                await context.SaveChangesAsync();
+                    context.EventRsvps.Remove(rsvp);
+                    await context.SaveChangesAsync();
+                }
+                catch { }
+                StateHasChanged();
             }
-            catch { }
-            StateHasChanged();
+            finally
+            {
+                shouldRender = true;
+            }
         }
 
         private async Task RsvpChange(string eventId, EventRsvpStatus status)
         {
-            if (Member is null)
-            {
-                if (string.IsNullOrEmpty(auth.GetIdentity().Result?.Name))
-                    navigation.NavigateTo("/Identity/Account/Login", true);
-                else
-                    navigation.NavigateTo("/members/new");
-                return;
-            }
             try
             {
-                var rsvp = await context.EventRsvps.FirstOrDefaultAsync(r => r.MemberId == Member!.Id && eventId == r.EventId)
-                ?? new() { EventId = eventId, MemberId = Member!.Id, Status = EventRsvpStatus.Going };
-                if (rsvp.Id == default)
-                    context.Add(rsvp);
-                else
-                    rsvp.Status = status;
+                shouldRender = false;
+                if (Member is null)
+                {
+                    if (string.IsNullOrEmpty(auth.GetIdentity().Result?.Name))
+                        navigation.NavigateTo("/Identity/Account/Login", true);
+                    else
+                        navigation.NavigateTo("/members/new");
+                    return;
+                }
+                try
+                {
+                    var rsvp = await context.EventRsvps.FirstOrDefaultAsync(r => r.MemberId == Member!.Id && eventId == r.EventId)
+                        ?? new() { EventId = eventId, MemberId = Member!.Id, Status = status };
+                    if (rsvp.Id == default)
+                        context.Add(rsvp);
+                    else
+                        rsvp.Status = status;
 
-                await context.SaveChangesAsync();
+                    await context.SaveChangesAsync();
+                }
+                catch { }
+                StateHasChanged();
             }
-            catch { }
-            StateHasChanged();
+            finally
+            {
+                shouldRender = true;
+            }
         }
 
         private async Task RsvpGoing(string eventId)
@@ -113,9 +132,18 @@ namespace TNG.Web.Board.Pages.Events
         private async Task RsvpMaybeGoing(string eventId)
             => await RsvpChange(eventId, EventRsvpStatus.MaybeGoing);
 
-        private string GetRsvpMemberList(string eventId, EventRsvpStatus status)
-            => string.Join(", ", context.EventRsvps?.Where(e => e.EventId == eventId && e.Status == status)
+        private string GetRsvpMemberList(string eventId, EventRsvpStatus status, bool isBoardMember)
+        {
+            var viewableMemberIds = new List<Guid>();
+            if (Member is not null)
+            {
+                viewableMemberIds.Add(Member.Id);
+            }
+            return string.Join(", ", context.EventRsvps?.Where(e =>
+                    e.EventId == eventId && e.Status == status
+                    && (viewableMemberIds.Contains(e.MemberId) || !e.Member.PrivateProfile || isBoardMember))
                 .Select(e => e.Member.SceneName) ?? Enumerable.Empty<string>());
+        }
 
         private void ShowNotesModal(EventRsvp rsvp)
         {
@@ -126,6 +154,13 @@ namespace TNG.Web.Board.Pages.Events
                 Class = "blazored-modal size-large"
             };
             Modal.Show<RSVPNotes>("Add Notes", parameters, options);
+        }
+
+        private bool shouldRender = true;
+
+        protected override bool ShouldRender()
+        {
+            return shouldRender;
         }
     }
 }

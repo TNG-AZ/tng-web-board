@@ -11,8 +11,9 @@
     
     var rsvp = Member?.Events?.FirstOrDefault(e => e.EventId == CalendarEvent.Id);
     var rsvpStatus = rsvp?.Status;
-    var going = GetRsvpMemberList(CalendarEvent.Id, EventRsvpStatus.Going) ?? string.Empty;
-    var maybe = GetRsvpMemberList(CalendarEvent.Id, EventRsvpStatus.MaybeGoing) ?? string.Empty;
+    var isBoard = authStateProvider.GetAuthenticationStateAsync().Result.User.IsInRole("Boardmember");
+    var going = GetRsvpMemberList(CalendarEvent.Id, EventRsvpStatus.Going, isBoard) ?? string.Empty;
+    var maybe = GetRsvpMemberList(CalendarEvent.Id, EventRsvpStatus.MaybeGoing, isBoard) ?? string.Empty;
     var startTime = CalendarEvent.Start.DateTime.ToAZTime();
     var description = CalendarEvent.Description;
 }
