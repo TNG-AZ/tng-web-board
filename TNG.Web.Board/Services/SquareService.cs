@@ -38,7 +38,7 @@ namespace TNG.Web.Board.Services
         public async Task<Customer> GetOrCreateCustomer(string customerEmail)
         {
             var customers = await client.CustomersApi.ListCustomersAsync();
-            var existing = customers.Customers.FirstOrDefault(c => c.EmailAddress.Equals(customerEmail, StringComparison.OrdinalIgnoreCase));
+            var existing = customers.Customers?.FirstOrDefault(c => c.EmailAddress.Equals(customerEmail, StringComparison.OrdinalIgnoreCase));
             return existing
                 ?? (await client.CustomersApi.CreateCustomerAsync(new(emailAddress: customerEmail))).Customer;
         }
