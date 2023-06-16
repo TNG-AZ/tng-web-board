@@ -45,7 +45,7 @@ namespace TNG.Web.Board.Services
 
         public async Task CreateInvoice(string email, IList<OrderLineItem> lineItems, DateTime paymentDueBy)
         {
-            var location = await GetOrCreateLocation("TNG AZ");
+            var location = await GetOrCreateLocation("The Next Generation - Arizona");
             var newOrder = new Order(
                 locationId: location.Id,
                 lineItems: lineItems);
