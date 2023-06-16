@@ -1,5 +1,4 @@
 ﻿using Blazored.Modal;
-using Google.Apis.Calendar.v3.Data;
 using Microsoft.AspNetCore.Components;
 using Square.Models;
 using TNG.Web.Board.Data.DTOs;
@@ -14,7 +13,7 @@ namespace TNG.Web.Board.Pages.Events
         [Parameter]
         public Member InvoiceMember { get; set; }
         [Parameter]
-        public Event CalendarEvent { get; set; }
+        public Google.Apis.Calendar.v3.Data.Event CalendarEvent { get; set; }
         [Inject]
         private SquareService square { get; set; }
         [CascadingParameter] 
