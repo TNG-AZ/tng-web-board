@@ -104,6 +104,8 @@
                     </td>
                     <td class=@GetRsvpStatus(rsvp, issues)>
                         <a href="/members/view/@rsvp.Member.Id">@rsvp.Member.SceneName</a>
+                        <br/>
+                        (@rsvp.Member.EmailAddress)
                     </td>
                     <td>@rsvp.Status.ToString()@(rsvp.Member.MemberType == MemberType.Guest ? " - Guest" : string.Empty)</td>
                     <td>@rsvp.Notes</td>
