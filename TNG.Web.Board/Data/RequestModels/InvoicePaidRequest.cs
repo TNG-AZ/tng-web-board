@@ -1,4 +1,6 @@
-﻿namespace TNG.Web.Board.Data.RequestModels
+﻿using System.Text.Json.Serialization;
+
+namespace TNG.Web.Board.Data.RequestModels
 {
     public class InvoicePaidRequest
     {
@@ -13,6 +15,7 @@
         {
             public string type { get; set; }
             public string id { get; set; }
+            [JsonPropertyName("object")]
             public Object _object { get; set; }
         }
 

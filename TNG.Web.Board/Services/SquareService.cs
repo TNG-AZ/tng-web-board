@@ -70,10 +70,19 @@ namespace TNG.Web.Board.Services
             await client.InvoicesApi.PublishInvoiceAsync(invoice.Invoice.Id, new(invoice.Invoice.Version!.Value));
         }
 
-        public static async Task<IResult> HandleInvoicePaid(ApplicationDbContext context, InvoicePaidRequest request)
+        public static async Task<IResult> HandleInvoicePaid(IConfiguration configuration, ApplicationDbContext context, InvoicePaidRequest request)
         {
             try
             {
+                var env = bool.TryParse(configuration["SquareAPI:ProductionEnabled"], out var enableProd) && enableProd
+                ? Square.Environment.Production
+                : Square.Environment.Sandbox;
+
+                var client = new SquareClient.Builder()
+               .Environment(env)
+               .AccessToken(configuration["SquareAPI:Token"])
+               .Build();
+
                 var orderId = request.data._object.invoice.order_id;
                 var order = client.OrdersApi.RetrieveOrder(orderId);
                 var metadata = order.Order.Metadata;
