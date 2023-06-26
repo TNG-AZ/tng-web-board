@@ -96,7 +96,7 @@
             {
                 var issues = GetMembershipIssues(rsvp.Member);
                 var approved = rsvp.Approved ?? false;
-                var paid = rsvp.Paid || rsvp.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate.HasValue);
+                var paid = (rsvp.Paid??false) || rsvp.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate.HasValue);
                 var hasVaxProof = rsvp.Member.ReceivedProofOfCovid19Vaccination;
                 var addedDate = rsvp!.AddedDate.HasValue ? DateTime.SpecifyKind(rsvp.AddedDate.Value, DateTimeKind.Utc).ToAZTime()
                 : (DateTime?)null;
