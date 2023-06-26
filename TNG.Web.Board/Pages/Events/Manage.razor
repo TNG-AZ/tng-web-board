@@ -131,7 +131,7 @@
                     <td>@rsvp.Notes</td>
                     <td class="@(!approved ? "table-warning" : string.Empty)">@(approved.ToString())</td>
                     <td class="@(!paid ? "table-warning" : string.Empty)">
-                        @if(rsvp.Paid)
+                        @if(rsvp.Paid??false)
                         {
                             <p>Paid</p>
                         }
