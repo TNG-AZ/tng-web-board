@@ -96,7 +96,7 @@
             {
                 var issues = GetMembershipIssues(rsvp.Member);
                 var approved = rsvp.Approved ?? false;
-                var paid = rsvp.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate.HasValue);
+                var paid = rsvp.Paid || rsvp.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate.HasValue);
                 var hasVaxProof = rsvp.Member.ReceivedProofOfCovid19Vaccination;
                 var addedDate = rsvp!.AddedDate.HasValue ? DateTime.SpecifyKind(rsvp.AddedDate.Value, DateTimeKind.Utc).ToAZTime()
                 : (DateTime?)null;
@@ -131,15 +131,17 @@
                     <td>@rsvp.Notes</td>
                     <td class="@(!approved ? "table-warning" : string.Empty)">@(approved.ToString())</td>
                     <td class="@(!paid ? "table-warning" : string.Empty)">
+                        @if(rsvp.Paid)
+                        {
+                            <p>Paid</p>
+                        }
                         @foreach(var invoice in rsvp.Member.Invoices.Where(i => i.EventId == eventId).OrderBy(i => i.SendOnDate))
                         {
                             <p>Invoice sent on @invoice.SendOnDate.ToAZTime().ToString("yyyy-MM-dd")</p>
                             @if(invoice.PaidOnDate.HasValue)
                             {
-                                <br />
                                 <p>Invoice paid on @invoice.PaidOnDate.ToAZTime().Value.ToString("yyyy-MM-dd")</p>
                             }
-                            <br />
                         }
 
                     </td>
