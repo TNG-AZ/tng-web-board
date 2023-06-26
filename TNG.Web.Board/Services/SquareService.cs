@@ -86,10 +86,8 @@ namespace TNG.Web.Board.Services
                     return Results.Ok();
                 }
             }
-            finally
-            {
-                return Results.Problem();
-            }
+            catch { }
+            return Results.Problem();
         }
     }
 }
