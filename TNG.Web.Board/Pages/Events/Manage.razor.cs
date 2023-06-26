@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 using TNG.Web.Board.Services;
@@ -40,7 +41,12 @@ namespace TNG.Web.Board.Pages.Events
                 .Include(e => e.Member.Suspensions)
                 .Include(e => e.Member.Orientations)
                 .Include(e => e.Member.Payments)
+                .Include(e => e.Member.Invoices)
                 .Where(e => e.EventId == eventId).ToList();
+
+        private EventFees? _eventFees { get; set; }
+        private EventFees? EventFees
+            => _eventFees ??= context.EventsFees.FirstOrDefault(f => f.EventId == eventId);
 
         private enum IssuesStatus
         {
@@ -165,7 +171,8 @@ namespace TNG.Web.Board.Pages.Events
         {
             var parameters = new ModalParameters()
                 .Add(nameof(EventInvoice.InvoiceMember), invoiceMember)
-                .Add(nameof(EventInvoice.CalendarEvent), CalendarEvent);
+                .Add(nameof(EventInvoice.CalendarEvent), CalendarEvent)
+                .Add(nameof(EventInvoice.Fees), EventFees ?? new() { MembershipDues = 12, GuestEntry = 10, MemberEntry = 8});
             var options = new ModalOptions()
             {
                 Class = "blazored-modal size-large"
@@ -182,6 +189,19 @@ namespace TNG.Web.Board.Pages.Events
                 Class = "blazored-modal size-large"
             };
             Modal.Show<RSVPNotes>("Add Notes", parameters, options);
+        }
+
+        private async Task CreateDefaultFees()
+        {
+            var fees = new EventFees()
+            {
+                EventId = eventId,
+                MemberEntry = 8,
+                GuestEntry = 10,
+                MembershipDues = 12
+            };
+            await context.EventsFees.AddAsync(fees);
+            await context.SaveChangesAsync();
         }
     }
 }

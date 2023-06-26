@@ -56,6 +56,26 @@
     </CardBody>
 </CollapsibleCard>
 
+<CollapsibleCard CardHeaderTitle="Manage Fees">
+    <CardBody>
+        @if(EventFees is null)
+        {
+            <button type="button" onclick=@(async () => await CreateDefaultFees())>Create Fees</button>
+        }
+        @if(EventFees is not null)
+        {
+            <label>Membership Dues:</label><input type="number" @bind=@EventFees.MembershipDues>
+            <br/>
+            <label>Event Entry - Memeber:</label><input type="number" @bind=@(EventFees.MemberEntry)>
+            <br/>
+            <label>Event Entry - Guest:</label><input type="number" @bind=@(EventFees.GuestEntry)>
+            <br/>
+            <button type="button" onclick=@(async () => await context.SaveChangesAsync())>Save</button>
+        }
+        
+    </CardBody>
+</CollapsibleCard>
+
 <div class="table-responsive">
     <table class="table">
         <thead>
@@ -76,7 +96,7 @@
             {
                 var issues = GetMembershipIssues(rsvp.Member);
                 var approved = rsvp.Approved ?? false;
-                var paid = rsvp.Paid ?? false;
+                var paid = rsvp.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate.HasValue);
                 var hasVaxProof = rsvp.Member.ReceivedProofOfCovid19Vaccination;
                 var addedDate = rsvp!.AddedDate.HasValue ? DateTime.SpecifyKind(rsvp.AddedDate.Value, DateTimeKind.Utc).ToAZTime()
                 : (DateTime?)null;
@@ -110,7 +130,19 @@
                     <td>@rsvp.Status.ToString()@(rsvp.Member.MemberType == MemberType.Guest ? " - Guest" : string.Empty)</td>
                     <td>@rsvp.Notes</td>
                     <td class="@(!approved ? "table-warning" : string.Empty)">@(approved.ToString())</td>
-                    <td class="@(!paid ? "table-warning" : string.Empty)">@(paid.ToString())</td>
+                    <td class="@(!paid ? "table-warning" : string.Empty)">
+                        @foreach(var invoice in rsvp.Member.Invoices.Where(i => i.EventId == eventId).OrderBy(i => i.SendOnDate))
+                        {
+                            <p>Invoice sent on @invoice.SendOnDate.ToAZTime().ToString("yyyy-MM-dd")</p>
+                            @if(invoice.PaidOnDate.HasValue)
+                            {
+                                <br />
+                                <p>Invoice paid on @invoice.PaidOnDate.ToAZTime().Value.ToString("yyyy-MM-dd")</p>
+                            }
+                            <br />
+                        }
+
+                    </td>
                     <td class="@(!hasVaxProof ? "table-warning" : string.Empty)">@(hasVaxProof.ToString())</td>
                     <td class="@(issues.Status switch { IssuesStatus.Danger => "table-danger", IssuesStatus.Warning => "table-warning", _ => string.Empty })">
                         @string.Join(" ", issues.Issues)

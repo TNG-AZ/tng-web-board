@@ -1,6 +1,8 @@
 ﻿using Blazored.Modal;
 using Microsoft.AspNetCore.Components;
 using Square.Models;
+using System.Runtime.CompilerServices;
+using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 using TNG.Web.Board.Services;
 using TNG.Web.Board.Utilities;
@@ -14,43 +16,62 @@ namespace TNG.Web.Board.Pages.Events
         public Member InvoiceMember { get; set; }
         [Parameter]
         public Google.Apis.Calendar.v3.Data.Event CalendarEvent { get; set; }
+        [Parameter]
+        public EventFees Fees { get; set; }
+        [Inject]
+        private ApplicationDbContext context { get; set; }
         [Inject]
         private SquareService square { get; set; }
-        [CascadingParameter] 
+        [CascadingParameter]
         BlazoredModalInstance BlazoredModal { get; set; }
 #nullable enable
-        private class InvoiceItem
-        {
-            public int Quantity { get; set; } = 0;
-            public string Name { get; set; } = string.Empty;
-            public long PricePerItem { get; set; } = 0;
-        }
 
-        private List<InvoiceItem> InvoiceItems { get; set; } = new();
-
+        private int MembershipDuesCount = 0;
+        private int PartyEntryMemberCount = 0;
+        private int PartyEntryGuestCount = 0;
         private DateTime DueDate { get; set; } = DateTime.Now.ToAZTime().AddDays(1);
 
-        private void AddInvoiceItem()
+        private const string DuesText = "Memership Dues";
+        private const string EntryMemberText = "Party Entry - Member";
+        private const string EntryGuestText = "Party Entry - Guest";
+
+        private IList<OrderLineItem> GenerateLineItems()
         {
-            InvoiceItems.Add(new());
+            var lineItems = new List<OrderLineItem>();
+            if (Math.Max(MembershipDuesCount, 0) > 0) 
+            {
+                lineItems.Add(new OrderLineItem(quantity: MembershipDuesCount.ToString(), name: DuesText, basePriceMoney: new((long)Fees.MembershipDues * 100, "USD")));
+            }
+            if (Math.Max(PartyEntryMemberCount, 0) > 0)
+            {
+                lineItems.Add(new OrderLineItem(quantity: PartyEntryMemberCount.ToString(), name: EntryMemberText, basePriceMoney: new((long)Fees.MemberEntry * 100, "USD")));
+            }
+            if (Math.Max(PartyEntryGuestCount, 0) > 0)
+            {
+                lineItems.Add(new OrderLineItem(quantity: PartyEntryGuestCount.ToString(), name: EntryGuestText, basePriceMoney: new((long)Fees.GuestEntry * 100, "USD")));
+            }
+            return lineItems;
         }
-        private void RemoveInvoiceItem(InvoiceItem item)
-        {
-            InvoiceItems.Remove(item);
-        }
+
 
         private async Task SubmitInvoce()
         {
-            if (!InvoiceItems.Any() || InvoiceItems.Any(i => i.Quantity <= 0 || i.PricePerItem <=0 || string.IsNullOrEmpty(i.Name)))
+            var lineItems = GenerateLineItems();
+            if (!lineItems.Any())
             {
                 return;
             }
             try
             {
+                var invoiceRef = new Data.DTOs.EventInvoice() { EventId = CalendarEvent.Id, MemberId = InvoiceMember.Id };
+                await context.EventsInvoices.AddAsync(invoiceRef);
+                await context.SaveChangesAsync();
+
                 await square.CreateInvoice(
-                InvoiceMember.EmailAddress,
-                InvoiceItems.Select(i => new OrderLineItem(quantity: i.Quantity.ToString(), name: i.Name, basePriceMoney: new(i.PricePerItem * 100, "USD"))).ToList(),
-                DueDate);
+                    InvoiceMember.EmailAddress,
+                    lineItems,
+                    DueDate,
+                    invoiceId: invoiceRef.Id);
 
                 await BlazoredModal.CloseAsync();
             }

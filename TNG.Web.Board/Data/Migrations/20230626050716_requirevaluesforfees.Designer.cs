@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TNG.Web.Board.Data;
 
@@ -11,9 +12,11 @@ using TNG.Web.Board.Data;
 namespace TNG.Web.Board.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230626050716_requirevaluesforfees")]
+    partial class requirevaluesforfees
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -246,32 +249,6 @@ namespace TNG.Web.Board.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("EventsFees");
-                });
-
-            modelBuilder.Entity("TNG.Web.Board.Data.DTOs.EventInvoice", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("EventId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("MemberId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("PaidOnDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("SendOnDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MemberId");
-
-                    b.ToTable("EventsInvoices");
                 });
 
             modelBuilder.Entity("TNG.Web.Board.Data.DTOs.EventRsvp", b =>
@@ -617,17 +594,6 @@ namespace TNG.Web.Board.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TNG.Web.Board.Data.DTOs.EventInvoice", b =>
-                {
-                    b.HasOne("TNG.Web.Board.Data.DTOs.Member", "Member")
-                        .WithMany("Invoices")
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Member");
-                });
-
             modelBuilder.Entity("TNG.Web.Board.Data.DTOs.EventRsvp", b =>
                 {
                     b.HasOne("TNG.Web.Board.Data.DTOs.Member", "Member")
@@ -740,8 +706,6 @@ namespace TNG.Web.Board.Data.Migrations
             modelBuilder.Entity("TNG.Web.Board.Data.DTOs.Member", b =>
                 {
                     b.Navigation("Events");
-
-                    b.Navigation("Invoices");
 
                     b.Navigation("MemberDiscords");
 

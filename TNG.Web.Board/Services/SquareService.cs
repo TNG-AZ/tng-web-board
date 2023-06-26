@@ -8,12 +8,14 @@ using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 using Azure.Core.Pipeline;
 using System.Data;
 using System.Runtime.CompilerServices;
+using TNG.Web.Board.Data.RequestModels;
+using TNG.Web.Board.Data;
 
 namespace TNG.Web.Board.Services
 {
     public class SquareService
     {
-        private ISquareClient client;
+        private static ISquareClient client;
 
         public SquareService(IConfiguration configuration) 
         {
@@ -43,12 +45,16 @@ namespace TNG.Web.Board.Services
                 ?? (await client.CustomersApi.CreateCustomerAsync(new(emailAddress: customerEmail))).Customer;
         }
 
-        public async Task CreateInvoice(string email, IList<OrderLineItem> lineItems, DateTime paymentDueBy)
+        public async Task CreateInvoice(string email, IList<OrderLineItem> lineItems, DateTime paymentDueBy, Guid? invoiceId = null)
         {
             var location = await GetOrCreateLocation("The Next Generation - Arizona");
             var newOrder = new Order(
                 locationId: location.Id,
-                lineItems: lineItems);
+                lineItems: lineItems,
+                metadata: invoiceId.HasValue
+                    ? new Dictionary<string,string>() { { "invoiceId", invoiceId!.ToString()} }
+                    : null
+                );
             var order = await client.OrdersApi.CreateOrderAsync(new(newOrder));
             var customer = await GetOrCreateCustomer(email);
             var newInvoice = new Invoice(
@@ -62,6 +68,28 @@ namespace TNG.Web.Board.Services
                 acceptedPaymentMethods: new(card: true));
             var invoice = await client.InvoicesApi.CreateInvoiceAsync(new(newInvoice));
             await client.InvoicesApi.PublishInvoiceAsync(invoice.Invoice.Id, new(invoice.Invoice.Version!.Value));
+        }
+
+        public static async Task<IResult> HandleInvoicePaid(ApplicationDbContext context, InvoicePaidRequest request)
+        {
+            try
+            {
+                var orderId = request.data._object.invoice.order_id;
+                var order = client.OrdersApi.RetrieveOrder(orderId);
+                var metadata = order.Order.Metadata;
+
+                if (metadata.TryGetValue("invoiceId", out var invoiceId))
+                {
+                    var invoice = context.EventsInvoices.First(i => i.Id == Guid.Parse(invoiceId));
+                    invoice.PaidOnDate = DateTime.Parse(order.Order.ClosedAt);
+                    await context.SaveChangesAsync();
+                    return Results.Ok();
+                }
+            }
+            finally
+            {
+                return Results.Problem();
+            }
         }
     }
 }

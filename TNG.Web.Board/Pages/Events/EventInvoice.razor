@@ -2,27 +2,16 @@
 <span>Member: @InvoiceMember.SceneName (@InvoiceMember.EmailAddress)</span>
 <br/>
 <label>Due Date: </label><input type="date" @bind=@DueDate/>
-<button type="button" @onclick=@AddInvoiceItem>Add Line Item</button>
-<table>
-    <thead>
-        <tr>
-            <th>Delete</th>
-            <th>Line Item</th>
-            <th>Price per item</th>
-            <th>Quantity</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach(var item in InvoiceItems)
-        {
-            <tr>
-                <td><button type="button" @onclick=@(() => RemoveInvoiceItem(item))>Delete</button></td>
-                <td><input type="text" @bind=@item.Name/></td>
-                <td><input type="number" @bind=@item.PricePerItem/></td>
-                <td><input type="number" step="0.01" @bind=@item.Quantity/></td>
-            </tr>
-        }
-    </tbody>
-</table>
+<br />
+<br />
+<label>Membership Dues</label>
+<input type="number" min="0" step="1" @bind=@MembershipDuesCount/> x($@Fees.MembershipDues)
+<br/>
+<label>Entry - Member</label>
+<input type="number" min="0" step="1" @bind=@PartyEntryMemberCount /> x($@Fees.MemberEntry)
+<br />
+<label>Entry - Guest</label>
+<input type="number" min="0" step="1" @bind=@PartyEntryGuestCount/> x($@Fees.GuestEntry)
+<br/>
 
 <button type="button" @onclick=@SubmitInvoce>Send Invoice</button>

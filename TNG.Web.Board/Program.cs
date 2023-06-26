@@ -74,6 +74,8 @@ app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
+app.MapPost("/api/square/invoicepaid", SquareService.HandleInvoicePaid);
+
 SecretCodeService.SetCode(builder.Configuration["TNGRegistrationCode"]);
 await RolesData.SeedRoles(app.Services);
 
