@@ -167,7 +167,7 @@ namespace TNG.Web.Board.Pages.Events
             }
         }
 
-        private void ShowInvoiceModal(Member invoiceMember)
+        private async Task ShowInvoiceModal(Member invoiceMember)
         {
             var parameters = new ModalParameters()
                 .Add(nameof(EventInvoice.InvoiceMember), invoiceMember)
@@ -177,7 +177,13 @@ namespace TNG.Web.Board.Pages.Events
             {
                 Class = "blazored-modal size-large"
             };
-            Modal.Show<EventInvoice>("Create Invoice", parameters, options);
+            var modal = Modal.Show<EventInvoice>("Create Invoice", parameters, options);
+            var result = await modal.Result;
+            if (result.Confirmed)
+            {
+                _eventRsvp = null;
+                StateHasChanged();
+            }
         }
 
         private void ShowNotesModal(EventRsvp rsvp)

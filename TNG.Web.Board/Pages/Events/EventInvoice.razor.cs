@@ -1,4 +1,5 @@
 ﻿using Blazored.Modal;
+using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Square.Models;
 using System.Runtime.CompilerServices;
@@ -73,7 +74,7 @@ namespace TNG.Web.Board.Pages.Events
                     DueDate,
                     invoiceId: invoiceRef.Id);
 
-                await BlazoredModal.CloseAsync();
+                await BlazoredModal.CloseAsync(ModalResult.Ok());
             }
             catch (Exception ex) { }
         }
