@@ -75,8 +75,8 @@ namespace TNG.Web.Board.Services
             if (itemId != null)
             {
                 var catalogueItem = await client.CatalogApi.RetrieveCatalogObjectAsync(itemId);
-                var variation = catalogueItem?.MObject.ItemData.Variations.FirstOrDefault();
-                if (variation?.ItemVariationData.PriceMoney.Amount == itemPrice)
+                var variation = catalogueItem?.MObject.ItemData.Variations.FirstOrDefault(v => v.ItemVariationData.PriceMoney.Amount == itemPrice);
+                if (variation is not null)
                 {
                     return new(itemQuantity.ToString(), catalogObjectId: variation.Id);
                 }
