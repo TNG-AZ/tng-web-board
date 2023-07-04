@@ -70,6 +70,20 @@ namespace TNG.Web.Board.Services
             await client.InvoicesApi.PublishInvoiceAsync(invoice.Invoice.Id, new(invoice.Invoice.Version!.Value));
         }
 
+        public async Task<OrderLineItem> CreateLineItem(string itemName, int itemQuantity, long itemPrice, string? itemId = null)
+        {
+            if (itemId != null)
+            {
+                var catalogueItem = await client.CatalogApi.RetrieveCatalogObjectAsync(itemId);
+                var variation = catalogueItem?.MObject.ItemData.Variations.FirstOrDefault();
+                if (variation?.ItemVariationData.PriceMoney.Amount == itemPrice)
+                {
+                    return new(itemQuantity.ToString(), catalogObjectId: variation.Id);
+                }
+            }
+            return new(quantity: itemQuantity.ToString(), name: itemName, basePriceMoney: new(itemPrice, "USD"));
+        }
+
         public static async Task<IResult> HandleInvoicePaid(IConfiguration configuration, ApplicationDbContext context, InvoicePaidRequest request)
         {
             try

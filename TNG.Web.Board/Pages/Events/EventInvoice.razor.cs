@@ -20,6 +20,8 @@ namespace TNG.Web.Board.Pages.Events
         [Parameter]
         public EventFees Fees { get; set; }
         [Inject]
+        public IConfiguration Configuration { get; set; }
+        [Inject]
         private ApplicationDbContext context { get; set; }
         [Inject]
         private SquareService square { get; set; }
@@ -36,20 +38,20 @@ namespace TNG.Web.Board.Pages.Events
         private const string EntryMemberText = "Party Entry - Member";
         private const string EntryGuestText = "Party Entry - Guest";
 
-        private IList<OrderLineItem> GenerateLineItems()
+        private async Task<IList<OrderLineItem>> GenerateLineItems()
         {
             var lineItems = new List<OrderLineItem>();
             if (Math.Max(MembershipDuesCount, 0) > 0) 
             {
-                lineItems.Add(new OrderLineItem(quantity: MembershipDuesCount.ToString(), name: DuesText, basePriceMoney: new((long)Fees.MembershipDues * 100, "USD")));
+                lineItems.Add(await square.CreateLineItem(DuesText, MembershipDuesCount, (long)Fees.MembershipDues * 100, Configuration["SquareItems:MembershipDues"]));
             }
             if (Math.Max(PartyEntryMemberCount, 0) > 0)
             {
-                lineItems.Add(new OrderLineItem(quantity: PartyEntryMemberCount.ToString(), name: EntryMemberText, basePriceMoney: new((long)Fees.MemberEntry * 100, "USD")));
+                lineItems.Add(await square.CreateLineItem(EntryMemberText, PartyEntryMemberCount, (long)Fees.MemberEntry * 100, Configuration["SquareItems:PartyMember"]));
             }
             if (Math.Max(PartyEntryGuestCount, 0) > 0)
             {
-                lineItems.Add(new OrderLineItem(quantity: PartyEntryGuestCount.ToString(), name: EntryGuestText, basePriceMoney: new((long)Fees.GuestEntry * 100, "USD")));
+                lineItems.Add(await square.CreateLineItem(EntryGuestText, PartyEntryGuestCount, (long)Fees.GuestEntry * 100, Configuration["SquareItems:PartyGuest"]));
             }
             return lineItems;
         }
@@ -57,7 +59,7 @@ namespace TNG.Web.Board.Pages.Events
 
         private async Task SubmitInvoce()
         {
-            var lineItems = GenerateLineItems();
+            var lineItems = await GenerateLineItems();
             if (!lineItems.Any())
             {
                 return;
