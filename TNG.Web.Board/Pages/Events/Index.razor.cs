@@ -142,16 +142,17 @@ namespace TNG.Web.Board.Pages.Events
             {
                 viewableMemberIds.Add(Member.Id);
             }
-            var members = context.EventRsvps?.AsEnumerable().Where(e =>
+            var members = context.EventRsvps?.Where(e =>
                     e.EventId == eventId && e.Status == status
                     && (viewableMemberIds.Contains(e.MemberId) || !e.Member.PrivateProfile || isBoardMember))
+                .AsEnumerable()
                 .Select(e =>
                 {
                     var profileId = e.Member.ProfileUrl ?? e.Member.Id.ToString();
                     var profileName = HttpUtility.HtmlEncode(e.Member.SceneName);
                     return $"<a href='/members/view/{profileId}'><span class='badge badge-pill badge-primary'><i class='bi bi-person'></i>{profileName}</span></a>";
                 });
-            return string.Join(" ", members ?? Enumerable.Empty<string>()) ?? string.Empty;
+            return string.Join(" ", members ?? Enumerable.Empty<string>());
         }
 
         private void ShowNotesModal(EventRsvp rsvp)
