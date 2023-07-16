@@ -204,3 +204,7 @@ a, .btn-link {
 .eventDetails .bi {
     margin-right: 10px;
 }
+
+.card-body .badge-pill .bi{
+    padding-right: .6em;
+}

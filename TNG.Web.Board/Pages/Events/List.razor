@@ -50,11 +50,11 @@
             <p class="card-text">@StringTools.RemoveHtml(description.Substring(0, Math.Min(description.Length, 300)))@(description.Length > 100 ? "..." : string.Empty)</p>
             @if (!string.IsNullOrEmpty(going))
             {
-                <p>Going: @going</p>
+                <p>Going: @((MarkupString)going)</p>
             }
             @if (!string.IsNullOrEmpty(maybe))
             {
-                <p>Maybe Going: @maybe</p>
+                <p>Maybe Going: @((MarkupString)maybe)</p>
             }
         </div>
     </div>

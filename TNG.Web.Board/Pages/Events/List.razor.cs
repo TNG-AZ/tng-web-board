@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Dynamic;
 using System.Runtime.CompilerServices;
+using System.Web;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 using TNG.Web.Board.Pages.Shared;
@@ -138,10 +139,16 @@ namespace TNG.Web.Board.Pages.Events
             {
                 viewableMemberIds.Add(Member.Id);
             }
-            return string.Join(", ", context.EventRsvps?.Where(e =>
-                    e.EventId == eventId && e.Status == status
-                    && (viewableMemberIds.Contains(e.MemberId) || !e.Member.PrivateProfile || isBoardMember))
-                .Select(e => e.Member.SceneName) ?? Enumerable.Empty<string>());
+            var members = context.EventRsvps?.AsEnumerable().Where(e =>
+                     e.EventId == eventId && e.Status == status
+                     && (viewableMemberIds.Contains(e.MemberId) || !e.Member.PrivateProfile || isBoardMember))
+                 .Select(e =>
+                 {
+                     var profileId = e.Member.ProfileUrl ?? e.Member.Id.ToString();
+                     var profileName = HttpUtility.HtmlEncode(e.Member.SceneName);
+                     return $"<a href='/members/view/{profileId}'><span class='badge badge-pill badge-primary'><i class='bi bi-person'></i>{profileName}</span></a>";
+                 });
+            return string.Join(" ", members);
         }
 
         private void ShowNotesModal(EventRsvp rsvp)

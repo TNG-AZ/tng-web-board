@@ -50,11 +50,11 @@
         <p class="card-text">@((MarkupString)description)</p>
         @if (!string.IsNullOrEmpty(going))
         {
-            <p>Going: @going</p>
+            <p>Going: @((MarkupString)going)</p>
         }
         @if (!string.IsNullOrEmpty(maybe))
         {
-            <p>Maybe Going: @maybe</p>
+            <p>Maybe Going: @((MarkupString)maybe)</p>
         }
     </div>
 </div>
