@@ -1,4 +1,5 @@
 ﻿@page "/events/"
+@using System.Web;
 @using TNG.Web.Board.Data.DTOs;
 @using TNG.Web.Board.Utilities;
 @{
@@ -39,15 +40,21 @@
         </div>
         <div class="card-body">
             <h3 class="card-title"><a href="@($"/events/{calendarEvent.Id}")">@calendarEvent.Summary</a></h3>
-                <h5>@($"Happening on {startTime:MM/dd/yyyy} at {startTime:hh:mm tt}")</h5>
+            <div class="eventDetails">
+                <h5><i class="bi bi-clock"></i>@($"Happening on {startTime:MM/dd/yyyy} at {startTime:hh:mm tt}")</h5>
+            @if(!string.IsNullOrEmpty(calendarEvent.Location))
+            {
+                <h5><a href="https://www.google.com/maps/search/?api=1&query=@HttpUtility.UrlEncode(calendarEvent.Location)"><i class="bi bi-map"></i>@calendarEvent.Location</a></h5>
+            } 
+            </div>
             <p class="card-text">@StringTools.RemoveHtml(description.Substring(0, Math.Min(description.Length, 300)))@(description.Length > 100 ? "..." : string.Empty)</p>
             @if (!string.IsNullOrEmpty(going))
             {
-                <p>Going: @going.Substring(0, Math.Min(going.Length, 100))@(going.Length > 100 ? "..." : string.Empty)</p>
+                <p>Going: @going</p>
             }
             @if (!string.IsNullOrEmpty(maybe))
             {
-                <p>Maybe Going: @maybe.Substring(0, Math.Min(maybe.Length, 100))@(maybe.Length > 100 ? "..." : string.Empty)</p>
+                <p>Maybe Going: @maybe</p>
             }
         </div>
     </div>

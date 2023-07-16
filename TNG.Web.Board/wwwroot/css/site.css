@@ -200,3 +200,7 @@ a, .btn-link {
 .form-inline .form-group {
     margin-right: 4px;
 }
+
+.eventDetails .bi {
+    margin-right: 10px;
+}
