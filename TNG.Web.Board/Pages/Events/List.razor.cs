@@ -147,7 +147,7 @@ namespace TNG.Web.Board.Pages.Events
                      var profileId = e.Member.ProfileUrl ?? e.Member.Id.ToString();
                      var profileName = HttpUtility.HtmlEncode(e.Member.SceneName);
                      return $"<a href='/members/view/{profileId}'><span class='badge badge-pill badge-primary'><i class='bi bi-person'></i>{profileName}</span></a>";
-                 });
+                 }) ?? Enumerable.Empty<string>();
             return string.Join(" ", members);
         }
 
