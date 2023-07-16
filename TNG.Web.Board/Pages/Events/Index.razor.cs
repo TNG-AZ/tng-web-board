@@ -151,7 +151,7 @@ namespace TNG.Web.Board.Pages.Events
                     var profileName = HttpUtility.HtmlEncode(e.Member.SceneName);
                     return $"<a href='/members/view/{profileId}'><span class='badge badge-pill badge-primary'><i class='bi bi-person'></i>{profileName}</span></a>";
                 });
-            return string.Join(" ", members ?? Enumerable.Empty<string>());
+            return string.Join(" ", members ?? Enumerable.Empty<string>()) ?? string.Empty;
         }
 
         private void ShowNotesModal(EventRsvp rsvp)
