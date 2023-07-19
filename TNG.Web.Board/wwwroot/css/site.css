@@ -208,3 +208,11 @@ a, .btn-link {
 .card-body .badge-pill .bi{
     padding-right: .6em;
 }
+
+.container.user-profile {
+    margin-left: unset;
+}
+
+.user-profile .edit-button {
+    margin-left: 15px;
+}

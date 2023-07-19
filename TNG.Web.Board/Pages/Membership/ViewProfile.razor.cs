@@ -9,6 +9,8 @@ using TNG.Web.Board.Services;
 using Square.Models;
 using System.Configuration;
 using Microsoft.JSInterop;
+using Blazored.Modal;
+using Blazored.Modal.Services;
 
 namespace TNG.Web.Board.Pages.Membership
 {
@@ -35,12 +37,19 @@ namespace TNG.Web.Board.Pages.Membership
         private SquareService square { get; set; }
         [Inject]
         private IJSRuntime js { get; set; }
+        [Inject]
+        public GoogleServices Google { get; set; }
+        [Inject]
+        public IConfiguration Configuration { get; set; }
+        [CascadingParameter]
+        private IModalService Modal { get; set; }
 #nullable enable
 
         private Member? GetMember()
             => context.Members?
             .Include(m => m.MemberFetishes)
             .ThenInclude(mf => mf.Fetish)
+            .Include(m => m.Events)
             .FirstOrDefault(m => m.Id == MemberId || EF.Functions.Like(m.ProfileUrl, profileUrl));
 
         private Member? _viewMember { get; set; }
@@ -80,7 +89,11 @@ namespace TNG.Web.Board.Pages.Membership
         private Member? GetUserMember()
         {
             var name = auth.GetIdentity().Result?.Name ?? string.Empty;
-            return context.Members?.Include(m => m.MemberFetishes).ThenInclude(mf => mf.Fetish).FirstOrDefault(m => EF.Functions.Like(m.EmailAddress, name));
+            return context.Members?
+                .Include(m => m.MemberFetishes)
+                .ThenInclude(mf => mf.Fetish)
+                .Include(m => m.Events)
+                .FirstOrDefault(m => EF.Functions.Like(m.EmailAddress, name));
         }
 
         private async Task GenerateDuesInvoice()
@@ -145,31 +158,48 @@ namespace TNG.Web.Board.Pages.Membership
             StateHasChanged();
         }
 
-        private string TogglePrivateButtonText
-            => ViewMember.PrivateProfile
-                ? "Make Profile Public"
-                : "Make Profile Private";
-
-        private async Task TogglePrivate()
+        private async Task ShowProfileEditModal()
         {
-            ViewMember.PrivateProfile = !ViewMember.PrivateProfile;
-            await context.SaveChangesAsync();
+            var parameters = new ModalParameters()
+                .Add(nameof(EditMemberModal.UserMember), UserMember);
+            var options = new ModalOptions()
+            {
+                Class = "blazored-modal size-large"
+            };
+            var modal = Modal.Show<EditMemberModal>("Edit Profile", parameters, options);
+            var response = await modal.Result;
+            if (response.Confirmed) 
+            {
+                StateHasChanged();
+            }
         }
 
-        private async Task SaveUser()
+        private class EventDetail
         {
-            if (string.IsNullOrWhiteSpace(UserMember!.SceneName))
-                return;
-            if (string.IsNullOrEmpty(UserMember!.ProfileUrl?.Trim()))
-                UserMember.ProfileUrl = null;
-            if (string.IsNullOrEmpty(UserMember!.AboutMe?.Trim()))
-                UserMember.AboutMe = null;
-            if (UserMember!.ProfileUrl is not null && context.Members.Any(m => m.Id != UserMember.Id && EF.Functions.Like(m.ProfileUrl, UserMember.ProfileUrl)))
-                return;
-
-            await context.SaveChangesAsync();
-            EditToggle = false;
-            StateHasChanged();
+            public string EventId { get; set; }
+            public DateTime? EventDate { get; set; }
+            public string EventName { get; set; }
+            public EventRsvpStatus Status { get; set; }
         }
+
+        private string CalendarId
+            => Configuration["CalendarId"] ?? throw new ArgumentNullException(nameof(CalendarId));
+
+        private string GetEventRsvps()
+         => string.Join("</li><li>", ViewMember?.Events?.AsParallel().Select(r =>
+            {
+                var eventData = Google.Calendar.Events.Get(CalendarId, r.EventId).Execute();
+                return new EventDetail
+                {
+                    EventId = r.EventId,
+                    EventDate = eventData.Start.DateTime.ToAZTime(),
+                    EventName = eventData.Summary,
+                    Status = r.Status
+                };
+            })
+                .OrderByDescending(r => r.EventDate)
+                .Take(10)
+                .Select(r => $"{(r.Status == EventRsvpStatus.Going ? "Going" : "Maybe Going")} to <a href='/events/{r.EventId}'>{r.EventName}</a> on {r.EventDate.Value.Date:dd-MM-yyyy}")
+                ?? Enumerable.Empty<string>());
     }
 }
