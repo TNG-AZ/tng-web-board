@@ -1,9 +1,11 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.Calendar.v3;
+using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Gmail.v1;
 using Google.Apis.Gmail.v1.Data;
 using Google.Apis.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -13,9 +15,12 @@ namespace TNG.Web.Board.Services
     {
         public readonly CalendarService Calendar;
         public readonly GmailService Gmail;
+        private IMemoryCache cache;
 
-        public GoogleServices(IConfiguration Configuration)
+        public GoogleServices(IConfiguration Configuration, IMemoryCache memoryCache)
         {
+            cache= memoryCache;
+
             string[] Scopes = { CalendarService.Scope.Calendar, GmailService.Scope.GmailSend, GmailService.Scope.MailGoogleCom };
 
             ServiceAccountCredential credential;
@@ -52,6 +57,35 @@ namespace TNG.Web.Board.Services
         public async Task EmailListAsync(IEnumerable<string> emails, string subject, string body)
         {
             Gmail.Users.Messages.Send(new Message { Raw = GetEmailBccRaw(string.Join(", ", emails), subject, body) }, "me").Execute();
+        }
+
+        private HashSet<string> cacheKeys = new HashSet<string>();
+
+        public Event? GetEvent(string calendarId, string eventId)
+        {
+            try
+            {
+                var key = $"event:{calendarId}:{eventId}";
+                if (cache.TryGetValue(key, out Event? cachedEvent))
+                {
+                    return cachedEvent;
+                }
+                var newEvent = Calendar.Events.Get(calendarId, eventId).Execute();
+                cache.Set(key, newEvent);
+                cacheKeys.Add(key);
+                return newEvent;
+            }
+            catch { }
+            return null;
+        }
+
+        public async Task ClearEventCache()
+        {
+            foreach(var key in cacheKeys)
+            {
+                cache.Remove(key);
+            }
+            cacheKeys = new();
         }
     }
 }

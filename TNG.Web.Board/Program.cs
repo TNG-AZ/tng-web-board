@@ -49,6 +49,8 @@ builder.Services.AddScoped<AuthUtilities>();
 builder.Services.AddSingleton<IEmailSender, GoogleServices>();
 builder.Services.AddBlazoredModal();
 
+builder.Services.AddMemoryCache();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

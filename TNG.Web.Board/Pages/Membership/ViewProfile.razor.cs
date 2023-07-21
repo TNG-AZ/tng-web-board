@@ -188,7 +188,7 @@ namespace TNG.Web.Board.Pages.Membership
         private string GetEventRsvps()
          => string.Join("</li><li>", ViewMember?.Events?.AsParallel().Select(r =>
             {
-                var eventData = Google.Calendar.Events.Get(CalendarId, r.EventId).Execute();
+                var eventData = Google.GetEvent(CalendarId, r.EventId);
                 return new EventDetail
                 {
                     EventId = r.EventId,

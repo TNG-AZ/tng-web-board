@@ -62,7 +62,7 @@ namespace TNG.Web.Board.Pages.Events
                     navigation.NavigateTo("/calendar/");
                     return default;
                 }
-                return _calendarEvent ??= Google.Calendar.Events.Get(CalendarId, eventId).Execute();
+                return _calendarEvent ??= Google.GetEvent(CalendarId, eventId);
             }
         }
 
