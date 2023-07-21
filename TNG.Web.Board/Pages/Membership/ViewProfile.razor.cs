@@ -200,7 +200,7 @@ namespace TNG.Web.Board.Pages.Membership
                         Status = r.Status
                     };
                 })
-                .OrderBy(r => r.EventDate)
+                .OrderByDescending(r => r.EventDate)
                 .Select(r => $"{(r.Status == EventRsvpStatus.Going ? "Going" : "Maybe Going")} to <a href='/events/{r.EventId}'>{r.EventName}</a> on {r.EventDate.Value.Date:MMMM d, yyyy}")
                 ?? Enumerable.Empty<string>());
     }
