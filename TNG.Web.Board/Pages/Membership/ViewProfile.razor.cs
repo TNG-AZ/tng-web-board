@@ -186,19 +186,21 @@ namespace TNG.Web.Board.Pages.Membership
             => Configuration["CalendarId"] ?? throw new ArgumentNullException(nameof(CalendarId));
 
         private string GetEventRsvps()
-         => string.Join("</li><li>", ViewMember?.Events?.AsParallel().Select(r =>
-            {
-                var eventData = Google.GetEvent(CalendarId, r.EventId);
-                return new EventDetail
-                {
-                    EventId = r.EventId,
-                    EventDate = eventData.Start.DateTime.ToAZTime(),
-                    EventName = eventData.Summary,
-                    Status = r.Status
-                };
-            })
-                .OrderByDescending(r => r.EventDate)
+         => string.Join("</li><li>", ViewMember?.Events?.AsParallel()
+                .OrderByDescending(r => r.AddedDate)
                 .Take(10)
+                .Select(r =>
+                {
+                    var eventData = Google.GetEvent(CalendarId, r.EventId);
+                    return new EventDetail
+                    {
+                        EventId = r.EventId,
+                        EventDate = eventData!.Start.DateTime.ToAZTime(),
+                        EventName = eventData!.Summary,
+                        Status = r.Status
+                    };
+                })
+                .OrderBy(r => r.EventDate)
                 .Select(r => $"{(r.Status == EventRsvpStatus.Going ? "Going" : "Maybe Going")} to <a href='/events/{r.EventId}'>{r.EventName}</a> on {r.EventDate.Value.Date:MMMM d, yyyy}")
                 ?? Enumerable.Empty<string>());
     }
