@@ -15,18 +15,21 @@ namespace TNG.Web.Board.Services
 {
     public class SquareService
     {
-        private static ISquareClient client;
+        private static ISquareClient? client;
 
         public SquareService(IConfiguration configuration) 
         {
-            var env = bool.TryParse(configuration["SquareAPI:ProductionEnabled"], out var enableProd) && enableProd
+            if (client is null)
+            {
+                var env = bool.TryParse(configuration["SquareAPI:ProductionEnabled"], out var enableProd) && enableProd
                 ? Square.Environment.Production
                 : Square.Environment.Sandbox;
 
-             client = new SquareClient.Builder()
-            .Environment(env)
-            .AccessToken(configuration["SquareAPI:Token"])
-            .Build();
+                client ??= new SquareClient.Builder()
+               .Environment(env)
+               .AccessToken(configuration["SquareAPI:Token"])
+               .Build();
+            }
         }
 
         public async Task<Location> GetOrCreateLocation(string locationName)
@@ -88,14 +91,17 @@ namespace TNG.Web.Board.Services
         {
             try
             {
-                var env = bool.TryParse(configuration["SquareAPI:ProductionEnabled"], out var enableProd) && enableProd
-                ? Square.Environment.Production
-                : Square.Environment.Sandbox;
+                if (client is null)
+                {
+                    var env = bool.TryParse(configuration["SquareAPI:ProductionEnabled"], out var enableProd) && enableProd
+                    ? Square.Environment.Production
+                    : Square.Environment.Sandbox;
 
-                var client = new SquareClient.Builder()
-               .Environment(env)
-               .AccessToken(configuration["SquareAPI:Token"])
-               .Build();
+                    client ??= new SquareClient.Builder()
+                   .Environment(env)
+                   .AccessToken(configuration["SquareAPI:Token"])
+                   .Build();
+                }
 
                 var orderId = request.data._object.invoice.order_id;
                 var order = client.OrdersApi.RetrieveOrder(orderId);
