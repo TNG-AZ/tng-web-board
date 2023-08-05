@@ -76,7 +76,13 @@ app.MapControllers();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
+//Square webhooks
 app.MapPost("/api/square/invoicepaid", SquareService.HandleInvoicePaid);
+
+//Discord APIs
+app.MapGet("/api/discord/aged/", DiscordAPIService.GetAgedOutMembers);
+app.MapGet("/api/discord/lapsed/", DiscordAPIService.GetLapsedMembers);
+app.MapGet("/api/discord/current/", DiscordAPIService.GetCurrentMembers);
 
 SecretCodeService.SetCode(builder.Configuration["TNGRegistrationCode"]);
 await RolesData.SeedRoles(app.Services);
