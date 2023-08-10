@@ -50,7 +50,8 @@ namespace TNG.Web.Board.Pages.Membership
             .Include(m => m.MemberFetishes)
             .ThenInclude(mf => mf.Fetish)
             .Include(m => m.Events)
-            .FirstOrDefault(m => m.Id == MemberId || EF.Functions.Like(m.ProfileUrl, profileUrl));
+            .FirstOrDefault(m => (!m.PrivateProfile || auth.IsBoardmember().Result) 
+                && (m.Id == MemberId || EF.Functions.Like(m.ProfileUrl, profileUrl)));
 
         private Member? _viewMember { get; set; }
         private Member? ViewMember

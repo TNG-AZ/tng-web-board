@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Security.Claims;
 using System.Security.Principal;
 
 namespace TNG.Web.Board.Utilities
@@ -17,6 +19,12 @@ namespace TNG.Web.Board.Utilities
             var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
             return user.Identity;
+        }
+
+        public async Task<bool> IsBoardmember()
+        {
+            var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+            return authState.User.HasClaim(ClaimTypes.Role, "Boardmember");
         }
     }
 }
