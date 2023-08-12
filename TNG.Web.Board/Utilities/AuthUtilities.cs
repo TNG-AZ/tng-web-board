@@ -21,10 +21,25 @@ namespace TNG.Web.Board.Utilities
             return user.Identity;
         }
 
+        public async Task<bool> IsAdmin()
+        {
+            var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+            return authState.User.HasClaim(ClaimTypes.Role, "Administrator");
+        }
+
         public async Task<bool> IsBoardmember()
         {
             var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-            return authState.User.HasClaim(ClaimTypes.Role, "Boardmember");
+            return authState.User.HasClaim(ClaimTypes.Role, "Boardmember") 
+                || authState.User.HasClaim(ClaimTypes.Role, "Administrator");
+        }
+
+        public async Task<bool> IsAmbassador()
+        {
+            var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+            return authState.User.HasClaim(ClaimTypes.Role, "Ambassador") 
+                || authState.User.HasClaim(ClaimTypes.Role, "Boardmember") 
+                || authState.User.HasClaim(ClaimTypes.Role, "Administrator");
         }
     }
 }

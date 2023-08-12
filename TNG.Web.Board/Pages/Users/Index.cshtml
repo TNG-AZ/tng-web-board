@@ -15,6 +15,15 @@
         @if (users.Any())
         {
             <form id="delete" method="post"></form>
+            @if (User.IsInRole("Administrator"))
+            {
+                <form id="toggleAdmin" method="post"></form>
+            }
+            else if (User.IsInRole("Administrator") || User.IsInRole("Boardmember"))
+            {
+                <form id="toggleBoard" method="post"></form>
+                <form id="toggleAmbassador" method="post"></form>
+            }
             <table class="table-md table-bordered col-1 w-100">
                 <thead>
                     <tr class="d-table-row my-0">
@@ -42,6 +51,24 @@
                                 <button type="submit" name="userId" value="@userRec.Id" form="delete" asp-page-handler="Delete">
                                     Delete
                                 </button>
+                                @if (User.Identity!.Name != userRec.UserName)
+                                {
+                                    @if (User.IsInRole("Administrator"))
+                                    {
+                                        <button type="submit" name="userId" value="@userRec.Id" form="toggleAdmin" asp-page-handler="TogggleAdmin">
+                                            Toggle Admin
+                                        </button>
+                                    }
+                                    @if (User.IsInRole("Administrator") || User.IsInRole("Boardmember"))
+                                    {
+                                        <button type="submit" name="userId" value="@userRec.Id" form="toggleBoard" asp-page-handler="ToggleBoard">
+                                            Toggle Boardmember
+                                        </button>
+                                        <button type="submit" name="userId" value="@userRec.Id" form="toggleAmbassador" asp-page-handler="ToggleAmbassador">
+                                            Toggle Ambassador
+                                        </button>
+                                    }
+                                }
                             </td>
                             <td colspan="1" class="text-left" style="width: 30em;">@userRec.Id</td>
                             <td colspan="1" class="text-left">@userRec.UserName</td>

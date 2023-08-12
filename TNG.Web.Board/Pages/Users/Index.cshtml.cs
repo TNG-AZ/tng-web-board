@@ -38,5 +38,30 @@ namespace TNG.Web.Board.Pages.Users
             }
             return Redirect("/users");
         }
+
+        public async Task<IActionResult> OnPostRoleChangeAsync(string userId, string role)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user is not null)
+            {
+                var rolesForUser = await _userManager.GetRolesAsync(user);
+                if ((rolesForUser?.Any(r => r.Equals(role, StringComparison.OrdinalIgnoreCase)) ?? false))
+                {
+                    await _userManager.RemoveFromRoleAsync(user, role);
+                }
+                else
+                {
+                    await _userManager.AddToRoleAsync(user, role);
+                }
+            }
+            return Redirect("/users");
+        }
+
+        public async Task<IActionResult> OnPostToggleAdminAsync(string userId)
+            => await OnPostRoleChangeAsync(userId, "Administrator");
+        public async Task<IActionResult> OnPostToggleBoardAsync(string userId)
+           => await OnPostRoleChangeAsync(userId, "Boardmember");
+        public async Task<IActionResult> OnPostToggleAmbassadorAsync(string userId)
+           => await OnPostRoleChangeAsync(userId, "Ambassador");
     }
 }
