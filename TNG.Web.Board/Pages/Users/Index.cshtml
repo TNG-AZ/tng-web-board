@@ -19,7 +19,7 @@
             {
                 <form id="toggleAdmin" method="post"></form>
             }
-            else if (User.IsInRole("Administrator") || User.IsInRole("Boardmember"))
+            @if (User.IsInRole("Administrator") || User.IsInRole("Boardmember"))
             {
                 <form id="toggleBoard" method="post"></form>
                 <form id="toggleAmbassador" method="post"></form>
@@ -55,7 +55,7 @@
                                 {
                                     @if (User.IsInRole("Administrator"))
                                     {
-                                        <button type="submit" name="userId" value="@userRec.Id" form="toggleAdmin" asp-page-handler="TogggleAdmin">
+                                        <button type="submit" name="userId" value="@userRec.Id" form="toggleAdmin" asp-page-handler="ToggleAdmin">
                                             Toggle Admin
                                         </button>
                                     }

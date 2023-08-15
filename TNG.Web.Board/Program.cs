@@ -35,7 +35,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("IsBoardMember", policy =>
-        policy.RequireClaim(ClaimTypes.Role, new[] { "Boardmember" }));
+        policy.RequireRole("Boardmember", "Administrator"));
 });
 builder.Services.AddRazorPages(options =>
 {
