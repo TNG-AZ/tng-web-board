@@ -26,5 +26,6 @@ namespace TNG.Web.Board.Data
         public virtual DbSet<MemberDiscordIntegration> MembersDiscordIntegrations { get; set;}
         public virtual DbSet<EventFees> EventsFees { get; set; }
         public virtual DbSet<EventInvoice> EventsInvoices { get; set; }
+        public virtual DbSet<Signature> Signatures { get; set; }
     }
 }

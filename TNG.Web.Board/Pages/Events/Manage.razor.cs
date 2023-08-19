@@ -5,6 +5,7 @@ using Google.Apis.Calendar.v3.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.JSInterop;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using TNG.Web.Board.Data;
@@ -26,6 +27,8 @@ namespace TNG.Web.Board.Pages.Events
         private GoogleServices google { get; set; }
         [Inject]
         private IConfiguration configuration { get; set; }
+        [Inject]
+        private IJSRuntime js { get; set; }
         [CascadingParameter] 
         private IModalService Modal { get; set; }
 #nullable enable
@@ -208,6 +211,17 @@ namespace TNG.Web.Board.Pages.Events
             };
             await context.EventsFees.AddAsync(fees);
             await context.SaveChangesAsync();
+        }
+
+        private async Task GetSignature(Guid sigId)
+        {
+            var signature = await context.Signatures.FirstOrDefaultAsync(s => s.Id == sigId);
+            if (signature is not null)
+            {
+                using var streamRef = new DotNetStreamReference(stream: new MemoryStream(signature.SignedForm));
+
+                await js.InvokeVoidAsync("downloadFileFromStream", $"liabilityForm-{eventId}-{signature!.Member.SceneName}.pdf", streamRef);
+            }
         }
     }
 }

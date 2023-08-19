@@ -51,5 +51,6 @@ namespace TNG.Web.Board.Data.DTOs
         public virtual List<MemberFetish> MemberFetishes { get; set; }
         public virtual List<MemberDiscordIntegration> MemberDiscords { get; set; }
         public virtual List<EventInvoice> Invoices { get; set; }
+        public virtual List<Signature> Signatures { get; set; }
     }
 }

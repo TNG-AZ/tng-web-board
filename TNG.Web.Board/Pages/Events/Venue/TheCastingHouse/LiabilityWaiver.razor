@@ -1,0 +1,31 @@
+﻿@page "/waiver/{eventId}"
+@using SignaturePad
+@using TNG.Web.Board.Utilities
+
+<h1>Event: @(CalendarEvent?.Summary??"No Event Selected")</h1>
+<h1>Date: @(CalendarEvent?.Start.DateTime.ToAZTime()?.ToString("MM/dd/yyyy")??"No Start Time Specified")</h1>
+
+@((MarkupString)agreementHtml)
+
+<EditForm Model="@formModel" OnValidSubmit="@GeneratePdf" class="col-lg-12 col-xl-6">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label>Today's Date:</label>
+        <input type="date" class="form-control" required="required" @bind="formModel.TodaysDate" />
+    </div>
+    <div class="form-group">
+        <label>Scene Name:</label>
+        <input type="text" class="form-control" required="required" @bind="formModel.SceneName" />
+    </div>
+    <div class="form-group">
+        <label>Legal Name:</label>
+        <input type="text" class="form-control" required="required" @bind="formModel.LegalName" />
+        <small class="form-text text-muted">This will remain confidential</small>
+    </div>
+
+    <SignaturePad @bind-Value="formModel.Signature" />
+    <br/> <br/>
+    <button type="submit">Submit</button>
+
+</EditForm>

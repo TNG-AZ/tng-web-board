@@ -100,6 +100,7 @@
                 var hasVaxProof = rsvp.Member.ReceivedProofOfCovid19Vaccination;
                 var addedDate = rsvp!.AddedDate.HasValue ? DateTime.SpecifyKind(rsvp.AddedDate.Value, DateTimeKind.Utc).ToAZTime()
                 : (DateTime?)null;
+                var signatures = context.Signatures.Where(s => s.MemberId == rsvp.MemberId && s.EventId == eventId).Select(s => s.Id);
                 <tr>
                     <td>
                         <CollapsibleCard CardHeaderTitle="Actions">
@@ -128,7 +129,15 @@
                         (@rsvp.Member.EmailAddress)
                     </td>
                     <td>@rsvp.Status.ToString()@(rsvp.Member.MemberType == MemberType.Guest ? " - Guest" : string.Empty)</td>
-                    <td>@rsvp.Notes</td>
+                    <td>@if(signatures.Any())
+                        {
+                            foreach(var s in signatures)
+                            {
+                                <button type="button" @onclick=@(async () => await GetSignature(s))>Get Signature</button>
+                            }
+                            <br />
+                        }
+                        @rsvp.Notes</td>
                     <td class="@(!approved ? "table-warning" : string.Empty)">@(approved.ToString())</td>
                     <td class="@(!paid ? "table-warning" : string.Empty)">
                         @if(rsvp.Paid??false)
