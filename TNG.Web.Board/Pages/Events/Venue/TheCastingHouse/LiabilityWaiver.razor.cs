@@ -100,7 +100,7 @@ namespace TNG.Web.Board.Pages.Events.Venue.TheCastingHouse
                     pdf.Add(new Paragraph($"Date: {CalendarEvent.Start.DateTime.ToAZTime().Value.ToString("MM/dd/yyyy")}"));
                 }
             }
-            pdf.Add(new Paragraph(Regex.Replace(agreementHtml, "<.*?>", string.Empty)));
+            pdf.Add(new Paragraph(Regex.Replace(agreementHtml, "<.*?>", string.Empty)).SetFontSize(10));
             pdf.Add(new Paragraph($"Legal Name: {formModel.LegalName}"));
             pdf.Add(new Paragraph($"Scene Name: {formModel.SceneName}"));
             var image = Convert.FromBase64String(Encoding.UTF8.GetString(formModel.Signature).Replace("data:image/png;base64,", ""));
