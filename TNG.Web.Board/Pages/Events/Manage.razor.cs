@@ -51,6 +51,10 @@ namespace TNG.Web.Board.Pages.Events
         private EventFees? EventFees
             => _eventFees ??= context.EventsFees.FirstOrDefault(f => f.EventId == eventId);
 
+        private IList<Signature> _signatures { get; set; }
+        private IEnumerable<Signature> Signatures
+            => _signatures ??= context.Signatures.Where(s => s.EventId == eventId).ToList();
+
         private enum IssuesStatus
         {
             Warning,
