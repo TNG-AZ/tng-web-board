@@ -76,6 +76,24 @@
     </CardBody>
 </CollapsibleCard>
 
+<CollapsibleCard CardHeaderTitle="Manage Signatures">
+    <CardBody>
+        <button type="button" @onclick=@(async () => await GetSignaturesZip())>Download All</button>
+        <br/>
+        Orphan Signatures
+        <ul>
+            @{
+                var orphans = Signatures.Where(s => !Rsvps.Select(r => r.MemberId).Contains(s.MemberId));
+                foreach(var o in orphans)
+                {
+                    <li><button type="button" @onclick=@(async () => await GetSignature(o.Id))>@o.SceneName</button></li>
+                }
+                
+            }
+        </ul>
+    </CardBody>
+</CollapsibleCard>
+
 <div class="table-responsive">
     <table class="table">
         <thead>

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
+using System.IO.Compression;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using TNG.Web.Board.Data;
@@ -53,7 +54,9 @@ namespace TNG.Web.Board.Pages.Events
 
         private IList<Signature> _signatures { get; set; }
         private IEnumerable<Signature> Signatures
-            => _signatures ??= context.Signatures.Where(s => s.EventId == eventId).ToList();
+            => _signatures ??= context.Signatures
+                .Include(s => s.Member)
+                .Where(s => s.EventId == eventId).ToList();
 
         private enum IssuesStatus
         {
@@ -219,12 +222,39 @@ namespace TNG.Web.Board.Pages.Events
 
         private async Task GetSignature(Guid sigId)
         {
-            var signature = await context.Signatures.FirstOrDefaultAsync(s => s.Id == sigId);
+            var signature = Signatures.FirstOrDefault(s => s.Id == sigId);
             if (signature is not null)
             {
                 using var streamRef = new DotNetStreamReference(stream: new MemoryStream(signature.SignedForm));
 
                 await js.InvokeVoidAsync("downloadFileFromStream", $"liabilityForm-{eventId}-{signature!.Member.SceneName}.pdf", streamRef);
+            }
+        }
+
+        private async Task GetSignaturesZip()
+        {
+            using (var compressedFileStream = new MemoryStream())
+            {
+                //Create an archive and store the stream in memory.
+                using (var zipArchive = new ZipArchive(compressedFileStream, ZipArchiveMode.Create, false))
+                {
+                    foreach (var signature in Signatures)
+                    {
+                        //Create a zip entry for each attachment
+                        var zipEntry = zipArchive.CreateEntry($"liabilityForm-{eventId}-{signature!.Member.SceneName}.pdf");
+
+                        //Get the stream of the attachment
+                        using (var originalFileStream = new MemoryStream(signature.SignedForm))
+                        using (var zipEntryStream = zipEntry.Open())
+                        {
+                            //Copy the attachment stream to the zip entry stream
+                            originalFileStream.CopyTo(zipEntryStream);
+                        }
+                    }
+                }
+
+                using var streamRef = new DotNetStreamReference(stream: new MemoryStream(compressedFileStream.ToArray()));
+                await js.InvokeVoidAsync("downloadFileFromStream", $"liabilityForms-{eventId}.zip", streamRef);
             }
         }
     }
