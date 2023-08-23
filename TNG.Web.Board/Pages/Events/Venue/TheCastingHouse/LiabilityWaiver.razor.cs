@@ -77,16 +77,21 @@ namespace TNG.Web.Board.Pages.Events.Venue.TheCastingHouse
             public byte[] Signature { get; set; } = Array.Empty<byte>();
         }
 
-        public async Task GeneratePdf()
+        protected override async Task OnInitializedAsync()
         {
-            if (Member is null)
-            {
-                navigation.NavigateTo("/Identity/Account/Login", true);
-            }
             if (string.IsNullOrWhiteSpace(eventId))
             {
                 navigation.NavigateTo("/", true);
             }
+
+            var loggedIn = auth.GetIdentity().Result?.Name != null;
+            if (Member is null)
+                navigation.NavigateTo(loggedIn ? "/members/new" : "/Identity/Account/Login", true);
+        }
+
+        public async Task GeneratePdf()
+        {
+            
             using var bytes = new ByteArrayOutputStream();
             using var writer = new PdfWriter(bytes);
             using var document = new PdfDocument(writer);
@@ -97,7 +102,7 @@ namespace TNG.Web.Board.Pages.Events.Venue.TheCastingHouse
                 pdf.Add(new Paragraph($"Event: {CalendarEvent.Summary}"));
                 if (CalendarEvent.Start is not null)
                 {
-                    pdf.Add(new Paragraph($"Date: {CalendarEvent.Start.DateTime.ToAZTime().Value.ToString("MM/dd/yyyy")}"));
+                    pdf.Add(new Paragraph($"Date: {CalendarEvent.Start.DateTime.ToAZTime()?.ToString("MM/dd/yyyy")}"));
                 }
             }
             pdf.Add(new Paragraph(Regex.Replace(agreementHtml, "<.*?>", string.Empty)).SetFontSize(10));
@@ -126,6 +131,11 @@ namespace TNG.Web.Board.Pages.Events.Venue.TheCastingHouse
             using var streamRef = new DotNetStreamReference(stream: new MemoryStream(pdfBytes));
 
             await js.InvokeVoidAsync("downloadFileFromStream", "liabilityForm.pdf", streamRef);
+
+            var confirm = await js.InvokeAsync<bool>("confirm", "Successfully signed. Leave page?");
+
+            if (confirm)
+                navigation.NavigateTo("/");
         }
     }
 }
