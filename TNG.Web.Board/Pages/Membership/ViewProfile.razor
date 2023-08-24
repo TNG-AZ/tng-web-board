@@ -39,11 +39,9 @@
         @if ((ViewMember.MemberFetishes?.Any() ?? false) || EnableEdit)
         {
             <div class="col-sm">
-            
-                <h4>Fetishes</h4>
-
                 @if (EnableEdit)
                 {
+                    <h4>Edit Kinks</h4>
                     <EditForm EditContext="editContext" OnValidSubmit="@(async () => await AddFetishToMember())" class="form-inline">
                         <div class="form-group">
                             <input type="text" list="fetishes" @bind="@NewFetishName" class="form-control" placeholder="Fetish" />
@@ -69,14 +67,63 @@
                     </EditForm>
                 }
 
-                @foreach (var fetish in ViewMember?.MemberFetishes)
+                @if (EnableEdit)
                 {
-                    <span class="badge badge-pill badge-secondary">@fetish.Fetish.Name@(!string.IsNullOrEmpty(fetish.Role?.ToString()) ? $" ({fetish.Role.ToString()})" : string.Empty)@(fetish.WillingToTeach ?? false ? " (Willing to teach)" : string.Empty)
-                        @if (EnableEdit)
+                    <h4>Edit Limits</h4>
+                    <EditForm EditContext="editContext" OnValidSubmit="@(async () => await AddFetishToMember(true))" class="form-inline">
+                        <div class="form-group">
+                            <input type="text" list="fetishes" @bind="@NewFetishName" class="form-control" placeholder="Fetish" />
+                            <datalist id="fetishes">
+                                @foreach (var fetish in Fetishes)
+                                {
+                                    <option value="@fetish.Name" />
+                                }
+                            </datalist>
+                        </div>
+                        <div class="form-group">
+                            <select required="required" class="form-control" @onchange="NewFetishRoleChange">
+                                <option value="" selected>Role</option>
+                                <option value="0">Top</option>
+                                <option value="1">Bottom</option>
+                                <option value="2">Switch</option>
+                            </select>
+                        </div>
+                        <button type="submit">Add</button>
+                    </EditForm>
+                }
+
+                @{
+                    var fetishes = ViewMember?.MemberFetishes?.Where(f => !f.Limit);
+                    var limits = ViewMember?.MemberFetishes?.Where(f => f.Limit);
+                    if (fetishes?.Any() ?? false)
+                    {
+
+                        <h4>Fetishes</h4>
+                        foreach (var fetish in fetishes)
                         {
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close" @onclick=@(async () => await UnlinkFetish(fetish.Id))><span aria-hidden="true">&times;</span></button>
+                            <span class="badge badge-pill badge-secondary">
+                                @fetish.Fetish.Name@(!string.IsNullOrEmpty(fetish.Role?.ToString()) ? $" ({fetish.Role.ToString()})" : string.Empty)@(fetish.WillingToTeach ?? false ? " (Willing to teach)" : string.Empty)
+                                @if (EnableEdit)
+                                {
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close" @onclick=@(async () => await UnlinkFetish(fetish.Id))><span aria-hidden="true">&times;</span></button>
+                                }
+                            </span>
                         }
-                    </span>
+                    }
+                    
+                    if (limits?.Any() ?? false)
+                    {
+                        <h4>Limits</h4>
+                        foreach (var fetish in limits)
+                        {
+                            <span class="badge badge-pill badge-secondary">@fetish.Fetish.Name@(!string.IsNullOrEmpty(fetish.Role?.ToString()) ? $" ({fetish.Role.ToString()})" : string.Empty)@(fetish.WillingToTeach ?? false ? " (Willing to teach)" : string.Empty)
+                                @if (EnableEdit)
+                                {
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close" @onclick=@(async () => await UnlinkFetish(fetish.Id))><span aria-hidden="true">&times;</span></button>
+                                }
+                            </span>
+                        }
+                    }
                 }
                 </div>
             }

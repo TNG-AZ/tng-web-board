@@ -24,6 +24,7 @@ namespace TNG.Web.Board.Data.DTOs
         public Guid FetishId { get; set; }
         public FetishRoleEnum? Role { get; set; }
         public bool? WillingToTeach { get; set; }
+        public bool Limit { get; set; } = false;
 
         public Member Member { get; set; }
         public Fetish Fetish { get; set; }

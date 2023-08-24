@@ -132,7 +132,7 @@ namespace TNG.Web.Board.Pages.Membership
             else
                 NewFetishRole = int.TryParse(e.Value.ToString(), out var roleId) ? (FetishRoleEnum)roleId : null;
         }
-        private async Task AddFetishToMember()
+        private async Task AddFetishToMember(bool limit = false)
         {
             if (!string.IsNullOrEmpty(NewFetishName)
                 && !context.MembersFetishes.Where(mf => mf.MemberId == UserMember!.Id).Select(mf => mf.Fetish).Any(f => EF.Functions.Like(f.Name, NewFetishName)))
@@ -140,10 +140,15 @@ namespace TNG.Web.Board.Pages.Membership
                 var fetish = await context.Fetishes.FirstOrDefaultAsync(f => EF.Functions.Like(f.Name, NewFetishName));
                 if (fetish is null)
                 {
-                    fetish = context.Add(new Fetish { Name = NewFetishName }).Entity;
+                    fetish = context.Add(new Fetish { Name = NewFetishName}).Entity;
                     await context.SaveChangesAsync();
                 }
-                context.Add(new MemberFetish { MemberId = UserMember!.Id, FetishId = fetish.Id, Role = NewFetishRole, WillingToTeach = NewFetishWillingToTeach });
+                context.Add(new MemberFetish { 
+                    MemberId = UserMember!.Id, 
+                    FetishId = fetish.Id, 
+                    Role = NewFetishRole, 
+                    WillingToTeach = NewFetishWillingToTeach, 
+                    Limit = limit });
                 await context.SaveChangesAsync();
 
                 NewFetishName = string.Empty;
