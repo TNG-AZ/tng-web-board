@@ -241,18 +241,25 @@ namespace TNG.Web.Board.Pages.Events
                 //Create an archive and store the stream in memory.
                 using (var zipArchive = new ZipArchive(compressedFileStream, ZipArchiveMode.Create, false))
                 {
-                    foreach (var signature in Signatures)
+                    var sigsBySceneName = Signatures.GroupBy(s => s.SceneName.Trim().ToLower());
+                    foreach (var sigGroup in sigsBySceneName)
                     {
-                        //Create a zip entry for each attachment
-                        var zipEntry = zipArchive.CreateEntry($"liabilityForm-{eventId}-{signature!.Member.SceneName}.pdf");
-
-                        //Get the stream of the attachment
-                        using (var originalFileStream = new MemoryStream(signature.SignedForm))
-                        using (var zipEntryStream = zipEntry.Open())
+                        var num = 1;
+                        var sceneName = sigGroup.Key;
+                        foreach(var sig in sigGroup)
                         {
-                            //Copy the attachment stream to the zip entry stream
-                            originalFileStream.CopyTo(zipEntryStream);
+                            //Create a zip entry for each attachment
+                            var zipEntry = zipArchive.CreateEntry($"liabilityForm-{eventId}-{sceneName}-{num}.pdf");
+
+                            //Get the stream of the attachment
+                            using (var originalFileStream = new MemoryStream(sig.SignedForm))
+                            using (var zipEntryStream = zipEntry.Open())
+                            {
+                                //Copy the attachment stream to the zip entry stream
+                                originalFileStream.CopyTo(zipEntryStream);
+                            }
                         }
+                        
                     }
                 }
 
