@@ -23,6 +23,7 @@ namespace TNG.Web.Board.Data.DTOs
         [ForeignKey(nameof(Fetish))]
         public Guid FetishId { get; set; }
         public FetishRoleEnum? Role { get; set; }
+        public bool? HardLimit { get; set; }
         public bool? WillingToTeach { get; set; }
         public bool Limit { get; set; } = false;
 

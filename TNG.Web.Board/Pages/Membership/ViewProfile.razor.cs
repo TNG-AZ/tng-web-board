@@ -124,6 +124,7 @@ namespace TNG.Web.Board.Pages.Membership
         private string? NewFetishName { get; set; }
         private FetishRoleEnum? NewFetishRole { get; set; }
         private bool? NewFetishWillingToTeach { get; set; }
+        private bool? NewFetishHardLimit { get; set; }
 
         private void NewFetishRoleChange(ChangeEventArgs e)
         {
@@ -148,6 +149,7 @@ namespace TNG.Web.Board.Pages.Membership
                     FetishId = fetish.Id, 
                     Role = NewFetishRole, 
                     WillingToTeach = NewFetishWillingToTeach, 
+                    HardLimit = NewFetishHardLimit,
                     Limit = limit });
                 await context.SaveChangesAsync();
 
