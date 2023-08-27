@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System.IO.Compression;
+using System.Text.RegularExpressions;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Services;
 
@@ -29,7 +30,8 @@ namespace TNG.Web.Board.Pages.Signatures
                     foreach (var sigGroup in sigsBySceneName)
                     {
                         var num = 1;
-                        var sceneName = sigGroup.Key;
+                        var rgx = new Regex("[^a-zA-Z0-9]");
+                        var sceneName = rgx.Replace(sigGroup.Key, "");
                         foreach (var sig in sigGroup)
                         {
                             //Create a zip entry for each attachment
@@ -42,6 +44,7 @@ namespace TNG.Web.Board.Pages.Signatures
                                 //Copy the attachment stream to the zip entry stream
                                 originalFileStream.CopyTo(zipEntryStream);
                             }
+                            num++;
                         }
 
                     }
