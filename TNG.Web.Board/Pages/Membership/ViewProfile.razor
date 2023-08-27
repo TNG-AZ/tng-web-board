@@ -72,7 +72,7 @@
                     <h4>Edit Limits</h4>
                     <EditForm EditContext="editContext" OnValidSubmit="@(async () => await AddFetishToMember(true))" class="form-inline">
                         <div class="form-group">
-                            <input type="text" list="fetishes" @bind="@NewFetishName" class="form-control" placeholder="Fetish" />
+                            <input type="text" list="fetishes" @bind="@NewFetishName" class="form-control" placeholder="Limit" />
                             <datalist id="fetishes">
                                 @foreach (var fetish in Fetishes)
                                 {
