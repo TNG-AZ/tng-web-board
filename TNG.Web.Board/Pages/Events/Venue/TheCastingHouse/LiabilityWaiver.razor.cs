@@ -89,6 +89,15 @@ namespace TNG.Web.Board.Pages.Events.Venue.TheCastingHouse
                 navigation.NavigateTo(loggedIn ? "/members/new" : "/Identity/Account/Login", true);
         }
 
+        protected override async Task OnAfterRenderAsync(bool _)
+        {
+            if (CalendarEvent == null)
+            {
+                await js.InvokeVoidAsync("alert", "Invalid calendar event");
+                navigation.NavigateTo("/", true);
+            }
+        }
+
         public async Task GeneratePdf()
         {
             
