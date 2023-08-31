@@ -9,7 +9,7 @@ namespace TNG.Web.Board.Pages.Users
 {
     public partial class ListUsers : PageModel
     {
-        private readonly UserManager<IdentityUser> _userManager;
+       public readonly UserManager<IdentityUser> _userManager;
 
         public ListUsers(
             UserManager<IdentityUser> userManager)

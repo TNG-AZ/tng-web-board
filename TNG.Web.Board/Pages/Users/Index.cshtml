@@ -46,11 +46,15 @@
                 <tbody>
                     @foreach (var userRec in users)
                     {
+                        var isAdmin = Model._userManager.GetRolesAsync(userRec).Result.Contains("Administrator");
                         <tr class="d-table-row my-0">
                             <td>
-                                <button type="submit" name="userId" value="@userRec.Id" form="delete" asp-page-handler="Delete">
-                                    Delete
-                                </button>
+                                @if(!isAdmin){
+                                    <button type="submit" name="userId" value="@userRec.Id" form="delete" asp-page-handler="Delete">
+                                        Delete
+                                    </button>
+                                }
+
                                 @if (User.Identity!.Name != userRec.UserName)
                                 {
                                     @if (User.IsInRole("Administrator"))
