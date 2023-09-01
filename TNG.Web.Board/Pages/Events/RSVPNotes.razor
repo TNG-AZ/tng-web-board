@@ -1,2 +1,20 @@
-﻿<textarea @bind="Rsvp.Notes"/><br/>
+﻿<h3>Plus Ones</h3>
+<datalist id="members">
+@foreach (var m in Members)
+{
+    <option value="@m.Id">@m.SceneName</option>
+}
+</datalist>
+<input autoComplete="on" list="members" @bind=@NewPlusOneMemberId /> <button type="button" @onclick=@AddPlusOne>Add</button>
+<br/>
+@foreach (var p in PlusOnes)
+{
+    <span class="badge badge-pill badge-secondary">
+        @p.PlusOne.SceneName
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close" @onclick=@(async () => await RemovePlusOne(p))><span aria-hidden="true">&times;</span></button>
+    </span>
+}
+<br/>
+<h3>Notes</h3>
+<textarea @bind="Rsvp.Notes"/><br/>
 <button type="button" @onclick=@(async () => await SaveNote())>Save</button>

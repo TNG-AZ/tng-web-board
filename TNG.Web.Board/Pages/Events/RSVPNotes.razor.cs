@@ -19,10 +19,65 @@ namespace TNG.Web.Board.Pages.Events
         BlazoredModalInstance BlazoredModal { get; set; }
 #nullable enable
 
+        private IEnumerable<EventRsvpPlusOne>? _plusOnes { get; set; }
+        private IEnumerable<EventRsvpPlusOne> PlusOnes
+            => _plusOnes ?? context.EventRsvpPlusOnes
+                .Include(e => e.Member)
+                .Include(e => e.PlusOne)
+                .Where(e => e.EventId == Rsvp.EventId && e.MemberId == Rsvp.MemberId);
+
+        private IEnumerable<Member>? _members { get; set; }
+        private IEnumerable<Member> Members
+            => _members ?? context.Members
+                .Where(m => !m.PrivateProfile);
+
+        private Guid? NewPlusOneMemberId { get; set; }
+
+        private async Task AddPlusOne()
+        {
+            try
+            {
+                shouldRender = false;
+                if (NewPlusOneMemberId is null)
+                {
+                    return;
+                }
+                await context.EventRsvpPlusOnes.AddAsync(new()
+                {
+                    EventId = Rsvp.EventId,
+                    MemberId = Rsvp.MemberId,
+                    PlusOneMemberId = NewPlusOneMemberId.Value
+                });
+                await context.SaveChangesAsync();
+                NewPlusOneMemberId = null;
+                _plusOnes = null;
+            }
+            finally
+            {
+                shouldRender = true;
+            }
+        }
+
+        private async Task RemovePlusOne(EventRsvpPlusOne plusOne)
+        {
+            try
+            {
+                shouldRender = false;
+                context.EventRsvpPlusOnes.Remove(plusOne);
+                await context.SaveChangesAsync();
+                _plusOnes = null;
+            }
+            finally
+            {
+                shouldRender = true;
+            }
+        }
+
         private async Task SaveNote()
         {
             try
             {
+                shouldRender = false;
                 if (string.IsNullOrEmpty(Rsvp.Notes?.Trim()))
                     Rsvp.Notes = null;
 
@@ -32,7 +87,17 @@ namespace TNG.Web.Board.Pages.Events
                 await context.SaveChangesAsync();
                 await BlazoredModal.CloseAsync();
             }
-            catch { }
+            finally 
+            { 
+                shouldRender = true; 
+            }
+        }
+
+        private bool shouldRender = true;
+
+        protected override bool ShouldRender()
+        {
+            return shouldRender;
         }
     }
 }
