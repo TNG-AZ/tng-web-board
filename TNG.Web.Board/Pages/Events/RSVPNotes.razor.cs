@@ -24,12 +24,12 @@ namespace TNG.Web.Board.Pages.Events
             => _plusOnes ?? context.EventRsvpPlusOnes
                 .Include(e => e.Member)
                 .Include(e => e.PlusOne)
-                .Where(e => e.EventId == Rsvp.EventId && e.MemberId == Rsvp.MemberId).ToList();
+                .Where(e => e.EventId == Rsvp.EventId && e.MemberId == Rsvp.MemberId);
 
         private IEnumerable<Member>? _members { get; set; }
         private IEnumerable<Member> Members
             => _members ?? context.Members
-                .Where(m => !m.PrivateProfile).ToList();
+                .Where(m => !m.PrivateProfile);
 
         private Guid? NewPlusOneMemberId { get; set; }
         private string? NewPlusOneEmail { get; set; }
