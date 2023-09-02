@@ -24,12 +24,12 @@ namespace TNG.Web.Board.Pages.Events
             => _plusOnes ?? context.EventRsvpPlusOnes
                 .Include(e => e.Member)
                 .Include(e => e.PlusOne)
-                .Where(e => e.EventId == Rsvp.EventId && e.MemberId == Rsvp.MemberId);
+                .Where(e => e.EventId == Rsvp.EventId && e.MemberId == Rsvp.MemberId).ToList();
 
         private IEnumerable<Member>? _members { get; set; }
         private IEnumerable<Member> Members
             => _members ?? context.Members
-                .Where(m => !m.PrivateProfile);
+                .Where(m => !m.PrivateProfile).ToList();
 
         private Guid? NewPlusOneMemberId { get; set; }
         private string? NewPlusOneEmail { get; set; }
@@ -91,7 +91,6 @@ namespace TNG.Web.Board.Pages.Events
                 if (string.IsNullOrEmpty(Rsvp.Notes?.Trim()))
                     Rsvp.Notes = null;
 
-                context.EventRsvps.Attach(Rsvp);
                 context.Entry(Rsvp).State = EntityState.Modified;
 
                 await context.SaveChangesAsync();
