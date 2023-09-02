@@ -214,7 +214,7 @@
                                 <br />
                                 (@member.EmailAddress)
                             </td>
-                            <td>@(member.MemberType == MemberType.Guest ? "Guest" : string.Empty)</td>
+                            <td>@member.MemberType</td>
                             <td>
                                 @if(plusOneSignatures.Any())
                                 {
