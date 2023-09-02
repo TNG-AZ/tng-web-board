@@ -83,7 +83,9 @@
         Orphan Signatures
         <ul>
             @{
-                var orphans = Signatures.Where(s => !Rsvps.Select(r => r.MemberId).Contains(s.MemberId));
+                var orphans = Signatures
+                    .Where(s => !Rsvps.Select(r => r.MemberId).Contains(s.MemberId)
+                        && !PlusOnes.Select(p => p.PlusOneMemberId).Contains(s.MemberId));
                 foreach(var o in orphans)
                 {
                     <li><button type="button" @onclick=@(async () => await GetSignature(o.Id))>@o.SceneName</button></li>
@@ -119,7 +121,7 @@
                 var addedDate = rsvp!.AddedDate.HasValue ? DateTime.SpecifyKind(rsvp.AddedDate.Value, DateTimeKind.Utc).ToAZTime()
                 : (DateTime?)null;
                 var memberSignatures = Signatures.Where(s => s.MemberId == rsvp.MemberId).Select(s => s.Id);
-                var plusOnes = rsvp.Member.RsvpPlusOnesAsPrimary.Where(p => p.EventId == eventId);
+                var plusOnes = PlusOnes.Where(p => p.MemberId == rsvp.MemberId);
                 <tr>
                     <td>
                         <CollapsibleCard CardHeaderTitle="Actions">
@@ -201,8 +203,8 @@
                     foreach (var p in plusOnes)
                     {
                         var member = p.PlusOne;
-                        var plusOneIssues = GetMembershipIssues(rsvp.Member);
-                        var plusOneHasVaxProof = rsvp.Member.ReceivedProofOfCovid19Vaccination;
+                        var plusOneIssues = GetMembershipIssues(member);
+                        var plusOneHasVaxProof = member.ReceivedProofOfCovid19Vaccination;
                         var plusOneSignatures = Signatures.Where(s => s.MemberId == member.Id).Select(s => s.Id);
                         <tr>
                             <td>

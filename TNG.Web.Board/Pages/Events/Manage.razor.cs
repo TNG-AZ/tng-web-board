@@ -47,9 +47,19 @@ namespace TNG.Web.Board.Pages.Events
                 .Include(e => e.Member.Orientations)
                 .Include(e => e.Member.Payments)
                 .Include(e => e.Member.Invoices)
-                .Include(e => e.Member.RsvpPlusOnesAsPrimary)
-                .ThenInclude(e => e.PlusOne)
                 .Where(e => e.EventId == eventId).ToList();
+
+        private IEnumerable<EventRsvpPlusOne>? _plusOnes { get; set; }
+        private IEnumerable<EventRsvpPlusOne> PlusOnes
+            => _plusOnes ??= context.EventRsvpPlusOnes
+                .Include(p => p.Member)
+                .Include(p => p.PlusOne)
+                .Include(p => p.PlusOne.Suspensions)
+                .Include(p => p.PlusOne.Orientations)
+                .Include(p => p.PlusOne.Payments)
+                .Where(p => p.EventId == eventId 
+                    && Rsvps.Select(r => r.MemberId).Contains(p.MemberId)
+                ).ToList();
 
         private EventFees? _eventFees { get; set; }
         private EventFees? EventFees
