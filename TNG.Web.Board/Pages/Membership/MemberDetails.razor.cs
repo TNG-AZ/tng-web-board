@@ -233,11 +233,13 @@ namespace TNG.Web.Board.Pages.Membership
             bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure?");
             if (confirmed)
             {
-                context.RemoveRange(Member.Orientations.Where(o => Member.Orientations.Select(mo => mo.Id).Contains(o.Id)));
-                context.RemoveRange(Member.Payments.Where(p => Member.Payments.Select(mp => mp.Id).Contains(p.Id)));
-                context.RemoveRange(Member.Notes.Where(n => Member.Notes.Select(mn => mn.Id).Contains(n.Id)));
-                context.RemoveRange(Member.Suspensions.Where(s => Member.Suspensions.Select(ms => ms.Id).Contains(s.Id)));
-                context.Remove(Member);
+                context.MemberOrientations.RemoveRange(Member.Orientations);
+                context.MemberDuesPayments.RemoveRange(Member.Payments);
+                context.MemberNotes.RemoveRange(Member.Notes);
+                context.MemberSuspensions.RemoveRange(Member.Suspensions);
+                context.EventRsvpPlusOnes.RemoveRange(Member.RsvpPlusOnesAsGuest);
+                context.EventRsvpPlusOnes.RemoveRange(Member.RsvpPlusOnesAsPrimary);
+                context.Members.Remove(Member);
                 await context.SaveChangesAsync();
                 await JsRuntime.InvokeVoidAsync("alert", "Successfully deleted");
                 navigation.NavigateTo("/members/");
