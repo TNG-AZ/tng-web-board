@@ -43,18 +43,18 @@ namespace TNG.Web.Board.Data.DTOs
         public string? AboutMe { get; set; }
 #nullable disable
 
-        public virtual List<MembershipPayment> Payments { get; set; }
-        public virtual List<MembershipSuspension> Suspensions { get; set; }
-        public virtual List<MembershipNote> Notes { get; set; }
-        public virtual List<MembershipOrientation> Orientations { get; set; }
-        public virtual List<EventRsvp> Events { get; set; }
-        public virtual List<MemberFetish> MemberFetishes { get; set; }
-        public virtual List<MemberDiscordIntegration> MemberDiscords { get; set; }
-        public virtual List<EventInvoice> Invoices { get; set; }
-        public virtual List<Signature> Signatures { get; set; }
+        public virtual IEnumerable<MembershipPayment> Payments { get; set; }
+        public virtual IEnumerable<MembershipSuspension> Suspensions { get; set; }
+        public virtual IEnumerable<MembershipNote> Notes { get; set; }
+        public virtual IEnumerable<MembershipOrientation> Orientations { get; set; }
+        public virtual IEnumerable<EventRsvp> Events { get; set; }
+        public virtual IEnumerable<MemberFetish> MemberFetishes { get; set; }
+        public virtual IEnumerable<MemberDiscordIntegration> MemberDiscords { get; set; }
+        public virtual IEnumerable<EventInvoice> Invoices { get; set; }
+        public virtual IEnumerable<Signature> Signatures { get; set; }
         [InverseProperty(nameof(EventRsvpPlusOne.Member))]
-        public virtual List<EventRsvpPlusOne> RsvpPlusOnesAsPrimary { get; set; }
+        public virtual IEnumerable<EventRsvpPlusOne> RsvpPlusOnesAsPrimary { get; set; }
         [InverseProperty(nameof(EventRsvpPlusOne.PlusOne))]
-        public virtual List<EventRsvpPlusOne> RsvpPlusOnesAsGuest { get; set; }
+        public virtual IEnumerable<EventRsvpPlusOne> RsvpPlusOnesAsGuest { get; set; }
     }
 }

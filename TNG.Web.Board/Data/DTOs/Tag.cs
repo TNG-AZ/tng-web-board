@@ -15,7 +15,7 @@ namespace TNG.Web.Board.Data.DTOs
         public string Name { get; set; }
 
 #nullable enable
-        public virtual List<NoteTag>? NoteTags { get; set; }
+        public virtual IEnumerable<NoteTag>? NoteTags { get; set; }
 #nullable disable
     }
 }

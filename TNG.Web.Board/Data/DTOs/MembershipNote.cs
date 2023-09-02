@@ -22,7 +22,7 @@ namespace TNG.Web.Board.Data.DTOs
         public virtual Member Member { get; set; }
 
 #nullable enable
-        public virtual List<NoteTag>? NoteTags { get; set; }
+        public virtual IEnumerable<NoteTag>? NoteTags { get; set; }
 #nullable disable
     }
 }
