@@ -32,12 +32,21 @@ namespace TNG.Web.Board.Pages.Events
                 .Where(m => !m.PrivateProfile);
 
         private Guid? NewPlusOneMemberId { get; set; }
+        private string? NewPlusOneEmail { get; set; }
 
         private async Task AddPlusOne()
         {
             try
             {
                 shouldRender = false;
+                if (NewPlusOneMemberId is null && !string.IsNullOrEmpty(NewPlusOneEmail))
+                {
+                    var member = await context.Members.FirstOrDefaultAsync(m => EF.Functions.Like(m.EmailAddress, NewPlusOneEmail.Trim()));
+                    if (member != null)
+                    {
+                        NewPlusOneMemberId = member.Id;
+                    }
+                }
                 if (NewPlusOneMemberId is null)
                 {
                     return;
@@ -50,6 +59,7 @@ namespace TNG.Web.Board.Pages.Events
                 });
                 await context.SaveChangesAsync();
                 NewPlusOneMemberId = null;
+                NewPlusOneEmail = null;
                 _plusOnes = null;
             }
             finally

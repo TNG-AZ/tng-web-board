@@ -5,8 +5,7 @@
     <option value="@m.Id">@m.SceneName</option>
 }
 </datalist>
-<input autoComplete="on" list="members" @bind=@NewPlusOneMemberId /> <button type="button" @onclick=@AddPlusOne>Add</button>
-<br/>
+
 @foreach (var p in PlusOnes)
 {
     <span class="badge badge-pill badge-secondary">
@@ -14,6 +13,22 @@
         <button type="button" class="close" data-dismiss="alert" aria-label="Close" @onclick=@(async () => await RemovePlusOne(p))><span aria-hidden="true">&times;</span></button>
     </span>
 }
+<CollapsibleCard CardHeaderTitle="Add Plus One">
+    <CardBody>
+        <p>Search By:</p>
+        <div class="form-group">
+            <label>Scene Name: </label>
+            <input class="form-control" autoComplete="on" list="members" @bind=@NewPlusOneMemberId aria-describedby="sceneNameHelp"/>
+            <small id="sceneNameHelp" class="form-text text-muted">
+                Will change to ID after scene name selected from list
+            </small>
+            <label>Email: </label>
+            <input class="form-control" @bind=@NewPlusOneEmail />
+        </div>
+        <button type="button" @onclick=@AddPlusOne>Add</button>
+    </CardBody>
+</CollapsibleCard>
+
 <br/>
 <h3>Notes</h3>
 <textarea @bind="Rsvp.Notes"/><br/>
