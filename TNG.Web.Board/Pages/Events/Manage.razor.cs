@@ -47,6 +47,8 @@ namespace TNG.Web.Board.Pages.Events
                 .Include(e => e.Member.Orientations)
                 .Include(e => e.Member.Payments)
                 .Include(e => e.Member.Invoices)
+                .Include(e => e.Member.RsvpPlusOnesAsPrimary)
+                .ThenInclude(e => e.PlusOne)
                 .Where(e => e.EventId == eventId).ToList();
 
         private EventFees? _eventFees { get; set; }
@@ -58,6 +60,13 @@ namespace TNG.Web.Board.Pages.Events
             => _signatures ??= context.Signatures
                 .Include(s => s.Member)
                 .Where(s => s.EventId == eventId).ToList();
+
+        private HashSet<Guid> ExpandedPlusOnes = new();
+
+        private bool ToggleExpand(Guid rsvpId)
+            => ExpandedPlusOnes.Contains(rsvpId)
+                ? ExpandedPlusOnes.Remove(rsvpId)
+                : ExpandedPlusOnes.Add(rsvpId);
 
         private enum IssuesStatus
         {

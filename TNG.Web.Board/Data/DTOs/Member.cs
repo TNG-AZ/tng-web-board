@@ -52,5 +52,9 @@ namespace TNG.Web.Board.Data.DTOs
         public virtual List<MemberDiscordIntegration> MemberDiscords { get; set; }
         public virtual List<EventInvoice> Invoices { get; set; }
         public virtual List<Signature> Signatures { get; set; }
+        [InverseProperty(nameof(EventRsvpPlusOne.Member))]
+        public virtual List<EventRsvpPlusOne> RsvpPlusOnesAsPrimary { get; set; }
+        [InverseProperty(nameof(EventRsvpPlusOne.PlusOne))]
+        public virtual List<EventRsvpPlusOne> RsvpPlusOnesAsGuest { get; set; }
     }
 }

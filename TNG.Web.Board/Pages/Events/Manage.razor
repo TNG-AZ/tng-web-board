@@ -119,6 +119,7 @@
                 var addedDate = rsvp!.AddedDate.HasValue ? DateTime.SpecifyKind(rsvp.AddedDate.Value, DateTimeKind.Utc).ToAZTime()
                 : (DateTime?)null;
                 var memberSignatures = Signatures.Where(s => s.MemberId == rsvp.MemberId).Select(s => s.Id);
+                var plusOnes = rsvp.Member.RsvpPlusOnesAsPrimary.Where(p => p.EventId == eventId);
                 <tr>
                     <td>
                         <CollapsibleCard CardHeaderTitle="Actions">
@@ -140,6 +141,10 @@
                                 </button><br />
                             </CardBody>
                         </CollapsibleCard>
+                        @if (plusOnes.Any())
+                        {
+                            <button type="button" @onclick=@(() => ToggleExpand(rsvp.Id))>Expand +1s</button>
+                        }
                     </td>
                     <td class=@GetRsvpStatus(rsvp, issues)>
                         <a href="/members/view/@rsvp.Member.Id">@rsvp.Member.SceneName</a>
@@ -147,7 +152,13 @@
                         (@rsvp.Member.EmailAddress)
                     </td>
                     <td>@rsvp.Status.ToString()@(rsvp.Member.MemberType == MemberType.Guest ? " - Guest" : string.Empty)</td>
-                    <td>@if(memberSignatures.Any())
+                    <td>
+                        @if (plusOnes.Any())
+                        {
+                            var plusOneString = string.Join(", ", plusOnes.Select(p => p.PlusOne.SceneName));
+                            <p>Plus Ones: @plusOneString</p>
+                        }
+                        @if(memberSignatures.Any())
                         {
                             foreach(var s in memberSignatures)
                             {
@@ -155,7 +166,12 @@
                             }
                             <br />
                         }
-                        @rsvp.Notes</td>
+                        @if (!string.IsNullOrEmpty(rsvp.Notes))
+                        {
+                            <p>Notes: @rsvp.Notes</p>
+                        }
+                        
+                    </td>
                     <td class="@(!approved ? "table-warning" : string.Empty)">@(approved.ToString())</td>
                     <td class="@(!paid ? "table-warning" : string.Empty)">
                         @if(rsvp.Paid??false)
@@ -180,6 +196,45 @@
                         @(addedDate.HasValue ? $"{ addedDate.Value.ToString("yyyy-MM-dd")} {addedDate.Value.ToString("HH:mm")}" : string.Empty)
                    </td>
                 </tr>
+                @if(plusOnes.Any() && ExpandedPlusOnes.Contains(rsvp.Id))
+                {
+                    foreach (var p in plusOnes)
+                    {
+                        var member = p.PlusOne;
+                        var plusOneIssues = GetMembershipIssues(rsvp.Member);
+                        var plusOneHasVaxProof = rsvp.Member.ReceivedProofOfCovid19Vaccination;
+                        var plusOneSignatures = Signatures.Where(s => s.MemberId == member.Id).Select(s => s.Id);
+                        <tr>
+                            <td>
+                            </td>
+                            <td class=@GetRsvpStatus(rsvp, issues)>
+                                <a href="/members/view/@member.Id">(+1 of @rsvp.Member.SceneName) @member.SceneName</a>
+                                <br />
+                                (@member.EmailAddress)
+                            </td>
+                            <td>@(member.MemberType == MemberType.Guest ? "Guest" : string.Empty)</td>
+                            <td>
+                                @if(plusOneSignatures.Any())
+                                {
+                                    foreach(var s in plusOneSignatures)
+                                    {
+                                        <button type="button" @onclick=@(async () => await GetSignature(s))>Get Signature</button>
+                                    }
+                                    <br />
+                                }
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td class="@(!plusOneHasVaxProof ? "table-warning" : string.Empty)">@(plusOneHasVaxProof.ToString())</td>
+                            <td class="@(plusOneIssues.Status switch { IssuesStatus.Danger => "table-danger", IssuesStatus.Warning => "table-warning", _ => string.Empty })">
+                                @string.Join(" ", plusOneIssues.Issues)
+                            </td>
+                            <td>
+                                @p.CreatedDT.ToString("yyyy-MM-dd HH:mm")
+                            </td>
+                        </tr>
+                    }
+                }
             }
         </tbody>
     </table>
