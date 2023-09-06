@@ -15,8 +15,8 @@
     <AuthorizeView Roles="Boardmember">
         <Authorized>
             <br />
-            <label>Start Date:</label><input type="datetime" @bind=@CalendarStartDate /><br />
-            <label>End Date:</label><input type="datetime" @bind=@CalendarEndDate/><br/>
+            <label>Start Date:</label><input type="date" @bind=@CalendarStartDate /><br />
+            <label>End Date:</label><input type="date" @bind=@CalendarEndDate/><br/>
             <button type="button" @onclick=@(() => StateHasChanged())>Submit</button>
         </Authorized>
     </AuthorizeView>
