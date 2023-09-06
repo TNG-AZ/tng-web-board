@@ -52,10 +52,15 @@ namespace TNG.Web.Board.Pages.Events
         {
             var request = Google.Calendar.Events.List(CalendarId);
             request.SingleEvents = true;
-            request.TimeMin = DateTime.Now.AddDays(-2);
-            request.TimeMax = DateTime.Now.AddMonths(1);
+            request.TimeMin = CalendarStartDate;
+            request.TimeMax = CalendarEndDate;
             return request.Execute();
         }
+
+        private DateTime CalendarStartDate { get; set; } = DateTime.Now.AddDays(-2);
+        private DateTime CalendarEndDate { get; set; } = DateTime.Now.AddMonths(1);
+
+        private IEnumerable<Event>? CalendarEvents { get; set; }
 
         private IEnumerable<Event> GetUpcomingEvents()
             => GetEvents().Items
