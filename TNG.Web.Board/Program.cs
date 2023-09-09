@@ -41,12 +41,17 @@ builder.Services.AddRazorPages(options =>
 {
     options.Conventions.AuthorizeFolder("/Users", "IsBoardMember");
 });
+
 builder.Services.AddServerSideBlazor();
+
+builder.Services.AddHttpClient();
+
 builder.Services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
 builder.Services.AddSingleton<GoogleServices>();
 builder.Services.AddSingleton<SquareService>();
 builder.Services.AddScoped<AuthUtilities>();
 builder.Services.AddSingleton<IEmailSender, GoogleServices>();
+builder.Services.AddSingleton<LinksService>();
 builder.Services.AddBlazoredModal();
 
 builder.Services.AddMemoryCache();

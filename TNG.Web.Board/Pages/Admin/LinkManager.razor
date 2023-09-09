@@ -1,0 +1,43 @@
+﻿@page "/admin/linkmanager"
+
+<h3>LinkManager</h3>
+
+<CollapsibleCard CardHeaderTitle="Create Link">
+    <CardBody>
+        <div class="form-group">
+            <label>URL</label>
+            <input class="form-control" @bind=@linkRoute />
+        </div>
+        <div class="form-group">
+            <label>Title</label>
+            <input class="form-control" @bind=@linkRequest.Title />
+            <label>Description</label>
+            <input class="form-control" @bind=@linkRequest.Description />
+            <label>Image URL</label>
+            <input class="form-control" @bind=@linkRequest.Image />
+            <label>Redirect</label>
+            <input class="form-control" @bind=@linkRequest.Redirect />
+        </div>
+        <button type="button" @onclick=@(async () => await CreateLink())>Create</button>
+        @if(!string.IsNullOrEmpty(createLinkOutput))
+        {
+            <br/>
+            <h4>Output</h4>
+            @createLinkOutput
+        }
+    </CardBody>
+</CollapsibleCard>
+<CollapsibleCard CardHeaderTitle="Delete Link">
+    <CardBody>
+        <div class="form-group">
+            <label>URL</label>
+            <input @bind=@deleteRoute />
+            <button type="button" @onclick=@(async () => await DeleteLink())>Delete</button>
+            @if (deleteSuccess is not null)
+            {
+                <br />
+                @(deleteSuccess.Value ? "Successfully deleted" : "Failed to delete")
+            }
+        </div>
+    </CardBody>
+</CollapsibleCard>
