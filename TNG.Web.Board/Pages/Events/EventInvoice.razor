@@ -4,14 +4,22 @@
 <label>Due Date: </label><input type="date" @bind=@DueDate/>
 <br />
 <br />
+<h4>Dues</h4>
 <label>Membership Dues</label>
 <input type="number" min="0" step="1" @bind=@MembershipDuesCount/> x($@Fees.MembershipDues)
 <br/>
+<h4>Party Entry</h4>
 <label>Entry - Member</label>
 <input type="number" min="0" step="1" @bind=@PartyEntryMemberCount /> x($@Fees.MemberEntry)
 <br />
 <label>Entry - Guest</label>
 <input type="number" min="0" step="1" @bind=@PartyEntryGuestCount/> x($@Fees.GuestEntry)
 <br/>
-
+<h4>Discounts (only eligible for member entry)</h4>
+<label>Volunteer 50% Off Entry</label>
+<input type="number" min="0" step="1" @bind=@Discount_VolunteerHalfCount />
+<br/>
+<label>Volunteer Free Entry</label>
+<input type="number" min="0" step="1" @bind=@Discount_VolunteerFullCount />
+<br/>
 <button type="button" @onclick=@SubmitInvoce>Send Invoice</button>

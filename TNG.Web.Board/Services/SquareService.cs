@@ -48,6 +48,13 @@ namespace TNG.Web.Board.Services
                 ?? (await client.CustomersApi.CreateCustomerAsync(new(emailAddress: customerEmail))).Customer;
         }
 
+        public async Task<CatalogDiscount> GetOrCreateDiscount(string discountId, string discountName = "", int? percentOff = null, int? centsOff = null)
+        {
+            var discount = await client.CatalogApi.RetrieveCatalogObjectAsync(discountId);
+            var data = discount?.MObject.DiscountData;
+            return data;
+        }
+
         public async Task CreateInvoice(string email, IList<OrderLineItem> lineItems, DateTime paymentDueBy, Guid? invoiceId = null)
         {
             var location = await GetOrCreateLocation("The Next Generation - Arizona");
@@ -55,9 +62,15 @@ namespace TNG.Web.Board.Services
                 locationId: location.Id,
                 lineItems: lineItems,
                 metadata: invoiceId.HasValue
-                    ? new Dictionary<string,string>() { { "invoiceId", invoiceId!.ToString()} }
-                    : null
-                );
+                    ? new Dictionary<string, string>() { { "invoiceId", invoiceId.Value.ToString() } }
+                    : null,
+                discounts: lineItems
+                    .Where(li => li.AppliedDiscounts != null)
+                    .SelectMany(li => li.AppliedDiscounts)
+                    .Select(d => new OrderLineItemDiscount(uid: d.DiscountUid, catalogObjectId:d.DiscountUid, scope:"LINE_ITEM"))
+                    .ToList()
+            );
+
             var order = await client.OrdersApi.CreateOrderAsync(new(newOrder));
             var customer = await GetOrCreateCustomer(email);
             var newInvoice = new Invoice(
@@ -73,7 +86,7 @@ namespace TNG.Web.Board.Services
             await client.InvoicesApi.PublishInvoiceAsync(invoice.Invoice.Id, new(invoice.Invoice.Version!.Value));
         }
 
-        public async Task<OrderLineItem> CreateLineItem(string itemName, int itemQuantity, long itemPrice, string? itemId = null)
+        public async Task<OrderLineItem> CreateLineItem(string itemName, int itemQuantity, long itemPrice, string? itemId = null, string? note = null, string discountCatalogID = null)
         {
             if (itemId != null)
             {
@@ -81,7 +94,16 @@ namespace TNG.Web.Board.Services
                 var variation = catalogueItem?.MObject.ItemData.Variations.FirstOrDefault(v => v.ItemVariationData.PriceMoney.Amount == itemPrice);
                 if (variation is not null)
                 {
-                    return new(itemQuantity.ToString(), catalogObjectId: variation.Id);
+                    return new(itemQuantity.ToString(), 
+                        catalogObjectId: variation.Id, 
+                        appliedDiscounts: !string.IsNullOrEmpty(discountCatalogID)
+                            ? new OrderLineItemAppliedDiscount[]
+                                {
+                                    new OrderLineItemAppliedDiscount(discountCatalogID, uid:discountCatalogID)
+                                }
+                            : null,
+                        note: note
+                    );
                 }
             }
             return new(quantity: itemQuantity.ToString(), name: itemName, basePriceMoney: new(itemPrice, "USD"));

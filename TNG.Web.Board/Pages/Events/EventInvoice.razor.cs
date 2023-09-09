@@ -1,6 +1,7 @@
 ﻿using Blazored.Modal;
 using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using Square.Models;
 using System.Runtime.CompilerServices;
 using TNG.Web.Board.Data;
@@ -25,6 +26,8 @@ namespace TNG.Web.Board.Pages.Events
         private ApplicationDbContext context { get; set; }
         [Inject]
         private SquareService square { get; set; }
+        [Inject]
+        private IJSRuntime js { get; set; }
         [CascadingParameter]
         BlazoredModalInstance BlazoredModal { get; set; }
 #nullable enable
@@ -32,7 +35,20 @@ namespace TNG.Web.Board.Pages.Events
         private int MembershipDuesCount = 0;
         private int PartyEntryMemberCount = 0;
         private int PartyEntryGuestCount = 0;
-        private DateTime DueDate { get; set; } = DateTime.Now.ToAZTime().AddDays(1);
+        private int Discount_VolunteerHalfCount = 0;
+        private int Discount_VolunteerFullCount = 0;
+        private DateTime? _dueDate { get; set; }
+        private DateTime DueDate
+        {
+            get
+            {
+                return _dueDate ??= CalendarEvent.Start.DateTime.ToAZTime()?.AddDays(-1) ?? DateTime.Now.ToAZTime().AddDays(1);
+            }
+            set
+            {
+                _dueDate = value;
+            }
+        }
 
         private const string DuesText = "Memership Dues";
         private const string EntryMemberText = "Party Entry - Member";
@@ -47,7 +63,44 @@ namespace TNG.Web.Board.Pages.Events
             }
             if (Math.Max(PartyEntryMemberCount, 0) > 0)
             {
-                lineItems.Add(await square.CreateLineItem(EntryMemberText, PartyEntryMemberCount, (long)Fees.MemberEntry * 100, Configuration["SquareItems:PartyMember"]));
+                if (Discount_VolunteerHalfCount + Discount_VolunteerFullCount > 0)
+                {
+                    if (Math.Max(Discount_VolunteerFullCount, 0) > 0)
+                    {
+                        var discount = await square.GetOrCreateDiscount(Configuration["SquareItems:Discount_VolunteerFull"]);
+                        if (discount == null)
+                        {
+                            throw new Exception("No entity defined for Discount_VonunteerFull");
+                        }
+                        lineItems.Add(await square.CreateLineItem(
+                            EntryMemberText,
+                            Discount_VolunteerFullCount, 
+                            (long)Fees.MemberEntry * 100, 
+                            Configuration["SquareItems:PartyMember"],
+                            note: "With 100% discount for 2 volunteer shifts",
+                            discountCatalogID: Configuration["SquareItems:Discount_VolunteerFull"]));
+                    }
+                    if (Math.Max(Discount_VolunteerHalfCount, 0) > 0)
+                    {
+                        var discount = await square.GetOrCreateDiscount(Configuration["SquareItems:Discount_VolunteerHalf"]);
+                        if (discount == null)
+                        {
+                            throw new Exception("No entity defined for Discount_VonunteerHalf");
+                        }
+                        lineItems.Add(await square.CreateLineItem(
+                            EntryMemberText,
+                            Discount_VolunteerHalfCount,
+                            (long)Fees.MemberEntry * 100,
+                            Configuration["SquareItems:PartyMember"],
+                            note: "With 50% discount for 1 volunteer shift",
+                            discountCatalogID: Configuration["SquareItems:Discount_VolunteerHalf"]));
+                    }
+                }
+                var diff = PartyEntryMemberCount - Math.Max(Discount_VolunteerFullCount, 0) - Math.Max(Discount_VolunteerHalfCount, 0);
+                if (diff > 0)
+                {
+                    lineItems.Add(await square.CreateLineItem(EntryMemberText, diff, (long)Fees.MemberEntry * 100, Configuration["SquareItems:PartyMember"]));
+                } 
             }
             if (Math.Max(PartyEntryGuestCount, 0) > 0)
             {
@@ -62,6 +115,12 @@ namespace TNG.Web.Board.Pages.Events
             var lineItems = await GenerateLineItems();
             if (!lineItems.Any())
             {
+                await js.InvokeVoidAsync("alert", "must submit at least one line item");
+                return;
+            }
+            if (Math.Max(Discount_VolunteerFullCount, 0) + Math.Max(Discount_VolunteerHalfCount, 0) > PartyEntryMemberCount)
+            {
+                await js.InvokeVoidAsync("alert", "Number of discounts cannot exceed number of member party entries");
                 return;
             }
             try
