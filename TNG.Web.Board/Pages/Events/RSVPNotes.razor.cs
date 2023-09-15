@@ -1,5 +1,6 @@
 ﻿using Blazored.Modal;
 using Microsoft.AspNetCore.Components;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
@@ -31,23 +32,31 @@ namespace TNG.Web.Board.Pages.Events
             => _members ?? context.Members
                 .Where(m => !m.PrivateProfile);
 
-        private Guid? NewPlusOneMemberId { get; set; }
+        private IEnumerable<Member>? MemberSearchResults { get; set; }
+
+        private void SearchBySceneName()
+        {
+            if (!string.IsNullOrWhiteSpace(NewPlusOneSceneName))
+                MemberSearchResults = Members.Where(m => m.SceneName.Trim().Contains(NewPlusOneSceneName.Trim(), StringComparison.OrdinalIgnoreCase));
+        }
+
+        private string? NewPlusOneSceneName { get; set; }
         private string? NewPlusOneEmail { get; set; }
 
-        private async Task AddPlusOne()
+        private async Task AddPlusOne(Guid? memberId = null)
         {
             try
             {
                 shouldRender = false;
-                if (NewPlusOneMemberId is null && !string.IsNullOrEmpty(NewPlusOneEmail))
+                if (memberId is null && !string.IsNullOrEmpty(NewPlusOneEmail))
                 {
                     var member = await context.Members.FirstOrDefaultAsync(m => EF.Functions.Like(m.EmailAddress, NewPlusOneEmail.Trim()));
                     if (member != null)
                     {
-                        NewPlusOneMemberId = member.Id;
+                        memberId = member.Id;
                     }
                 }
-                if (NewPlusOneMemberId is null)
+                if (memberId is null)
                 {
                     return;
                 }
@@ -55,10 +64,11 @@ namespace TNG.Web.Board.Pages.Events
                 {
                     EventId = Rsvp.EventId,
                     MemberId = Rsvp.MemberId,
-                    PlusOneMemberId = NewPlusOneMemberId.Value
+                    PlusOneMemberId = memberId.Value
                 });
                 await context.SaveChangesAsync();
-                NewPlusOneMemberId = null;
+                MemberSearchResults = null;
+                NewPlusOneSceneName = null;
                 NewPlusOneEmail = null;
                 _plusOnes = null;
             }

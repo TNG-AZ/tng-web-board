@@ -2,7 +2,7 @@
 <datalist id="members">
 @foreach (var m in Members)
 {
-    <option value="@m.Id">@m.SceneName</option>
+    <option>@m.SceneName</option>
 }
 </datalist>
 
@@ -17,15 +17,25 @@
     <CardBody>
         <p>Search By:</p>
         <div class="form-group">
+            <p>Please search by scene name OR enter email</p>
             <label>Scene Name: </label>
-            <input class="form-control" autoComplete="on" list="members" @bind=@NewPlusOneMemberId aria-describedby="sceneNameHelp"/>
-            <small id="sceneNameHelp" class="form-text text-muted">
-                Will change to ID after scene name selected from list
-            </small>
+            <input class="form-control" autoComplete="on" list="members" @bind=@NewPlusOneSceneName/>
+            <button type="button" @onclick="SearchBySceneName">Search by Scene Name</button><br/><br/>
+            @if (MemberSearchResults?.Any() ?? false)
+            {
+                <ul>
+                    @foreach (var m in MemberSearchResults)
+                    {
+                        <li>
+                            <button type="button" @onclick=@(() => AddPlusOne(m.Id))>Add</button> @m.SceneName @(!string.IsNullOrWhiteSpace(m.ProfileUrl) ? $" - {m.ProfileUrl}" : string.Empty)
+                        </li>
+                    }
+                </ul>
+            }
             <label>Email: </label>
             <input class="form-control" @bind=@NewPlusOneEmail />
         </div>
-        <button type="button" @onclick=@AddPlusOne>Add</button>
+        <button type="button" @onclick=@(() => AddPlusOne())>Add by Email</button>
     </CardBody>
 </CollapsibleCard>
 
