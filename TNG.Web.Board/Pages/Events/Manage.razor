@@ -96,6 +96,12 @@
     </CardBody>
 </CollapsibleCard>
 
+<CollapsibleCard CardHeaderTitle="Manual Add RSVP">
+    <CardBody>
+        <label>Email: </label><input @bind=@NewRSVPEmail /><button type="button" @onclick=@(async () => AddManualRsvp())>Add RSVP</button>
+    </CardBody>
+</CollapsibleCard>
+
 <div class="table-responsive">
     <table class="table">
         <thead>

@@ -289,5 +289,36 @@ namespace TNG.Web.Board.Pages.Events
                 await js.InvokeVoidAsync("downloadFileFromStream", $"liabilityForms-{eventId}.zip", streamRef);
             }
         }
+
+        private string? NewRSVPEmail { get; set; }
+
+        private async Task AddManualRsvp()
+        {
+            if (string.IsNullOrEmpty(NewRSVPEmail))
+            {
+                await js.InvokeVoidAsync("alert", "please specify a valid user email");
+                return;
+            }
+
+            var member = await context.Members
+                .FirstOrDefaultAsync(m => EF.Functions.Like(m.EmailAddress, NewRSVPEmail));
+
+            if (member is null)
+            {
+                await js.InvokeVoidAsync("alert", "member not found with specified email");
+                return;
+            }
+
+            if (Rsvps.Select(r => r.MemberId).Contains(member.Id))
+            {
+                await js.InvokeVoidAsync("alert", "Member has already RSVPed");
+                return;
+            }
+
+            await context.EventRsvps.AddAsync(new() { MemberId = member.Id, EventId = eventId});
+            await context.SaveChangesAsync();
+            _eventRsvp = null;
+            StateHasChanged();
+        }
     }
 }
