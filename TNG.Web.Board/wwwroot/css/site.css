@@ -216,3 +216,9 @@ a, .btn-link {
 .user-profile .edit-button {
     margin-left: 15px;
 }
+
+blockquote {
+    margin-left: 20px;
+    border-left: solid 5px;
+    padding-left: 10px;
+}

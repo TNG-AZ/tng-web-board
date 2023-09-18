@@ -22,9 +22,21 @@
                     </NavLink>
                 </Authorized>
             </AuthorizeView>
-            <NavLink class="nav-link" href="/about" Match="NavLinkMatch.All">
-                <span class="bi bi-hash" aria-hidden="true"></span> About
+            <NavLink class="nav-link" @onclick="()=>expandAboutNav = !expandAboutNav" Match="NavLinkMatch.All">
+                <span class="bi bi-chevron-down" aria-hidden="true"></span> About
             </NavLink>
+            @if (expandAboutNav)
+            {
+                <NavLink class="nav-link" href="/about" Match="NavLinkMatch.All">
+                    About TNG
+                </NavLink>
+                <NavLink class="nav-link" href="/about/membership" Match="NavLinkMatch.All">
+                    Membership Process
+                </NavLink>
+                <NavLink class="nav-link" href="/about/faq" Match="NavLinkMatch.All">
+                    FAQ
+                </NavLink>
+            }
             <NavLink class="nav-link" href="/calendar" Match="NavLinkMatch.All">
                 <span class="oi oi-calendar" aria-hidden="true"></span> Calendar
             </NavLink>
@@ -86,6 +98,7 @@
     private bool expandSubNav = false;
 
     private bool expandMemberNav = false;
+    private bool expandAboutNav = false;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
