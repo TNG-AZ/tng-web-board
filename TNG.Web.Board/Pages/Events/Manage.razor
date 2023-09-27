@@ -196,7 +196,12 @@
                         @if (plusOnes.Any())
                         {
                             var plusOneString = string.Join(", ", plusOnes.Select(p => p.PlusOne.SceneName));
+                            var paidInvoices = rsvp.Member.Invoices.Where(i => i.EventId == eventId && i.PaidOnDate != null);
                             <p>Plus Ones: @plusOneString</p>
+                            @if (paidInvoices.Any() && (plusOnes.Max(p => p.CreatedDT) > paidInvoices.Max(i => i.PaidOnDate)))
+                            {
+                                <p class="alert-warning">Warning: Plus one added after most recent invoice paid</p>
+                            }
                         }
                         @if(memberSignatures.Any())
                         {
