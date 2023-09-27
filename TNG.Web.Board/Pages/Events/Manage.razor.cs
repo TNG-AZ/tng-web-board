@@ -320,5 +320,62 @@ namespace TNG.Web.Board.Pages.Events
             _eventRsvp = null;
             StateHasChanged();
         }
+
+        private enum Ordering
+        {
+            Chronological,
+            Alphabetical
+        }
+
+        private enum Filtering
+        {
+            Everyone,
+            PaidAndApproved,
+            PaidAndApprovedAndNotHere
+        }
+
+        private Filtering RsvpFiltering { get; set; } = Filtering.Everyone;
+        private Ordering RsvpOrdering { get; set; } = Ordering.Chronological;
+
+        private void UpdateFiltering(Filtering filtering)
+        {
+            RsvpFiltering = filtering;
+            _filteredRsvp = null;
+        }
+
+        private void UpdateOrdering(Ordering ordering)
+        {
+            RsvpOrdering = ordering;
+            _filteredRsvp = null;
+        }
+
+        private List<EventRsvp>? _filteredRsvp { get; set; }
+        private IEnumerable<EventRsvp> FilteredRsvps
+        {
+            get
+            {
+                if (_filteredRsvp == null)
+                {
+                    var filtered = Rsvps
+                        .Where(r =>
+                            RsvpFiltering == Filtering.Everyone
+                            || (RsvpFiltering == Filtering.PaidAndApproved
+                                && (r.Approved??false)
+                                && ((r.Paid??false) || r.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate != null)))
+                            || (RsvpFiltering == Filtering.PaidAndApprovedAndNotHere
+                                && (r.Approved ?? false)
+                                && ((r.Paid ?? false) || r.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate != null))
+                                && !(r.Attended??false)))
+                        ;
+                    _filteredRsvp = (RsvpOrdering switch
+                    {
+                        Ordering.Alphabetical => filtered.OrderBy(r => r.Member.SceneName),
+                        Ordering.Chronological => filtered.OrderBy(r => r.AddedDate),
+                        _ => filtered.OrderBy(r => r.AddedDate)
+                    }).ToList();
+                }
+                return _filteredRsvp;
+            }
+        }
     }
 }

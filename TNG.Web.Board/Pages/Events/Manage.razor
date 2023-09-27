@@ -102,6 +102,38 @@
     </CardBody>
 </CollapsibleCard>
 
+<CollapsibleCard CardHeaderTitle="View Settings">
+    <CardBody>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm">
+                    <h4>Ordering</h4>
+                    <input type="radio" checked="@(RsvpOrdering == Ordering.Chronological)"
+                        name="Ordering" @onchange="@(() => UpdateOrdering(Ordering.Chronological))" />
+                    <label>Chronological</label><br/>
+                    <input type="radio" checked="@(RsvpOrdering == Ordering.Alphabetical)"
+                           name="Ordering" @onchange="@(() => UpdateOrdering(Ordering.Alphabetical))" />
+                    <label>Alphabetical</label>
+                </div>
+                <div class="col-sm">
+                    <h4>Filter</h4>
+                    <input type="radio" checked="@(RsvpFiltering == Filtering.Everyone)"
+                        name="Filtering" @onchange="@(() => UpdateFiltering(Filtering.Everyone))" />
+                    <label>All RSVPs</label><br/>
+                    <input type="radio" checked="@(RsvpFiltering == Filtering.PaidAndApproved)"
+                           name="Filtering" @onchange="@(() => UpdateFiltering(Filtering.PaidAndApproved))" />
+                    <label>Paid And Approved</label>
+                    <input type="radio" checked="@(RsvpFiltering == Filtering.PaidAndApprovedAndNotHere)"
+                        name="Filtering" @onchange="@(() => UpdateFiltering(Filtering.PaidAndApprovedAndNotHere))" />
+                    <label>Waiting for Arrival</label>
+                </div>
+            </div>
+        </div>
+    </CardBody>
+</CollapsibleCard>
+
+<button type="button" @onclick=@(() => {UpdateFiltering(Filtering.PaidAndApprovedAndNotHere); UpdateOrdering(Ordering.Alphabetical);})>Refresh Door View</button>
+
 <div class="table-responsive">
     <table class="table">
         <thead>
@@ -118,7 +150,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach(var rsvp in Rsvps)
+            @foreach (var rsvp in FilteredRsvps)
             {
                 var issues = GetMembershipIssues(rsvp.Member);
                 var approved = rsvp.Approved ?? false;
