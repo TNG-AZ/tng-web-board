@@ -7,6 +7,19 @@
         <input type="text" class="form-control" required="required" @bind="UserMember!.SceneName" />
     </div>
     <div class="form-group">
+        <label>Pronounds:</label>
+        <select @bind=@PronounOption>
+            <option value="h">He/Him/His</option>
+            <option value="s">She/Her/Hers</option>
+            <option value="t">They/Them/Theirs</option>
+            <option value="c">Custom</option>
+        </select>
+        @if (PronounOption == 'c')
+        {
+            <input type="text" @bind=@CustomPronounText>
+        }
+    </div>
+    <div class="form-group">
         <label>Profile URL (/members/view/yourURLHere)</label>
         <input type="text" class="form-control" @bind="UserMember!.ProfileUrl" maxlength="20" />
     </div>

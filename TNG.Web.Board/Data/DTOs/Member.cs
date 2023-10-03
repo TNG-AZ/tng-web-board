@@ -41,6 +41,7 @@ namespace TNG.Web.Board.Data.DTOs
         public string? ProfileUrl { get; set; }
         [Column(TypeName = "TEXT")]
         public string? AboutMe { get; set; }
+        public string? Pronouns { get; set; }
 #nullable disable
 
         public virtual IEnumerable<MembershipPayment> Payments { get; set; }

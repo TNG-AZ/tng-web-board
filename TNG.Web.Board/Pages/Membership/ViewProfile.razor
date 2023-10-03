@@ -22,7 +22,11 @@
                         <button type="button" class="btn btn-secondary edit-button" @onclick=@(async () => await ShowProfileEditModal())>Edit Profile</button>
                     }
                 </h3>
-                
+                @if (!string.IsNullOrEmpty(ViewMember?.Pronouns))
+                {
+                    <p>(@ViewMember.Pronouns)</p>
+                }
+
             <h4>About</h4>
             <p>@ViewMember?.AboutMe</p>
         </div>

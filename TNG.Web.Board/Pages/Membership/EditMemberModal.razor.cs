@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Polly;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
+using TNG.Web.Board.Data.Migrations;
 
 namespace TNG.Web.Board.Pages.Membership
 {
@@ -41,6 +42,8 @@ namespace TNG.Web.Board.Pages.Membership
                 UserMember.AboutMe = null;
             if (UserMember!.ProfileUrl is not null && context.Members.Any(m => m.Id != UserMember.Id && EF.Functions.Like(m.ProfileUrl, UserMember.ProfileUrl)))
                 return;
+            if (!string.IsNullOrEmpty(PronounText) && !PronounText.Equals(UserMember.Pronouns))
+                UserMember.Pronouns = PronounText;
 
             context.Attach(UserMember);
             context.Entry(UserMember).State= EntityState.Modified;
@@ -48,5 +51,16 @@ namespace TNG.Web.Board.Pages.Membership
             await context.SaveChangesAsync();
             await Modal.CloseAsync(ModalResult.Ok());
         }
+
+        private char PronounOption { get; set; }
+        private string CustomPronounText { get; set; } = string.Empty;
+        private string PronounText
+            => PronounOption switch
+            {
+                'h' => "He/Him/His",
+                's' => "She/Her/Hers",
+                't' => "They/Them/Theirs",
+                _ => CustomPronounText
+            };
     }
 }
