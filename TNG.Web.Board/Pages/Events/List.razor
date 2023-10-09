@@ -55,7 +55,14 @@
                 <h5><a href="https://www.google.com/maps/search/?api=1&query=@HttpUtility.UrlEncode(calendarEvent.Location)"><i class="bi bi-map"></i>@calendarEvent.Location</a></h5>
             } 
             </div>
-            <p class="card-text">@StringTools.RemoveHtml(description.Substring(0, Math.Min(description.Length, 300)))@(description.Length > 100 ? "..." : string.Empty)</p>
+            <p class="card-text">
+            @{
+                var displayDescription = StringTools.RemoveHtml(description);
+                displayDescription = displayDescription.Substring(0, Math.Min(displayDescription.Length, 300))
+                    + (displayDescription.Length > 300 ? "..." : string.Empty);
+            }        
+            @displayDescription
+            </p>
             @if (!string.IsNullOrEmpty(going))
             {
                 <p>Going: @((MarkupString)going)</p>
