@@ -173,6 +173,10 @@
                                 <button type="button" @onclick=@(async () => await ToggleAttended(rsvp))>
                                     @(rsvp.Attended ?? false ? "Undo Check-In" : "Mark as Here")
                                 </button><br />
+                                @if (rsvp.Attended ?? false)
+                                {
+                                    <button type="button" @onclick=@(async () => await UpdateMembership(rsvp))>Update Dues/Orientation</button>
+                                }
                                 <button type="button" @onclick=@(() => ShowInvoiceModal(rsvp.Member))>
                                     Send Event Invoice
                                 </button><br />

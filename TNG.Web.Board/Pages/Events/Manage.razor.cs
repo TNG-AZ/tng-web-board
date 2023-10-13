@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 using TNG.Web.Board.Services;
+using TNG.Web.Board.Utilities;
 
 namespace TNG.Web.Board.Pages.Events
 {
@@ -376,6 +377,36 @@ namespace TNG.Web.Board.Pages.Events
                 }
                 return _filteredRsvp;
             }
+        }
+
+        private async Task UpdateMembership(EventRsvp rsvp)
+        {
+            var startTime = CalendarEvent.Start.DateTime.ToAZTime();
+            var oneYearAgo = DateTime.Now.ToAZTime().AddYears(-1);
+
+            if (rsvp.Member.Payments.Any(p => p.PaidOn >= oneYearAgo)
+                || rsvp.Member.Orientations.Any(o => o.DateReceived >= oneYearAgo))
+            {
+                if (!(await js.InvokeAsync<bool>("confirm", "This member has orientation/dues paid in the last 12 months. Continue?")))
+                {
+                    return;
+                }
+            }
+
+            await context.MemberDuesPayments.AddAsync(new()
+            {
+                MemberId = rsvp.MemberId,
+                PaidOn = startTime!.Value
+            });
+
+            await context.MemberOrientations.AddAsync(new()
+            {
+                MemberId = rsvp.MemberId,
+                DateReceived = startTime!.Value,
+            });
+
+            await context.SaveChangesAsync();
+            StateHasChanged();
         }
     }
 }
