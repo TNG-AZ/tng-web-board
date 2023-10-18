@@ -1,5 +1,6 @@
 ﻿@page "/members/view/"
 @page "/members/view/{profileUrl}"
+@using TNG.Web.Board.Utilities;
 
 @if (UserMember is null)
 {
@@ -22,6 +23,36 @@
                         <button type="button" class="btn btn-secondary edit-button" @onclick=@(async () => await ShowProfileEditModal())>Edit Profile</button>
                     }
                 </h3>
+                @if (EnableEdit || auth.IsBoardmember().Result){
+                    var maxOrientationDate = (ViewMember?.Orientations?.Any() ?? false)
+                        ? ViewMember.Orientations.Max(o => o.DateReceived)
+                        : (DateTime?)null;
+                    var maxDuesDate = (ViewMember?.Payments?.Any() ?? false)
+                    ? ViewMember.Payments.Max(p => p.PaidOn)
+                    : (DateTime?)null;
+                    var duesCurrent = maxOrientationDate is not null && maxOrientationDate > DateTime.UtcNow.AddYears(-1).ToAZTime();
+                    var orientationCurrent = maxDuesDate is not null && maxDuesDate > DateTime.UtcNow.AddYears(-1).ToAZTime();
+
+                    if (maxDuesDate is not null && maxOrientationDate is not null)
+                    {
+                        var expiryDate = ((maxDuesDate > maxOrientationDate) ? maxDuesDate.Value : maxOrientationDate.Value)
+                            .AddYears(1)
+                            .ToString("MM/dd/yyyy");
+                        
+                        if (duesCurrent && orientationCurrent)
+                        {
+                            <p>Membership Current (Expires @expiryDate)</p>
+                        }
+                        else
+                        {
+                            <p>Membership Lapsed (Expired @expiryDate)</p>
+                        }
+                    }
+                    else
+                    {
+                        <p>Has not started membership</p>
+                    }
+                }
                 @if (!string.IsNullOrEmpty(ViewMember?.Pronouns))
                 {
                     <p>Pronouns: @ViewMember.Pronouns</p>

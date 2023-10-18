@@ -47,11 +47,13 @@ namespace TNG.Web.Board.Pages.Membership
 
         private Member? GetMember()
             => context.Members?
-            .Include(m => m.MemberFetishes)
-            .ThenInclude(mf => mf.Fetish)
-            .Include(m => m.Events)
-            .FirstOrDefault(m => (!m.PrivateProfile || auth.IsBoardmember().Result) 
-                && (m.Id == MemberId || EF.Functions.Like(m.ProfileUrl, profileUrl)));
+                .Include(m => m.MemberFetishes)
+                .ThenInclude(mf => mf.Fetish)
+                .Include(m => m.Events)
+                .Include(m => m.Orientations)
+                .Include(m => m.Payments)
+                .FirstOrDefault(m => (!m.PrivateProfile || auth.IsBoardmember().Result) 
+                    && (m.Id == MemberId || EF.Functions.Like(m.ProfileUrl, profileUrl)));
 
         private Member? _viewMember { get; set; }
         private Member? ViewMember
@@ -94,6 +96,8 @@ namespace TNG.Web.Board.Pages.Membership
                 .Include(m => m.MemberFetishes)
                 .ThenInclude(mf => mf.Fetish)
                 .Include(m => m.Events)
+                .Include(m => m.Orientations)
+                .Include(m => m.Payments)
                 .FirstOrDefault(m => EF.Functions.Like(m.EmailAddress, name));
         }
 
