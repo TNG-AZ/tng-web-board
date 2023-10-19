@@ -230,15 +230,49 @@ namespace TNG.Web.Board.Pages.Membership
 
         private async void DeleteMember()
         {
-            bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure?");
+            bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure? Deleting a member erases all data associated with the member, including RSVPs and invoices. This should only be done for registrations done accidentally or with no associated data");
             if (confirmed)
             {
-                context.MemberOrientations.RemoveRange(Member.Orientations);
-                context.MemberDuesPayments.RemoveRange(Member.Payments);
-                context.MemberNotes.RemoveRange(Member.Notes);
-                context.MemberSuspensions.RemoveRange(Member.Suspensions);
-                context.EventRsvpPlusOnes.RemoveRange(Member.RsvpPlusOnesAsGuest);
-                context.EventRsvpPlusOnes.RemoveRange(Member.RsvpPlusOnesAsPrimary);
+                if (Member.Orientations?.Any() ?? false)
+                {
+                    context.MemberOrientations.RemoveRange(Member.Orientations);
+                }
+                if (Member.Payments?.Any() ?? false)
+                {
+                    context.MemberDuesPayments.RemoveRange(Member.Payments);
+                }
+                if (Member.Notes?.Any() ?? false)
+                {
+                    context.MemberNotes.RemoveRange(Member.Notes); ;
+                }
+                if (Member.Suspensions?.Any() ?? false)
+                {
+                    context.MemberSuspensions.RemoveRange(Member.Suspensions);
+                }
+                if (Member.Events?.Any() ?? false)
+                {
+                    context.EventRsvps.RemoveRange(Member.Events);
+                }
+                if (Member.RsvpPlusOnesAsGuest?.Any() ?? false)
+                {
+                    context.EventRsvpPlusOnes.RemoveRange(Member.RsvpPlusOnesAsGuest);
+                }
+                if (Member.RsvpPlusOnesAsPrimary?.Any() ?? false)
+                {
+                    context.EventRsvpPlusOnes.RemoveRange(Member.RsvpPlusOnesAsPrimary);
+                }
+                if (Member.Invoices?.Any() ?? false)
+                {
+                    context.EventsInvoices.RemoveRange(Member.Invoices);
+                }
+                if (Member.MemberFetishes?.Any() ?? false)
+                {
+                    context.MembersFetishes.RemoveRange(Member.MemberFetishes);
+                }
+                if (Member.MemberDiscords?.Any() ?? false)
+                {
+                    context.MembersDiscordIntegrations.RemoveRange(Member.MemberDiscords);
+                }
                 context.Members.Remove(Member);
                 await context.SaveChangesAsync();
                 await JsRuntime.InvokeVoidAsync("alert", "Successfully deleted");
