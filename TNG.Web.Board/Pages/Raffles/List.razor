@@ -30,7 +30,7 @@
                 </form>
             </div>
             <div class="card-body">
-                <h3 class="card-title">@raffle.Title (Drawing on @raffle.DrawingDate.ToString("MM/dd/yyyy")</h3>
+                <h3 class="card-title">@raffle.Title (Drawing on @raffle.DrawingDate.ToString("MM/dd/yyyy"))</h3>
                 @if (!string.IsNullOrWhiteSpace(raffle.FundraiserCause))
                 {
                     <p>Raising money for @raffle.FundraiserCause</p>
@@ -46,7 +46,7 @@
                 <p class="card-text">
                     @raffle.Description
                     <h5>Donors</h5>
-                    @(string.Join(", ", raffle.Entries.Where(e => e.PaidOnDate != null && (!e.PrivateDonation || isBoard)).OrderBy(e => e.EntryDate).Select(e => $"{e.Member.SceneName} for {e.EntryQuanity} tickets")))
+                    @(string.Join(", ", raffle.Entries.Where(e => e.PaidOnDate != null).OrderBy(e => e.EntryDate).Select(e => $"{((!e.PrivateDonation || isBoard) ? e.Member.SceneName : "Private Donation")} for {e.EntryQuanity} tickets")))
                     <AuthorizeView Roles="Boardmember">
                         <Authorized>
                             <h5>Pending Payment</h5>

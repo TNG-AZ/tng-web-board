@@ -18,4 +18,6 @@
 <label>Additional Donation ($#.##)</label>
 <input type="number" min="0" step=".01" @bind=@AdditionalDonation/>
 <br/>
+<label>Private Donation: </label><input type="checkbox" @bind=@PrivateDonation />
+<br />
 <button type="button" @onclick=@SubmitInvoce>Send Invoice</button>
