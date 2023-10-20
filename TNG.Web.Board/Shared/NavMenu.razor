@@ -62,6 +62,9 @@
             <NavLink class="nav-link" href="https://tng-az.github.io/" Match="NavLinkMatch.All">
                 <span class="oi oi-pencil" aria-hidden="true"></span>Art Site
             </NavLink>
+            <NavLink class="nav-link" href="/raffles" Match="NavLinkMatch.All">
+                <span class="bi bi-ticket-detailed-fill" aria-hidden="true"></span>Raffles
+            </NavLink>
             <AuthorizeView Roles="Boardmember">
                 <Authorized>
                     <NavLink class="nav-link" @onclick="()=>expandSubNav = !expandSubNav">

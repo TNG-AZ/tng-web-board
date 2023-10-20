@@ -24,7 +24,7 @@
 {
         var rsvp = Member?.Events?.FirstOrDefault(e => e.EventId == calendarEvent.Id);
         var rsvpStatus = rsvp?.Status;
-        var isBoard = authStateProvider.GetAuthenticationStateAsync().Result.User.IsInRole("Boardmember");
+        var isBoard = auth.IsBoardmember().Result;
         var going = GetRsvpMemberList(calendarEvent.Id, EventRsvpStatus.Going, isBoard) ?? string.Empty;
         var maybe = GetRsvpMemberList(calendarEvent.Id, EventRsvpStatus.MaybeGoing, isBoard) ?? string.Empty;
         var startTime = calendarEvent.Start.DateTime.ToAZTime();

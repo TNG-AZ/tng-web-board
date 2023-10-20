@@ -55,22 +55,27 @@ namespace TNG.Web.Board.Services
             return data;
         }
 
-        public async Task CreateInvoice(string email, IList<OrderLineItem> lineItems, DateTime paymentDueBy, Guid? invoiceId = null)
+        public async Task CreateInvoice(string email, IList<OrderLineItem> lineItems, DateTime paymentDueBy, Guid? invoiceId = null, Guid? raffleEntryId = null)
         {
             var location = await GetOrCreateLocation("The Next Generation - Arizona");
             var newOrder = new Order(
                 locationId: location.Id,
                 lineItems: lineItems,
-                metadata: invoiceId.HasValue
-                    ? new Dictionary<string, string>() { { "invoiceId", invoiceId.Value.ToString() } }
-                    : null,
+                metadata: new Dictionary<string, string>(),
                 discounts: lineItems
                     .Where(li => li.AppliedDiscounts != null)
                     .SelectMany(li => li.AppliedDiscounts)
                     .Select(d => new OrderLineItemDiscount(uid: d.DiscountUid, catalogObjectId:d.DiscountUid, scope:"LINE_ITEM"))
                     .ToList()
             );
-
+            if (invoiceId != null)
+            {
+                newOrder.Metadata.Add(new("invoiceId", invoiceId.Value.ToString()));
+            }
+            if (raffleEntryId != null)
+            {
+                newOrder.Metadata.Add(new("raffleEntryId", raffleEntryId.Value.ToString()));
+            }
             var order = await client.OrdersApi.CreateOrderAsync(new(newOrder));
             var customer = await GetOrCreateCustomer(email);
             var newInvoice = new Invoice(
@@ -133,6 +138,14 @@ namespace TNG.Web.Board.Services
                 {
                     var invoice = context.EventsInvoices.First(i => i.Id == Guid.Parse(invoiceId));
                     invoice.PaidOnDate = DateTime.Parse(order.Order.ClosedAt);
+                    await context.SaveChangesAsync();
+                    return Results.Ok();
+                }
+
+                if (metadata.TryGetValue("raffleEntryId", out var raffleEntryId))
+                {
+                    var entry = context.RaffleEntries.First(e => e.RaffleEntryId == Guid.Parse(raffleEntryId));
+                    entry.PaidOnDate = DateTime.Parse(order.Order.ClosedAt);
                     await context.SaveChangesAsync();
                     return Results.Ok();
                 }

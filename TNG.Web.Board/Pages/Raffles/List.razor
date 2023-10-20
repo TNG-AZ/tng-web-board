@@ -1,0 +1,61 @@
+﻿@page "/raffles/"
+@using System.Globalization;
+@using TNG.Web.Board.Data.DTOs;
+@using TNG.Web.Board.Utilities;
+@{
+    var isBoard = auth.IsBoardmember().Result;
+}
+<AuthorizeView Roles="Boardmember">
+    <Authorized>
+        <button type="button" @onclick=@(async () =>  ShowEditRaffleModal(new Raffle(), true))>New Raffle</button>
+    </Authorized>
+</AuthorizeView>
+<div class="container">
+    <h3>Raffles</h3>
+    <p>To be eligible for any TNG raffle, you must be at least 18 years of age or older, and be able to pick up your prize within two weeks of the drawing date. Rules and dates are subject to change.</p>
+    @foreach (var raffle in Raffles??Enumerable.Empty<Raffle>())
+    {
+        var ticketCost = (((decimal)raffle.RaffleEntryCostCents) / 100);
+        var ticketCostDisplay = ticketCost.ToString("c", CultureInfo.GetCultureInfo("en-US"));
+        var ticketBundleDisplay = (ticketCost * 4).ToString("c", CultureInfo.GetCultureInfo("en-US"));
+        <div class="card">
+            <div class="card-header">
+                <form class="form-inline">
+                    <button type="button" @onclick=@(async () => ShowRaffleInvoiceModal(raffle)) class="btn btn-primary">Donate</button>
+                    <AuthorizeView Roles="Boardmember">
+                        <Authorized>
+                            <button type="button" @onclick=@(async () => ShowEditRaffleModal(raffle)) class="btn btn-outline-primary">Edit Raffle</button>
+                        </Authorized>
+                    </AuthorizeView>
+                </form>
+            </div>
+            <div class="card-body">
+                <h3 class="card-title">@raffle.Title (Drawing on @raffle.DrawingDate.ToString("MM/dd/yyyy")</h3>
+                @if (!string.IsNullOrWhiteSpace(raffle.FundraiserCause))
+                {
+                    <p>Raising money for @raffle.FundraiserCause</p>
+                }
+                <p>1 ticket for @ticketCostDisplay or 5 tickets for @ticketBundleDisplay</p>
+
+                @if (!string.IsNullOrWhiteSpace(raffle.ImageUrl))
+                {
+                    <div class="raffleImage">
+                        <img class="raffleImage" src="@raffle.ImageUrl">
+                    </div>
+                }
+                <p class="card-text">
+                    @raffle.Description
+                    <h5>Donors</h5>
+                    @(string.Join(", ", raffle.Entries.Where(e => e.PaidOnDate != null && (!e.PrivateDonation || isBoard)).OrderBy(e => e.EntryDate).Select(e => $"{e.Member.SceneName} for {e.EntryQuanity} tickets")))
+                    <AuthorizeView Roles="Boardmember">
+                        <Authorized>
+                            <h5>Pending Payment</h5>
+                            @(string.Join(", ", raffle.Entries.Where(e => e.PaidOnDate == null && e.EntryQuanity > 0).OrderBy(e => e.EntryDate).Select(e => $"{e.Member.SceneName} x {e.EntryQuanity} on {e.EntryDate.ToAZTime()}")))
+                        </Authorized>
+                    </AuthorizeView>
+                </p>
+            </div>
+        </div>
+        <br />
+    }
+</div>

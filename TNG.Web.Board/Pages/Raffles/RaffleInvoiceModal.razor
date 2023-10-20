@@ -1,0 +1,21 @@
+﻿@using System.Globalization;
+
+<span>Event: @Raffle.Title</span>
+<span>Member: @InvoiceMember.SceneName (@InvoiceMember.EmailAddress)</span>
+<br />
+<br />
+@{
+    var ticketCost = (((decimal)Raffle.RaffleEntryCostCents) / 100);
+    var ticketCostDisplay = ticketCost.ToString("c", CultureInfo.GetCultureInfo("en-US"));
+    var ticketBundleDisplay = (ticketCost * 4).ToString("c", CultureInfo.GetCultureInfo("en-US"));
+}
+<label>Individual Raffle Ticket</label>
+<input type="number" min="0" step="1" @bind=@IndividualTicketCount/> x (@ticketCostDisplay)
+<br/>
+<label>Raffle Ticket x5 Bundle</label>
+<input type="number" min="0" step="1" @bind=@FiveTicketBundleCount /> x (@ticketBundleDisplay)
+<br />
+<label>Additional Donation ($#.##)</label>
+<input type="number" min="0" step=".01" @bind=@AdditionalDonation/>
+<br/>
+<button type="button" @onclick=@SubmitInvoce>Send Invoice</button>

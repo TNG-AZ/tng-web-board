@@ -29,8 +29,6 @@ namespace TNG.Web.Board.Pages.Events
         private NavigationManager navigation { get; set; }
         [Inject]
         private AuthUtilities auth { get; set; }
-        [Inject]
-        private AuthenticationStateProvider authStateProvider { get; set; }
         [CascadingParameter]
         private IModalService Modal { get; set; }
 #nullable enable

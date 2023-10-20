@@ -57,15 +57,15 @@ namespace TNG.Web.Board.Pages.Events
         private async Task<IList<OrderLineItem>> GenerateLineItems()
         {
             var lineItems = new List<OrderLineItem>();
-            if (Math.Max(MembershipDuesCount, 0) > 0) 
+            if (MembershipDuesCount > 0) 
             {
                 lineItems.Add(await square.CreateLineItem(DuesText, MembershipDuesCount, (long)Fees.MembershipDues * 100, Configuration["SquareItems:MembershipDues"]));
             }
-            if (Math.Max(PartyEntryMemberCount, 0) > 0)
+            if (PartyEntryMemberCount > 0)
             {
-                if (Discount_VolunteerHalfCount + Discount_VolunteerFullCount > 0)
+                if (Math.Max(Discount_VolunteerHalfCount, 0) + Math.Max(Discount_VolunteerFullCount, 0) > 0)
                 {
-                    if (Math.Max(Discount_VolunteerFullCount, 0) > 0)
+                    if (Discount_VolunteerFullCount > 0)
                     {
                         var discount = await square.GetOrCreateDiscount(Configuration["SquareItems:Discount_VolunteerFull"]);
                         if (discount == null)
@@ -80,7 +80,7 @@ namespace TNG.Web.Board.Pages.Events
                             note: "With 100% discount for 2 volunteer shifts",
                             discountCatalogID: Configuration["SquareItems:Discount_VolunteerFull"]));
                     }
-                    if (Math.Max(Discount_VolunteerHalfCount, 0) > 0)
+                    if (Discount_VolunteerHalfCount > 0)
                     {
                         var discount = await square.GetOrCreateDiscount(Configuration["SquareItems:Discount_VolunteerHalf"]);
                         if (discount == null)
@@ -102,7 +102,7 @@ namespace TNG.Web.Board.Pages.Events
                     lineItems.Add(await square.CreateLineItem(EntryMemberText, diff, (long)Fees.MemberEntry * 100, Configuration["SquareItems:PartyMember"]));
                 } 
             }
-            if (Math.Max(PartyEntryGuestCount, 0) > 0)
+            if (PartyEntryGuestCount > 0)
             {
                 lineItems.Add(await square.CreateLineItem(EntryGuestText, PartyEntryGuestCount, (long)Fees.GuestEntry * 100, Configuration["SquareItems:PartyGuest"]));
             }
