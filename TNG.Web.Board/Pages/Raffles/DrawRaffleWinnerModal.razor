@@ -1,0 +1,9 @@
+﻿<h1>Winner: @(Raffle.Winner == null ? "TBD" : Raffle.Winner.SceneName)</h1>
+<input type="checkbox" @bind="QuickPick"/><label>Quick Pick</label>
+<br/>
+<button type="button" @onclick=@SaveRaffle>Draw Winner</button>
+<h3>Entries</h3>
+@foreach (var entry in DrawingEntries)
+{
+    <span class='badge badge-pill @(entry.Selected ? "badge-primary" : "badge-secondary")'><i class='bi bi-person'></i>@entry.SceneName</span>
+}

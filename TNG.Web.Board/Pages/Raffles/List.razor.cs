@@ -7,6 +7,7 @@ using Microsoft.JSInterop;
 using Square.Models;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
+using TNG.Web.Board.Data.Migrations;
 using TNG.Web.Board.Pages.Membership;
 using TNG.Web.Board.Utilities;
 
@@ -31,6 +32,7 @@ namespace TNG.Web.Board.Pages.Raffles
         private List<Raffle>? _raffles { get; set; }
         private List<Raffle>? Raffles 
             => _raffles ?? context.Raffles
+            .Include(r => r.Winner)
             .Include(r => r.Entries)
             .ThenInclude(e => e.Member)
             .Where(r => r.DrawingDate >= DateTime.UtcNow.AddDays(-15))?.ToList();
@@ -86,6 +88,22 @@ namespace TNG.Web.Board.Pages.Raffles
             finally
             {
                 shouldRender = true;
+            }
+        }
+
+        private async void ShowDrawRaffleModal(Raffle raffle)
+        {
+            var parameters = new ModalParameters()
+                .Add(nameof(DrawRaffleWinnerModal.Raffle), raffle);
+            var options = new ModalOptions()
+            {
+                Class = "blazored-modal size-large"
+            };
+            var modal = Modal.Show<DrawRaffleWinnerModal>("Draw Winner", parameters, options);
+            var response = await modal.Result;
+            if (response.Confirmed)
+            {
+                StateHasChanged();
             }
         }
 

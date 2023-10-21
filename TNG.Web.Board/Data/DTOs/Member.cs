@@ -58,5 +58,6 @@ namespace TNG.Web.Board.Data.DTOs
         [InverseProperty(nameof(EventRsvpPlusOne.PlusOne))]
         public virtual IEnumerable<EventRsvpPlusOne> RsvpPlusOnesAsGuest { get; set; }
         public virtual IEnumerable<RaffleEntry> RaffleEntries { get; set; }
+        public virtual IEnumerable<Raffle> RaffleWins { get; set; }
     }
 }

@@ -22,16 +22,20 @@
         <div class="card">
             <div class="card-header">
                 <form class="form-inline">
-                    <button type="button" @onclick=@(async () => ShowRaffleInvoiceModal(raffle)) class="btn btn-primary">Donate</button>
+                    @if (raffle.DrawingDate < DateTime.UtcNow.ToAZTime().Date)
+                    {
+                        <button type="button" @onclick=@(async () => ShowRaffleInvoiceModal(raffle)) class="btn btn-primary">Donate</button>
+                    }
                     <AuthorizeView Roles="Boardmember">
                         <Authorized>
                             <button type="button" @onclick=@(async () => ShowEditRaffleModal(raffle)) class="btn btn-outline-primary">Edit Raffle</button>
+                            <button type="button" @onclick=@(async () => ShowDrawRaffleModal(raffle)) class="btn btn-primary">Draw Winner</button>
                         </Authorized>
                     </AuthorizeView>
                 </form>
             </div>
             <div class="card-body">
-                <h3 class="card-title">@raffle.Title (Drawing on @raffle.DrawingDate.ToString("MM/dd/yyyy"))</h3>
+                <h3 class="card-title">@raffle.Title (@(raffle.Winner == null ? $"Drawing on {raffle.DrawingDate.ToString("MM/dd/yyyy")}" : $"Winner: {raffle.Winner.SceneName}"))</h3>
                 @if (!string.IsNullOrWhiteSpace(raffle.FundraiserCause))
                 {
                     <p>Raising money for @raffle.FundraiserCause</p>
