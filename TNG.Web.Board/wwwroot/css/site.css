@@ -222,3 +222,11 @@ blockquote {
     border-left: solid 5px;
     padding-left: 10px;
 }
+
+.raffle-image {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    width: 150px;
+    margin: 5px;
+}

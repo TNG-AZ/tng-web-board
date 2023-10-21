@@ -1,5 +1,6 @@
 ﻿@page "/raffles/"
 @using System.Globalization;
+@using System.Web;
 @using TNG.Web.Board.Data.DTOs;
 @using TNG.Web.Board.Utilities;
 @{
@@ -10,7 +11,7 @@
         <button type="button" @onclick=@(async () =>  ShowEditRaffleModal(new Raffle(), true))>New Raffle</button>
     </Authorized>
 </AuthorizeView>
-<div class="container">
+<div class="container-fluid">
     <h3>Raffles</h3>
     <p>To be eligible for any TNG raffle, you must be at least 18 years of age or older, and be able to pick up your prize within two weeks of the drawing date. Rules and dates are subject to change.</p>
     @foreach (var raffle in Raffles??Enumerable.Empty<Raffle>())
@@ -39,8 +40,14 @@
 
                 @if (!string.IsNullOrWhiteSpace(raffle.ImageUrl))
                 {
-                    <div class="raffleImage">
-                        <img class="raffleImage" src="@raffle.ImageUrl">
+                    var images = raffle.ImageUrl.Split(";");
+                    <div class="raffle-image-container">
+                        @foreach (var imgUrl in images)
+                        {
+                            <a href="@imgUrl" target="_blank">
+                                <img class="raffle-image" src="@imgUrl">
+                            </a>
+                        }
                     </div>
                 }
                 <p class="card-text">
