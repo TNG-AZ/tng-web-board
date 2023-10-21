@@ -60,6 +60,10 @@ namespace TNG.Web.Board.Pages.Raffles
                         
         private async Task SaveRaffle()
         {
+            if (!(_drawingEntries?.Any() ?? false))
+            {
+                return;
+            }
             if (QuickPick)
             {
                 MoveSelected();
@@ -78,6 +82,7 @@ namespace TNG.Web.Board.Pages.Raffles
                     if (action == 0)
                     {
                         Shuffle();
+                        MoveSelected();
                     }
                     else
                     {

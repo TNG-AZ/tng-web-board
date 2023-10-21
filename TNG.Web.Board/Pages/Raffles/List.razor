@@ -22,7 +22,7 @@
         <div class="card">
             <div class="card-header">
                 <form class="form-inline">
-                    @if (raffle.DrawingDate < DateTime.UtcNow.ToAZTime().Date)
+                    @if (raffle.Winner == null)
                     {
                         <button type="button" @onclick=@(async () => ShowRaffleInvoiceModal(raffle)) class="btn btn-primary">Donate</button>
                     }
