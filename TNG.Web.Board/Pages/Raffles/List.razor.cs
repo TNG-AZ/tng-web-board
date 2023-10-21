@@ -107,6 +107,22 @@ namespace TNG.Web.Board.Pages.Raffles
             }
         }
 
+        private async void ShowManualRaffleEntryModal(Raffle raffle)
+        {
+            var parameters = new ModalParameters()
+                .Add(nameof(ManualRaffleEntryModal.Raffle), raffle);
+            var options = new ModalOptions()
+            {
+                Class = "blazored-modal size-large"
+            };
+            var modal = Modal.Show<ManualRaffleEntryModal>("Add Entry", parameters, options);
+            var response = await modal.Result;
+            if (response.Confirmed)
+            {
+                StateHasChanged();
+            }
+        }
+
         private bool shouldRender = true;
 
         protected override bool ShouldRender()

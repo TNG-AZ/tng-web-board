@@ -28,8 +28,9 @@
                     }
                     <AuthorizeView Roles="Boardmember">
                         <Authorized>
+                            <button type="button" @onclick=@(async () => ShowManualRaffleEntryModal(raffle)) class="btn btn-outline-primary">Add Entry</button>
                             <button type="button" @onclick=@(async () => ShowEditRaffleModal(raffle)) class="btn btn-outline-primary">Edit Raffle</button>
-                            <button type="button" @onclick=@(async () => ShowDrawRaffleModal(raffle)) class="btn btn-primary">Draw Winner</button>
+                            <button type="button" @onclick=@(async () => ShowDrawRaffleModal(raffle)) class="btn btn-outline-primary">Draw Winner</button>
                         </Authorized>
                     </AuthorizeView>
                 </form>

@@ -96,6 +96,10 @@ namespace TNG.Web.Board.Pages.Raffles
             }
             context.Entry(Raffle).State = EntityState.Modified;
             await context.SaveChangesAsync();
+            Raffle = await context.Raffles
+                .Include(r => r.Winner)
+                .FirstOrDefaultAsync(r => r.RaffleId == Raffle.RaffleId);
+            StateHasChanged();
         }
 
         private class DrawingEntry

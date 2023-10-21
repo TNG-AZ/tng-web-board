@@ -1,0 +1,11 @@
+﻿<EditForm Model="Raffle" OnValidSubmit=@(async () => await AddEntry()) class="col-lg-12 col-xl-6">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label>Entry Count:</label>
+        <input type="number" min="0" step="1" required="required" @bind="EntryCount" /> <br/>
+        <label>Member Email:</label>
+        <input type="text" class="form-control" @bind="EntryEmail" />
+    </div>
+    <button type="submit">Submit</button>
+</EditForm>
