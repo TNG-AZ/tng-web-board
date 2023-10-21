@@ -10,7 +10,7 @@
         <input type="date" class="form-control" required="required" @bind="Raffle.DrawingDate" />
         <label>Raffle Ticket Fee (in cents):</label>
         <input type="number" min="0" step="1" required="required" @bind="Raffle.RaffleEntryCostCents" /> <br/>
-        <label>Image URL(s) (comma-separated values):</label>
+        <label>Image URL(s) (semicolon-separated values):</label>
         <input type="text" class="form-control" @bind="Raffle.ImageUrl" />
         <label>Fundraiser Cause:</label>
         <input type="text" class="form-control" @bind="Raffle.FundraiserCause" />
