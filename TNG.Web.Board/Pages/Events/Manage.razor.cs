@@ -233,15 +233,25 @@ namespace TNG.Web.Board.Pages.Events
 
         private async Task CreateDefaultFees()
         {
-            var fees = new EventFees()
+            try
             {
-                EventId = eventId,
-                MemberEntry = 8,
-                GuestEntry = 10,
-                MembershipDues = 12
-            };
-            await context.EventsFees.AddAsync(fees);
-            await context.SaveChangesAsync();
+                shouldRender = false;
+                var fees = new EventFees()
+                {
+                    EventId = eventId,
+                    MemberEntry = 8,
+                    GuestEntry = 10,
+                    MembershipDues = 12
+                };
+                await context.EventsFees.AddAsync(fees);
+                await context.SaveChangesAsync();
+
+                _eventFees = fees;
+            }
+            finally
+            {
+                shouldRender = true;
+            }
         }
 
         private async Task GetSignature(Guid sigId)
@@ -407,6 +417,12 @@ namespace TNG.Web.Board.Pages.Events
 
             await context.SaveChangesAsync();
             StateHasChanged();
+        }
+
+        private bool shouldRender = true;
+        protected override bool ShouldRender()
+        {
+            return shouldRender;
         }
     }
 }
