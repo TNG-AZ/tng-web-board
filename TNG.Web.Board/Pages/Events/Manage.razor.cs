@@ -189,6 +189,11 @@ namespace TNG.Web.Board.Pages.Events
 
                 if (members.Any())
                 {
+                    if (!await js.InvokeAsync<bool>("confirm", "Confirm sending email?"))
+                    {
+                        return;
+                    }
+
                     var emails = members.Select(m => m.EmailAddress);
                     var content = await QuillHtml.GetHTML();
                     await google.EmailListAsync(emails, EmailSubject ?? "New message about an event you are attending", content);

@@ -1,0 +1,100 @@
+﻿@page "/admin/emailmanager"
+@using Blazored.TextEditor
+
+<h1>Email Form</h1>
+<label>Subject: </label>
+<input type="text" @bind="EmailSubject" />
+<BlazoredTextEditor @ref="@QuillHtml">
+    <ToolbarContent>
+        <select class="ql-header">
+            <option selected=""></option>
+            <option value="1"></option>
+            <option value="2"></option>
+            <option value="3"></option>
+            <option value="4"></option>
+            <option value="5"></option>
+        </select>
+        <span class="ql-formats">
+            <button class="ql-bold"></button>
+            <button class="ql-italic"></button>
+            <button class="ql-underline"></button>
+            <button class="ql-strike"></button>
+        </span>
+        <span class="ql-formats">
+            <select class="ql-color"></select>
+            <select class="ql-background"></select>
+        </span>
+        <span class="ql-formats">
+            <button class="ql-list" value="ordered"></button>
+            <button class="ql-list" value="bullet"></button>
+        </span>
+        <span class="ql-formats">
+            <button class="ql-link"></button>
+        </span>
+    </ToolbarContent>
+    <EditorContent>
+    </EditorContent>
+</BlazoredTextEditor>
+
+<button type="button" @onclick=@(async () => await SendEmail())>Send Email</button>
+<br />
+<br />
+<br />
+<h3>Filters</h3>
+<label>Include Guests: </label><input type="checkbox" @bind="IncludeGuests"/>
+<br />
+<label>Include Honorary Members: </label><input type="checkbox" @bind="IncludeHonorary"/>
+<br />
+<label>Include Suspended: </label><input type="checkbox" @bind="IncludeSuspended"/>
+<br/>
+<label>Membership Status</label>
+<br/>
+<select @bind="DateFilter">
+    <option value="None">All Members</option>
+    <option value="Current">Current Members</option>
+    <option value="SinceDate">Is member on or after date</option>
+</select>
+@if (DateFilter == MembershipFilter.SinceDate)
+{
+    <label>As of Date:</label>
+    <input type="date" @bind="MemberSince">
+}
+<br />
+<br />
+<br />
+<h3>Selected Members</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Scene Name</th>
+      <th scope="col">Membership Type</th>
+      <th scope="col">Legal Name</th>
+      <th scope="col">Event Attended</th>
+      <th scope="col">Dues Last Paid</th>
+      <th scope="col">Orientation Last Attended</th>
+      <th scope="col">Is Suspended</th>
+      <th scope="col">Email</th>
+    </tr>
+  </thead>
+  <tbody>
+  @foreach(var member in FilteredMembers)
+  {
+    var paidOnDate = member.Payments?.OrderByDescending(p => p.PaidOn).FirstOrDefault()?.PaidOn;
+    var orientationOnDate = member.Orientations?.OrderByDescending(o => o.DateReceived).FirstOrDefault()?.DateReceived;
+    var activeSuspension = member?.Suspensions?.OrderByDescending(s => s.EndDate ?? DateTime.MaxValue).FirstOrDefault(s => !s.EndDate.HasValue || s.EndDate >= DateTime.Now);
+
+    <tr>
+        <td>@member.SceneName</td>
+        <td>@member.MemberType.ToString()</td>
+        <td>@member.LegalName</td>
+        <td>@member.HasAttendedSocial.ToString()</td>
+        <td>@(paidOnDate?.ToString("MM/dd/yyyy") ?? "n/a")</td>
+        <td>@(orientationOnDate?.ToString("MM/dd/yyyy") ?? "n/a")</td>
+        <td>@(activeSuspension != null 
+            ? $"Suspended {(activeSuspension.EndDate == null ? "indefinitely" : "until " + activeSuspension.EndDate.Value.ToString("MM/dd/yyyy"))}" 
+            : string.Empty)</td>
+        <td>@member.EmailAddress</td>
+    </tr>
+  }
+  </tbody>
+</table>
