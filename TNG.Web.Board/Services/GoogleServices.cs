@@ -56,7 +56,12 @@ namespace TNG.Web.Board.Services
 
         public async Task EmailListAsync(IEnumerable<string> emails, string subject, string body)
         {
-            Gmail.Users.Messages.Send(new Message { Raw = GetEmailBccRaw(string.Join(", ", emails), subject, body) }, "me").Execute();
+            for (int i = 0; i < emails.Count(); i += 100)
+            {
+                var batchEmails = emails.Skip(i).Take(100);
+                Gmail.Users.Messages.Send(new Message { Raw = GetEmailBccRaw(string.Join(", ", batchEmails), subject, body) }, "me").Execute();
+            }
+            
         }
 
         private HashSet<string> cacheKeys = new HashSet<string>();
