@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
+using TNG.Web.Board.Pages.Membership;
 using TNG.Web.Board.Services;
 using TNG.Web.Board.Utilities;
 
@@ -422,6 +423,18 @@ namespace TNG.Web.Board.Pages.Events
 
             await context.SaveChangesAsync();
             StateHasChanged();
+        }
+
+        private async Task ShowProfileEditModal(Member userMember)
+        {
+            var parameters = new ModalParameters()
+                .Add(nameof(IDCheckModal.UserMember), userMember);
+            var options = new ModalOptions()
+            {
+                Class = "blazored-modal size-large"
+            };
+            var modal = Modal.Show<IDCheckModal>("Check ID", parameters, options);
+            var response = await modal.Result;
         }
 
         private bool shouldRender = true;

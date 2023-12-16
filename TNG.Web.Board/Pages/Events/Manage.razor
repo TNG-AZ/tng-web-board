@@ -160,10 +160,16 @@
                 : (DateTime?)null;
                 var memberSignatures = Signatures.Where(s => s.MemberId == rsvp.MemberId).Select(s => s.Id);
                 var plusOnes = PlusOnes.Where(p => p.MemberId == rsvp.MemberId);
+                var checkIdText = (rsvp.Member.Payments?.Any() ?? false) && (rsvp.Member.Orientations?.Any() ?? false)
+                    ? "Check ID"
+                    : "!!!REQUIRED - Check ID!!!";
                 <tr>
                     <td>
                         <CollapsibleCard CardHeaderTitle="Actions">
                             <CardBody>
+                                <button type="button" @onclick=@(async () => await ShowProfileEditModal(rsvp.Member))>
+                                    @checkIdText
+                                </button>
                                 <button type="button" @onclick=@(async () => await ToggleApproved(rsvp))>
                                     @(rsvp.Approved ?? false ? "Undo Approval" : "Approve")
                                 </button><br/>
