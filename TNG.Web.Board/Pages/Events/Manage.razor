@@ -160,9 +160,7 @@
                 : (DateTime?)null;
                 var memberSignatures = Signatures.Where(s => s.MemberId == rsvp.MemberId).Select(s => s.Id);
                 var plusOnes = PlusOnes.Where(p => p.MemberId == rsvp.MemberId);
-                var checkIdText = (rsvp.Member.Payments?.Any() ?? false) && (rsvp.Member.Orientations?.Any() ?? false)
-                    ? "Check ID"
-                    : "!!!REQUIRED - Check ID!!!";
+                var checkIdText = GetCheckIdText(rsvp.Member);
                 <tr>
                     <td>
                         <CollapsibleCard CardHeaderTitle="Actions">
@@ -181,7 +179,7 @@
                                 </button><br />
                                 @if (rsvp.Attended ?? false)
                                 {
-                                    <button type="button" @onclick=@(async () => await UpdateMembership(rsvp))>Update Dues/Orientation</button>
+                                    <button type="button" @onclick=@(async () => await UpdateMembership(rsvp.Member))>Update Dues/Orientation</button>
                                 }
                                 <button type="button" @onclick=@(() => ShowInvoiceModal(rsvp.Member))>
                                     Send Event Invoice
@@ -259,8 +257,16 @@
                         var plusOneIssues = GetMembershipIssues(member);
                         var plusOneHasVaxProof = member.ReceivedProofOfCovid19Vaccination;
                         var plusOneSignatures = Signatures.Where(s => s.MemberId == member.Id).Select(s => s.Id);
+                        var checkIdPlusOneText = GetCheckIdText(member);
                         <tr>
                             <td>
+                                <button type="button" @onclick=@(async () => await ShowProfileEditModal(member))>
+                                    @checkIdPlusOneText
+                                </button>
+                                @if (rsvp.Attended ?? false)
+                                {
+                                    <button type="button" @onclick=@(async () => await UpdateMembership(member))>Update Dues/Orientation</button>
+                                }
                             </td>
                             <td class=@GetRsvpStatus(rsvp, issues)>
                                 <a href="/members/view/@member.Id">(+1 of @rsvp.Member.SceneName) @member.SceneName</a>

@@ -112,7 +112,7 @@ namespace TNG.Web.Board.Pages.Events
             if (!member.HasAttendedSocial)
                 status.Issues.Add("Member has not attended a social or educational.");
 
-            if ((!(member.Payments?.Any() ?? false)) || (member.Payments!.Max(p => p.PaidOn) < DateTime.Now.AddYears(-1)))
+            if (((!(member.Payments?.Any() ?? false)) || (member.Payments!.Max(p => p.PaidOn) < DateTime.Now.AddYears(-1))) && member.MemberType == MemberType.Member)
                 status.Issues.Add("Member has not paid dues in the last year.");
 
             if ((!(member.Orientations?.Any() ?? false)) || (member.Orientations!.Max(o => o.DateReceived) < DateTime.Now.AddYears(-1)))
@@ -395,29 +395,31 @@ namespace TNG.Web.Board.Pages.Events
             }
         }
 
-        private async Task UpdateMembership(EventRsvp rsvp)
+        private async Task UpdateMembership(Member member)
         {
             var startTime = CalendarEvent.Start.DateTime.ToAZTime();
             var oneYearAgo = DateTime.Now.ToAZTime().AddYears(-1);
 
-            if (rsvp.Member.Payments.Any(p => p.PaidOn >= oneYearAgo)
-                || rsvp.Member.Orientations.Any(o => o.DateReceived >= oneYearAgo))
+            if (member.Payments.Any(p => p.PaidOn >= oneYearAgo)
+                || member.Orientations.Any(o => o.DateReceived >= oneYearAgo))
             {
                 if (!(await js.InvokeAsync<bool>("confirm", "This member has orientation/dues paid in the last 12 months. Continue?")))
                 {
                     return;
                 }
             }
-
-            await context.MemberDuesPayments.AddAsync(new()
+            if (member.MemberType == MemberType.Member)
             {
-                MemberId = rsvp.MemberId,
-                PaidOn = startTime!.Value
-            });
-
+                await context.MemberDuesPayments.AddAsync(new()
+                {
+                    MemberId = member.Id,
+                    PaidOn = startTime!.Value
+                });
+            }
+            
             await context.MemberOrientations.AddAsync(new()
             {
-                MemberId = rsvp.MemberId,
+                MemberId = member.Id,
                 DateReceived = startTime!.Value,
             });
 
@@ -436,6 +438,11 @@ namespace TNG.Web.Board.Pages.Events
             var modal = Modal.Show<IDCheckModal>("Check ID", parameters, options);
             var response = await modal.Result;
         }
+
+        private string GetCheckIdText(Member member)
+            => (member.MemberType != MemberType.Member || (member.Payments?.Any() ?? false)) && (member.Orientations?.Any() ?? false)
+                ? "Check ID"
+                : "!!!REQUIRED - Check ID!!!";
 
         private bool shouldRender = true;
         protected override bool ShouldRender()
