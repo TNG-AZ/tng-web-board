@@ -42,7 +42,7 @@ namespace TNG.Web.Board.Pages.Events
         {
             get
             {
-                return _dueDate ??= CalendarEvent.Start.DateTime.ToAZTime()?.AddDays(-1) ?? DateTime.Now.ToAZTime().AddDays(1);
+                return _dueDate ??= CalendarEvent.Start.DateTime.ToAZTime() ?? DateTime.Now.ToAZTime().AddDays(1);
             }
             set
             {
