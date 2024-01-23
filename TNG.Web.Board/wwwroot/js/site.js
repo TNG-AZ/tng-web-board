@@ -21,3 +21,16 @@ async function downloadFileFromStream(fileName, contentStreamReference) {
     anchorElement.remove();
     URL.revokeObjectURL(url);
 }
+
+function copyToClipboard(event, url) {
+    navigator.clipboard.writeText(url).then(function () {
+        event.target.classList.add('btn-info-outline');
+        event.target.classList.remove('btn-info');
+        setTimeout(function () {
+            event.target.classList.add('btn-info');
+            event.target.classList.remove('btn-info-outline');
+        }, 2000);
+    }, function () {
+        console.log('Copy error')
+    });
+}
