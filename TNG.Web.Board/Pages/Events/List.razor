@@ -52,7 +52,7 @@
                 <button type="button" class="btn btn-info" onclick=@($"copyToClipboard(event, 'https://tngaz.org/events/{calendarEvent.Id}')")>Copy Link</button>
             </div>
             <div class="eventDetails">
-                <h5><i class="bi bi-clock"></i>@($"Happening on {startTime:MM/dd/yyyy} at {startTime:hh:mm tt}")</h5>
+                <h5><i class="bi bi-clock"></i>@($"Happening on {startTime?.DayOfWeek} {startTime:MM/dd/yyyy} at {startTime:hh:mm tt}")</h5>
             @if(!string.IsNullOrEmpty(calendarEvent.Location))
             {
                 <h5><a href="https://www.google.com/maps/search/?api=1&query=@HttpUtility.UrlEncode(calendarEvent.Location)"><i class="bi bi-map"></i>@calendarEvent.Location</a></h5>
