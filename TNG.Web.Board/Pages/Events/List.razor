@@ -44,6 +44,11 @@
                             <button type="button" @onclick=@(() => navigation.NavigateTo($"/events/manage/{calendarEvent.Id}")) class="btn">Manage RSVP</button>
                         </Authorized>
                     </AuthorizeView>
+                    <AuthorizeView Roles="Boardmember,Ambassador">
+                        <Authorized>
+                            <button type="button" @onclick=@(() => navigation.NavigateTo($"/events/door/{calendarEvent.Id}")) class="btn btn-primary">Door View</button>
+                        </Authorized>
+                    </AuthorizeView>
             </form>
         </div>
         <div class="card-body">
