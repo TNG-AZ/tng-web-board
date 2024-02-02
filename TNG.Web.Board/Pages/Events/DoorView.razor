@@ -49,6 +49,10 @@
                     </td>
                     <td class="@(issues.Status switch { IssuesStatus.Danger => "table-danger", IssuesStatus.Warning => "table-warning", _ => string.Empty })">
                         @string.Join(" ", issues.Issues)
+                        @if (checkIdText.Equals("!!!REQUIRED - Check ID!!!"))
+                        {
+                            <p>Check ID for new member</p>
+                        }
                         @if (plusOnes.Any())
                         {
                             var plusOneString = string.Join(", ", plusOnes.Select(p => p.PlusOne.SceneName));
@@ -93,6 +97,10 @@
                             </td>
                             <td class="@(plusOneIssues.Status switch { IssuesStatus.Danger => "table-danger", IssuesStatus.Warning => "table-warning", _ => string.Empty })">
                                 <p>@string.Join(" ", plusOneIssues.Issues)</p>
+                                @if (checkIdPlusOneText.Equals("!!!REQUIRED - Check ID!!!"))
+                                {
+                                    <p>Check ID for new member</p>
+                                }
                                 @if(plusOneSignatures.Any())
                                 {
                                     foreach(var s in plusOneSignatures)
