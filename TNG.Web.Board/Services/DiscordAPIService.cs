@@ -48,7 +48,7 @@ namespace TNG.Web.Board.Services
                 .Include(m => m.MemberDiscords)
                 .Include(m => m.Payments)
                 .Include(m => m.Orientations)
-                .Where(m => m.MemberDiscords.Any() && m.Birthday >= DateTime.UtcNow.AddYears(-40) 
+                .Where(m => m.MemberDiscords.Any() && m.Birthday >= DateTime.UtcNow.AddYears(-40)
                     && (m.MemberType == MemberType.Member || m.MemberType == MemberType.Honorary)
                     && m.Orientations.Any(o => o.DateReceived > DateTime.UtcNow.AddYears(-1))
                     && m.Payments.Any(p => p.PaidOn > DateTime.UtcNow.AddYears(-1)));
@@ -69,4 +69,5 @@ namespace TNG.Web.Board.Services
 
             return Results.Ok(attendedMembers.SelectMany(m => m.Member.MemberDiscords).Select(m => m.DiscordId));
         }
+    }
 }
