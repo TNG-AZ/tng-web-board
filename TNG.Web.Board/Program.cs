@@ -88,6 +88,7 @@ app.MapPost("/api/square/invoicepaid", SquareService.HandleInvoicePaid);
 app.MapGet("/api/discord/aged/", DiscordAPIService.GetAgedOutMembers);
 app.MapGet("/api/discord/lapsed/", DiscordAPIService.GetLapsedMembers);
 app.MapGet("/api/discord/current/", DiscordAPIService.GetCurrentMembers);
+app.MapGet("/api/discord/attended/", DiscordAPIService.GetAttendedMembers);
 
 SecretCodeService.SetCode(builder.Configuration["TNGRegistrationCode"]);
 await RolesData.SeedRoles(app.Services);

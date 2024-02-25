@@ -55,5 +55,18 @@ namespace TNG.Web.Board.Services
 
             return Results.Ok(agedMembers.SelectMany(m => m.MemberDiscords).Select(m => m.DiscordId));
         }
-    }
+
+        public static IResult GetAttendedMembers(IConfiguration configuration, ApplicationDbContext context, string apiKey, string calendarId)
+        {
+            if (string.IsNullOrWhiteSpace(apiKey) || apiKey != configuration["DiscordAPIKey"])
+            {
+                return Results.Unauthorized();
+            }
+            var attendedMembers = context.EventRsvps
+                .Include(e => e.Member)
+                .Include(e => e.Member.MemberDiscords)
+                .Where(e => e.EventId == calendarId && e.Attended != null && e.Attended.Value);
+
+            return Results.Ok(attendedMembers.SelectMany(m => m.Member.MemberDiscords).Select(m => m.DiscordId));
+        }
 }
