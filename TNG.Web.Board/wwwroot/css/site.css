@@ -161,6 +161,25 @@ a, .btn-link {
     content: url("/img/facebook.svg")
 }
 
+:is(:where(.dark) .dark\:fill-gold-500)
+
+{
+    fill: #ddbe76;
+}
+
+.fill-gold-700 {
+    fill: #bc8c4e;
+}
+
+:is(:where(.dark) .dark\:fill-gold-500) {
+    fill: #ddbe76;
+}
+
+.fill-gold-700 {
+    fill: #bc8c4e;
+}
+}
+
 #hero .icon-boxes {
     margin-top: 100px;
 }
@@ -176,7 +195,7 @@ a, .btn-link {
 }
 
 #hero .icon-box {
-    padding: 50px 30px;
+    padding: 20px 20px;
     position: relative;
     overflow: hidden;
     background: #fff;
@@ -184,6 +203,7 @@ a, .btn-link {
     transition: all 0.3s ease-in-out;
     border-radius: 8px;
     z-index: 1;
+    margin-bottom: 20px;
 }
 
 #hero .icon-box:hover {

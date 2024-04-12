@@ -6,6 +6,12 @@
 @{
     var isBoard = auth.IsBoardmember().Result;
 }
+
+<HeadContent>
+    <meta property="og:title" content="TNG:AZ Raffles" />
+    <meta property="og:description" content="View Recent Raffles" />
+</HeadContent>
+
 <AuthorizeView Roles="Boardmember">
     <Authorized>
         <button type="button" @onclick=@(async () =>  ShowEditRaffleModal(new Raffle(), true))>New Raffle</button>

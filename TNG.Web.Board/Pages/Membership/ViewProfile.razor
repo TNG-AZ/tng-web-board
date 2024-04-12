@@ -6,6 +6,12 @@
 {
     navigation.NavigateTo("/members/new");
 }
+
+<HeadContent>
+    <meta property="og:title" content="TNG:AZ Member" />
+    <meta property="og:description" content="View Profile" />
+</HeadContent>
+
 <AuthorizeView Roles="Boardmember">
     <Authorized>
         <button @onclick="@(async () => await GenerateDuesInvoice())">Send Dues Invoice</button><br/>
