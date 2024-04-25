@@ -20,9 +20,14 @@ namespace TNG.Web.Board.Pages.Users
 
         public async Task<IActionResult> OnPostDeleteAsync()
         {
-            var users = _userManager.Users.Where(u => !u.EmailConfirmed);
-            foreach (var user in users)
+            var users = _userManager.Users.Where(u => !u.EmailConfirmed).Select(u => u.Id).ToList();
+            foreach (var id in users)
             {
+                var user = await _userManager.FindByIdAsync(id);
+                if (user == null)
+                {
+                    continue;
+                }
                 var rolesForUser = await _userManager.GetRolesAsync(user);
                 if (rolesForUser?.Any() ?? false)
                 {
