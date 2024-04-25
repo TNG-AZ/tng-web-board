@@ -92,20 +92,31 @@ namespace TNG.Web.Board.Pages.Membership
         }
 
         private IEnumerable<Member> GetFilteredMembers()
-            => context.Members
+        {
+            var nameIsDiscord = long.TryParse(SceneNameFilter, out var discordId);
+            return context.Members
             .Include(m => m.Suspensions)
             .Include(m => m.Notes)
             .Include(m => m.Payments)
             .Include(m => m.Orientations)
+            .Include(m => m.MemberDiscords)
             .Where(m =>
-                (string.IsNullOrEmpty(SceneNameFilter) || EF.Functions.Like(m.SceneName, $"%{SceneNameFilter}%"))
-                && (string.IsNullOrEmpty(LegalNameFilter) || EF.Functions.Like(m.LegalName, $"%{LegalNameFilter}%"))
+                (
+                    string.IsNullOrEmpty(SceneNameFilter) 
+                    || EF.Functions.Like(m.SceneName, $"%{SceneNameFilter}%")
+                    || (nameIsDiscord && m.MemberDiscords.Any(d => d.DiscordId == discordId))
+                )
+                && (
+                    string.IsNullOrEmpty(LegalNameFilter) 
+                    || EF.Functions.Like(m.LegalName, $"%{LegalNameFilter}%")
+                )
                 && (string.IsNullOrEmpty(EmailFilter) || EF.Functions.Like(m.EmailAddress, $"%{EmailFilter}%"))
                 && (!SuspendedStatusFilter.HasValue || SuspendedStatusFilter.Value == SuspendedStatusEnum.All
                     || (SuspendedStatusFilter.Value == SuspendedStatusEnum.No && (m.Suspensions == null || !m.Suspensions.AsQueryable().Any(IsActiveSuspension)))
                     || (SuspendedStatusFilter.Value == SuspendedStatusEnum.Yes && m.Suspensions != null && m.Suspensions.AsQueryable().Any(IsActiveSuspension)))
                 && (!MemberTypeFilter.HasValue || m.MemberType == MemberTypeFilter)
             );
+        }
 
         private void OnSuspendedFilterChange(ChangeEventArgs e)
             => SuspendedStatusFilter = Enum.Parse<SuspendedStatusEnum>(e.Value!.ToString()!);
