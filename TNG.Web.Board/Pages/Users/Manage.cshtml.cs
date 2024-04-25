@@ -25,7 +25,13 @@ namespace TNG.Web.Board.Pages.Users
             foreach (var user in users)
             {
                 var rolesForUser = await _userManager.GetRolesAsync(user);
-                Task.WaitAll(rolesForUser.Select(r => _userManager.RemoveFromRoleAsync(user, r)).ToArray());
+                if (rolesForUser?.Any() ?? false)
+                {
+                    foreach (var item in rolesForUser.ToList())
+                    {
+                        await _userManager.RemoveFromRoleAsync(user, item);
+                    }
+                }
 
                 await _userManager.DeleteAsync(user);
             }
