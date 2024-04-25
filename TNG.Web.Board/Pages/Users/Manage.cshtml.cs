@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -27,10 +26,8 @@ namespace TNG.Web.Board.Pages.Users
                 var rolesForUser = await _userManager.GetRolesAsync(user);
                 if (rolesForUser?.Any() ?? false)
                 {
-                    foreach (var item in rolesForUser.ToList())
-                    {
-                        await _userManager.RemoveFromRoleAsync(user, item);
-                    }
+                    //do not delete if has roles
+                    continue;
                 }
 
                 await _userManager.DeleteAsync(user);
