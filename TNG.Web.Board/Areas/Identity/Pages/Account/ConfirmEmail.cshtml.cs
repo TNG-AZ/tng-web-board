@@ -19,11 +19,13 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IEmailSender _emailSender;
+        private readonly IConfiguration _configuration;
 
-        public ConfirmEmailModel(UserManager<IdentityUser> userManager, IEmailSender emailSender)
+        public ConfirmEmailModel(UserManager<IdentityUser> userManager, IEmailSender emailSender, IConfiguration configuration)
         {
             _userManager = userManager;
             _emailSender = emailSender;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -48,6 +50,14 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
             var result = await _userManager.ConfirmEmailAsync(user, code);
             StatusMessage = result.Succeeded ? "Thank you for confirming your email." : "Error confirming your email.";
+
+            if (result.Succeeded)
+            {
+                var address = user.Email;
+                var subject = _configuration["EmailTemplates:JoinInfo:Subject"];
+                var body = System.IO.File.ReadAllText("~/EmailTemplates/JoinInfo");
+                await _emailSender.SendEmailAsync(address, subject, body);
+            }
             return Page();
         }
     }
