@@ -5,6 +5,7 @@ using Microsoft.JSInterop;
 using System.ComponentModel.DataAnnotations;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
+using TNG.Web.Board.Services;
 using TNG.Web.Board.Utilities;
 
 namespace TNG.Web.Board.Pages.Membership
@@ -26,6 +27,8 @@ namespace TNG.Web.Board.Pages.Membership
         public string? Email { get; set; }
         [Required]
         public MemberType MemberType { get; set; }
+        [Required]
+        public string Altcha { get; set; }
     }
 
     public partial class NewMember
@@ -39,7 +42,9 @@ namespace TNG.Web.Board.Pages.Membership
         [Inject]
         private AuthUtilities auth { get; set; }
         [Inject]
-        private IJSRuntime jSRuntime { get; set; }
+        private IJSRuntime jsRuntime { get; set; }
+        [Inject]
+        AltchaPageService altcha { get; set; }
 #nullable enable
 
         private NewMemberForm formModel = new();
@@ -47,10 +52,16 @@ namespace TNG.Web.Board.Pages.Membership
 
         protected async void SubmitNewMemberForm()
         {
+            if (!await altcha.Validate(formModel.Altcha))
+            {
+                ErrorMessage = "Invalid Altcha";
+                await jsRuntime.InvokeVoidAsync("scrollToTop");
+                return;
+            }
             if (formModel.Email is not null && context.Members.Any(m => EF.Functions.Like(m.EmailAddress, formModel.Email)))
             {
                 ErrorMessage = "Membership form already submitted for this user";
-                await jSRuntime.InvokeVoidAsync("scrollToTop");
+                await jsRuntime.InvokeVoidAsync("scrollToTop");
                 return;
             }
             try
@@ -75,6 +86,14 @@ namespace TNG.Web.Board.Pages.Membership
         {
             var membershipType = (MemberType)int.Parse(e.Value!.ToString()!);
             formModel.MemberType = membershipType;
+        }
+
+        private async void SetAltcha(ChangeEventArgs e)
+        {
+            if (bool.TryParse(e.Value.ToString(), out var validated) && validated)
+            {
+                formModel.Altcha = await jsRuntime.InvokeAsync<string>("getAltcha");
+            }
         }
     }
 }

@@ -34,3 +34,7 @@ function copyToClipboard(event, url) {
         console.log('Copy error')
     });
 }
+
+function getAltcha() {
+    return document.getElementsByName('altcha')[0].value;
+}

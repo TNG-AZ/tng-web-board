@@ -19,6 +19,8 @@ using TNG.Web.Board.Utilities;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Plugins;
 using System.Security.Claims;
+using TNG.Web.Board.Services;
+using Ixnas.AltchaNet;
 
 namespace TNG.Web.Board.Areas.Identity.Pages.Account
 {
@@ -27,14 +29,17 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly AltchaPageService _altcha;
 
         public LoginModel(SignInManager<IdentityUser> signInManager,
             UserManager<IdentityUser> userManager, 
-            ILogger<LoginModel> logger)
+            ILogger<LoginModel> logger,
+            AltchaPageService altcha)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _altcha = altcha;
         }
 
         /// <summary>
@@ -43,6 +48,8 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
         /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
+        [BindProperty]
+        public string Altcha { get; set; }
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -91,10 +98,6 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
             /// </summary>
             [Display(Name = "Remember me?")]
             public bool RememberMe { get; set; }
-
-            [EmptyOrEqual(nameof(ActualSecretCode), ErrorMessage = "Wrong code, (don't) try again")]
-            public string SecretCode { get; set; }
-            public string ActualSecretCode => SecretCodeService.GetCode() ?? string.Empty;
         }
 
         public async Task OnGetAsync(string returnUrl = null)
@@ -122,6 +125,13 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
+
+                if (!await _altcha.Validate(Altcha))
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid Altcha.");
+                    return Page();
+                }
+
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
@@ -129,15 +139,6 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
                 {
                     var user = _userManager.Users.First(u => EF.Functions.Like(u.Email, Input.Email));
                     _logger.LogInformation("User logged in.");
-                    if (!string.IsNullOrEmpty(Input.SecretCode) && Input.SecretCode.Equals(Input.ActualSecretCode))
-                    {
-                        
-                        if (!(await _userManager.IsInRoleAsync(user, RolesEnum.Boardmember.ToString())))
-                        {
-                            await _userManager.AddToRoleAsync(user, RolesEnum.Boardmember.ToString());
-                            await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-                        }
-                    }
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

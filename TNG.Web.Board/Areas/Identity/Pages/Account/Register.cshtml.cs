@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using TNG.Web.Board.Data;
+using TNG.Web.Board.Services;
 using TNG.Web.Board.Utilities;
 
 namespace TNG.Web.Board.Areas.Identity.Pages.Account
@@ -33,6 +34,7 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
         private readonly IUserEmailStore<IdentityUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly AltchaPageService _altcha;
 
         public RegisterModel(
             UserManager<IdentityUser> userManager,
@@ -40,7 +42,7 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
             SignInManager<IdentityUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
-            IConfiguration configuration)
+            AltchaPageService altcha)
         {
             _userManager = userManager;
             _userStore = userStore;
@@ -48,6 +50,7 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _altcha = altcha;
         }
 
         /// <summary>
@@ -56,6 +59,8 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
         /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
+        [BindProperty]
+        public string Altcha { get; set; }
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -102,12 +107,6 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
-
-            [EmptyOrEqual(nameof(ActualSecretCode), ErrorMessage = "Wrong code, (don't) try again")]
-            public string SecretCode { get; set; }
-
-            public string ActualSecretCode 
-                => SecretCodeService.GetCode() ?? string.Empty;
         }
 
 
@@ -122,14 +121,17 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
             returnUrl ??= Url.Content("~/");
             if (ModelState.IsValid)
             {
+                if (!await _altcha.Validate(Altcha))
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid Altcha.");
+                    return Page();
+                }
+
                 var user = CreateUser();
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
-
-                if (!string.IsNullOrEmpty(Input.SecretCode) && Input.SecretCode.Equals(Input.ActualSecretCode))
-                    await _userManager.AddToRoleAsync(user, RolesEnum.Boardmember.ToString());
 
                 if (result.Succeeded)
                 {

@@ -52,6 +52,7 @@ builder.Services.AddSingleton<SquareService>();
 builder.Services.AddScoped<AuthUtilities>();
 builder.Services.AddSingleton<IEmailSender, GoogleServices>();
 builder.Services.AddSingleton<LinksService>();
+builder.Services.AddSingleton<AltchaPageService>();
 builder.Services.AddBlazoredModal();
 
 builder.Services.AddMemoryCache();
