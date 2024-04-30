@@ -349,3 +349,4 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 TNG.Web.Board/Credentials/Google_www-calendar.json
+TNG.Web.Board/Credentials/altcha.json
