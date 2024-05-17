@@ -1,11 +1,34 @@
 ﻿using Ixnas.AltchaNet;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Caching.Memory;
 using NuGet.Protocol;
 using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace TNG.Web.Board.Services
 {
+    internal class AltchaCache : IAltchaChallengeStore
+    {
+        private readonly IMemoryCache _cache;
+        public AltchaCache(IMemoryCache cache) 
+        {
+            _cache = cache;
+        }
+        public Task<bool> Exists(string challenge)
+        {
+            return Task.FromResult(_cache.TryGetValue(challenge, out _));
+        }
+
+        public async Task Store(string challenge, DateTimeOffset expiryUtc)
+        {
+            await _cache.GetOrCreateAsync(challenge,
+                cacheEntry =>
+                {
+                    cacheEntry.SetSlidingExpiration(TimeSpan.FromDays(1));
+                    return Task.FromResult(new object());
+                });
+        }
+    }
     public class AltchaPageService
     {
         private readonly AltchaService service;
@@ -13,7 +36,7 @@ namespace TNG.Web.Board.Services
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         };
-        public AltchaPageService() {
+        public AltchaPageService(IAltchaChallengeStore cache) {
 
             var key = new byte[64];
             using (var rng = RandomNumberGenerator.Create())
@@ -23,7 +46,7 @@ namespace TNG.Web.Board.Services
 
             service = Altcha.CreateServiceBuilder()
                               .UseSha256(key)
-                              .UseInMemoryStore()
+                              .UseStore(cache)
                               .Build();
         }
 

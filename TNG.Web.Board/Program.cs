@@ -1,4 +1,5 @@
 using Blazored.Modal;
+using Ixnas.AltchaNet;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -53,6 +54,7 @@ builder.Services.AddScoped<AuthUtilities>();
 builder.Services.AddSingleton<IEmailSender, GoogleServices>();
 builder.Services.AddSingleton<LinksService>();
 builder.Services.AddSingleton<AltchaPageService>();
+builder.Services.AddSingleton<IAltchaChallengeStore, AltchaCache>();
 builder.Services.AddBlazoredModal();
 
 builder.Services.AddMemoryCache();

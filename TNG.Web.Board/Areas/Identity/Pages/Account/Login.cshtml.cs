@@ -126,7 +126,7 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
 
-                if (!await _altcha.Validate(Altcha))
+                if (string.IsNullOrEmpty(Altcha) || !await _altcha.Validate(Altcha))
                 {
                     ModelState.AddModelError(string.Empty, "Invalid Altcha.");
                     return Page();

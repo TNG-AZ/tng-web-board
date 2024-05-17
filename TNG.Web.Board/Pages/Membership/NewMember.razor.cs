@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Ixnas.AltchaNet;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
@@ -52,7 +53,7 @@ namespace TNG.Web.Board.Pages.Membership
 
         protected async void SubmitNewMemberForm()
         {
-            if (!await altcha.Validate(formModel.Altcha))
+            if (string.IsNullOrEmpty(formModel.Altcha) || !await altcha.Validate(formModel.Altcha))
             {
                 ErrorMessage = "Invalid Altcha";
                 await jsRuntime.InvokeVoidAsync("scrollToTop");
