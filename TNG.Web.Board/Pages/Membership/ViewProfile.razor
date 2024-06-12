@@ -2,11 +2,6 @@
 @page "/members/view/{profileUrl}"
 @using TNG.Web.Board.Utilities;
 
-@if (UserMember is null)
-{
-    navigation.NavigateTo("/members/new");
-}
-
 <HeadContent>
     <meta property="og:title" content="TNG:AZ Member" />
     <meta property="og:description" content="View Profile" />
@@ -67,29 +62,29 @@
             <h4>About</h4>
             <p>@ViewMember?.AboutMe</p>
         </div>
-        @{
-            var activity = GetEventRsvps();
-        }
-        @if(!string.IsNullOrEmpty(activity))
+        @if(!string.IsNullOrEmpty(Activity))
         {
             <div class="col-sm">
-                <h4>Activity</h4>
-                <ul><li>@((MarkupString)activity)</li></ul>
+                <h4>Activity</h4
+                <ul><li>@((MarkupString)Activity)</li></ul>
             </div>
         }
-        @if ((ViewMember.MemberFetishes?.Any() ?? false) || EnableEdit)
+        @if ((ViewMember?.MemberFetishes?.Any() ?? false) || EnableEdit)
         {
             <div class="col-sm">
                 @if (EnableEdit)
                 {
                     <datalist id="fetishes">
-                        @foreach (var fetish in Fetishes)
-                        {
-                            <option value="@fetish.Name" />
+                        @if (Fetishes?.Any() ?? false){
+                            foreach (var fetish in Fetishes)
+                            {
+                                <option value="@fetish.Name" />
+                            }
                         }
+                        
                     </datalist>
                     <h4>Edit Kinks</h4>
-                    <EditForm EditContext="editContext" OnValidSubmit="@(async () => await AddFetishToMember())" class="form-inline">
+                    <EditForm EditContext="PageEditContext" OnValidSubmit="@(async () => await AddFetishToMember())" class="form-inline">
                         <div class="form-group">
                             <input type="text" list="fetishes" @bind="@NewFetishName" class="form-control" placeholder="Fetish" />
                         </div>
@@ -111,7 +106,7 @@
                 @if (EnableEdit)
                 {
                     <h4>Edit Limits</h4>
-                    <EditForm EditContext="editContext" OnValidSubmit="@(async () => await AddFetishToMember(true))" class="form-inline">
+                    <EditForm EditContext="PageEditContext" OnValidSubmit="@(async () => await AddFetishToMember(true))" class="form-inline">
                         <div class="form-group">
                             <input type="text" list="fetishes" @bind="@NewFetishName" class="form-control" placeholder="Limit" />
                             

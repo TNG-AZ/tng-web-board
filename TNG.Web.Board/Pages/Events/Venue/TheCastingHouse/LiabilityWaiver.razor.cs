@@ -57,7 +57,7 @@ namespace TNG.Web.Board.Pages.Events.Venue.TheCastingHouse
         }
         private Event? _event { get; set; }
         private Event? CalendarEvent
-            => _event ??= google.GetEvent(Configuration["CalendarId"]!, eventId!);
+            => _event ??= google.GetEvent(Configuration["CalendarId"]!, eventId!)?.Result;
         private Member? _member { get; set; }
         private Member? Member
             => _member ??= GetMember();

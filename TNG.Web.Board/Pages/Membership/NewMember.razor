@@ -4,16 +4,6 @@
 <h3>New Member Form</h3>
 @{
     var altchaChallenge = altcha.Generate();
-    var userEmail = auth.GetIdentity().Result?.Name;
-    if (!string.IsNullOrEmpty(userEmail))
-    {
-        if (context.Members.Any(m => EF.Functions.Like(m.EmailAddress, userEmail)))
-        {
-            ErrorMessage = "You have already registerd";
-        }
-        formModel.Email = userEmail;
-    }
-    
 }
 @if(!string.IsNullOrEmpty(ErrorMessage))
 {

@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Authorization;
 using TNG.Web.Board.Services;
 using Square.Models;
-using System.Configuration;
 using Microsoft.JSInterop;
 using Blazored.Modal;
 using Blazored.Modal.Services;
+using System.Linq;
+using Humanizer;
 
 namespace TNG.Web.Board.Pages.Membership
 {
@@ -20,9 +21,70 @@ namespace TNG.Web.Board.Pages.Membership
         [Parameter]
         public string? profileUrl { get; set; }
 
-        private Guid? _memberId { get; set; }
-        private Guid? MemberId
-            => _memberId ??= Guid.TryParse(profileUrl, out var tmp) ? tmp : null;
+
+        protected override async Task OnInitializedAsync()
+        {
+            MemberId ??= Guid.TryParse(profileUrl, out var tmp) ? tmp : null;
+
+            var email = await auth.GetEmail();
+            var members = context.Members?
+                        .Include(m => m.MemberFetishes)
+                        .ThenInclude(mf => mf.Fetish)
+                        .Include(m => m.Events)
+                        .Include(m => m.Orientations)
+                        .Include(m => m.Payments);
+            Members = new()
+            {
+                members?.FirstOrDefaultAsync(m => (!m.PrivateProfile || auth.IsBoardmember().Result)
+                                        && (m.Id == MemberId || EF.Functions.Like(m.ProfileUrl, profileUrl))).Result,
+                members?.FirstOrDefaultAsync(m => EF.Functions.Like(m.EmailAddress, email)).Result
+            };
+
+            UserMember = await GetUserMember();
+            if (UserMember == null)
+            {
+                navigation.NavigateTo("/members/new");
+                return;
+            }
+            
+            if (profileUrl is null)
+            {
+                ViewMember ??= await GetUserMember();
+            }
+            else
+            {
+                ViewMember ??= await GetMember();
+            }
+            
+            if (ViewMember is null) { 
+                navigation.NavigateTo("/");
+                return;
+            }
+            Fetishes ??= context.Fetishes?.ToList();
+
+            Activity = string.Join("</li><li>", Task.WhenAll(ViewMember?.Events?.AsParallel()
+                .OrderByDescending(r => r.AddedDate)
+                .Take(10)
+                .Select(async r =>
+                {
+                    var eventData = await Google.GetEvent(CalendarId, r.EventId);
+                    return new EventDetail
+                    {
+                        EventId = r.EventId,
+                        EventDate = eventData!.Start?.DateTime?.ToAZTime(),
+                        EventName = eventData!.Summary,
+                        Status = r.Status
+                    };
+                }))
+                .Result
+                .OrderByDescending(r => r.EventDate)
+                .Select(r => $"{(r.Status == EventRsvpStatus.Going ? "Going" : "Maybe Going")} to <a href='/events/{r.EventId}'>{r.EventName}</a> on {r.EventDate?.Date:MMMM d, yyyy}")
+                ?? Enumerable.Empty<string>());
+
+            PageEditContext = new(new object());
+        }
+
+        private Guid? MemberId { get; set; }
 
 
 #nullable disable
@@ -45,60 +107,18 @@ namespace TNG.Web.Board.Pages.Membership
         private IModalService Modal { get; set; }
 #nullable enable
 
-        private Member? GetMember()
-            => context.Members?
-                .Include(m => m.MemberFetishes)
-                .ThenInclude(mf => mf.Fetish)
-                .Include(m => m.Events)
-                .Include(m => m.Orientations)
-                .Include(m => m.Payments)
-                .FirstOrDefault(m => (!m.PrivateProfile || auth.IsBoardmember().Result) 
-                    && (m.Id == MemberId || EF.Functions.Like(m.ProfileUrl, profileUrl)));
+        private Member? ViewMember { get; set; }
 
-        private Member? _viewMember { get; set; }
-        private Member? ViewMember
-        {
-            get
-            {
-                if (_viewMember is not null)
-                    return _viewMember;
-                if (profileUrl is null && (_viewMember ??= GetUserMember()) is not null)
-                    return _viewMember;
-                if (profileUrl is not null && (_viewMember ??= GetMember()) is not null)
-                    return _viewMember;
-                else
-                {
-                    navigation.NavigateTo("/");
-                    return null;
-                }
-            }
-        }
+        private Member? UserMember { get; set; }
+        private string? Activity { get; set; }
 
-        private Member? _userMember { get; set; }
-        private Member? UserMember
-        {
-            get
-            {
-                if ((_userMember ??= GetUserMember()) is not null)
-                    return _userMember;
-                else
-                {
-                    navigation.NavigateTo("/members/new");
-                    return null;
-                }
-            }
-        }
 
-        private Member? GetUserMember()
+        private HashSet<Member?> Members { get; set; }
+        private async Task<Member?> GetMember() => Members.Where(m => m is not null).FirstOrDefault(m => m.Id == MemberId || m.ProfileUrl.Equals(profileUrl));
+        private async Task<Member?> GetUserMember()
         {
-            var name = auth.GetIdentity().Result?.Name ?? string.Empty;
-            return context.Members?
-                .Include(m => m.MemberFetishes)
-                .ThenInclude(mf => mf.Fetish)
-                .Include(m => m.Events)
-                .Include(m => m.Orientations)
-                .Include(m => m.Payments)
-                .FirstOrDefault(m => EF.Functions.Like(m.EmailAddress, name));
+            var email = await auth.GetEmail();
+            return Members.Where(m => m is not null).FirstOrDefault(m => m.EmailAddress.Equals(email, StringComparison.OrdinalIgnoreCase));
         }
 
         private async Task GenerateDuesInvoice()
@@ -119,11 +139,9 @@ namespace TNG.Web.Board.Pages.Membership
 
         private bool EditToggle;
 
-        private List<Fetish>? _fetishes { get; set; }
-        private List<Fetish> Fetishes
-            => _fetishes ??= context.Fetishes.ToList();
+        private List<Fetish>? Fetishes { get; set; }
 
-        private EditContext editContext = new(new object());
+        private EditContext? PageEditContext { get; set; }
 
         private string? NewFetishName { get; set; }
         private FetishRoleEnum? NewFetishRole { get; set; }
@@ -196,24 +214,5 @@ namespace TNG.Web.Board.Pages.Membership
 
         private string CalendarId
             => Configuration["CalendarId"] ?? throw new ArgumentNullException(nameof(CalendarId));
-
-        private string GetEventRsvps()
-         => string.Join("</li><li>", ViewMember?.Events?.AsParallel()
-                .OrderByDescending(r => r.AddedDate)
-                .Take(10)
-                .Select(r =>
-                {
-                    var eventData = Google.GetEvent(CalendarId, r.EventId);
-                    return new EventDetail
-                    {
-                        EventId = r.EventId,
-                        EventDate = eventData!.Start.DateTime.ToAZTime(),
-                        EventName = eventData!.Summary,
-                        Status = r.Status
-                    };
-                })
-                .OrderByDescending(r => r.EventDate)
-                .Select(r => $"{(r.Status == EventRsvpStatus.Going ? "Going" : "Maybe Going")} to <a href='/events/{r.EventId}'>{r.EventName}</a> on {r.EventDate.Value.Date:MMMM d, yyyy}")
-                ?? Enumerable.Empty<string>());
     }
 }

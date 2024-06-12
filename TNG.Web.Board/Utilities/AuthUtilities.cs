@@ -21,6 +21,14 @@ namespace TNG.Web.Board.Utilities
             return user.Identity;
         }
 
+        public async Task<string?> GetEmail()
+        {
+            var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            return user?.Claims?.FirstOrDefault(c => c.Type.Contains("email", StringComparison.OrdinalIgnoreCase))?.Value;
+
+        }
+
         public async Task<bool> IsAdmin()
         {
             var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();

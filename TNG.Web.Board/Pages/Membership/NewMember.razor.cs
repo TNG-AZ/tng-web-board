@@ -48,6 +48,17 @@ namespace TNG.Web.Board.Pages.Membership
         AltchaPageService altcha { get; set; }
 #nullable enable
 
+        protected override async Task OnInitializedAsync()
+        {
+            UserEmail = await auth.GetEmail();
+            EmailRegistered = context.Members.Any(m => EF.Functions.Like(m.EmailAddress, UserEmail));
+            if (!string.IsNullOrEmpty(UserEmail))
+                formModel.Email = UserEmail;
+        }
+
+        private string UserEmail { get; set; }
+        private bool EmailRegistered { get; set; }
+
         private NewMemberForm formModel = new();
         private string ErrorMessage { get; set; } = string.Empty;
 
