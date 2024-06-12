@@ -40,7 +40,7 @@ namespace TNG.Web.Board.Pages.Membership
                 members?.FirstOrDefaultAsync(m => EF.Functions.Like(m.EmailAddress, email)).Result
             };
 
-            UserMember = await GetUserMember();
+            UserMember = GetUserMember();
             if (UserMember == null)
             {
                 navigation.NavigateTo("/members/new");
@@ -49,11 +49,11 @@ namespace TNG.Web.Board.Pages.Membership
             
             if (profileUrl is null)
             {
-                ViewMember ??= await GetUserMember();
+                ViewMember ??= GetUserMember();
             }
             else
             {
-                ViewMember ??= await GetMember();
+                ViewMember ??= GetMember();
             }
             
             if (ViewMember is null) { 
@@ -114,12 +114,8 @@ namespace TNG.Web.Board.Pages.Membership
 
 
         private HashSet<Member?> Members { get; set; }
-        private async Task<Member?> GetMember() => Members.Where(m => m is not null).FirstOrDefault(m => m.Id == MemberId || m.ProfileUrl.Equals(profileUrl));
-        private async Task<Member?> GetUserMember()
-        {
-            var email = await auth.GetEmail();
-            return Members.Where(m => m is not null).FirstOrDefault(m => m.EmailAddress.Equals(email, StringComparison.OrdinalIgnoreCase));
-        }
+        private Member? GetMember() => Members.Where(m => m is not null).FirstOrDefault(m => m.Id == MemberId || m.ProfileUrl.Equals(profileUrl));
+        private Member? GetUserMember() => Members.Where(m => m is not null).FirstOrDefault(m => m.EmailAddress.Equals(auth.GetEmail().Result, StringComparison.OrdinalIgnoreCase));
 
         private async Task GenerateDuesInvoice()
         {
