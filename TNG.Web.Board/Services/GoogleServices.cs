@@ -55,9 +55,9 @@ namespace TNG.Web.Board.Services
         private static string GetEmailBccRaw(string toEmail, string subject, string body)
             => Base64UrlEncoder.Encode($"Bcc: {toEmail}\r\nSubject: {subject}\r\nContent-Type: text/html;charset=utf-8\r\n\r\n{body}");
 
-        public async  Task SendEmailAsync(string email, string subject, string htmlMessage)
+        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            await Gmail.Users.Messages.Send(new Message { Raw = GetEmailRaw(email, subject, htmlMessage) }, "me").ExecuteAsync();
+            Gmail.Users.Messages.Send(new Message { Raw = GetEmailRaw(email, subject, htmlMessage) }, "me").Execute();
         }
 
         public async Task EmailListAsync(IEnumerable<string> emails, string subject, string body)
@@ -65,7 +65,7 @@ namespace TNG.Web.Board.Services
             for (int i = 0; i < emails.Count(); i += 100)
             {
                 var batchEmails = emails.Skip(i).Take(100);
-                await Gmail.Users.Messages.Send(new Message { Raw = GetEmailBccRaw(string.Join(", ", batchEmails), subject, body) }, "me").ExecuteAsync();
+                Gmail.Users.Messages.Send(new Message { Raw = GetEmailBccRaw(string.Join(", ", batchEmails), subject, body) }, "me").Execute();
             }
             
         }
@@ -81,7 +81,7 @@ namespace TNG.Web.Board.Services
                 {
                     return cachedEvent;
                 }
-                var newEvent = await Calendar.Events.Get(CalendarId, eventId).ExecuteAsync();
+                var newEvent = Calendar.Events.Get(CalendarId, eventId).Execute();
                 cache.Set(key, newEvent);
                 return newEvent;
             }
