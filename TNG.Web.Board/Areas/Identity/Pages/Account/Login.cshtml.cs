@@ -132,7 +132,17 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
                     return Page();
                 }
 
-                var user = _userManager.Users.First(u => EF.Functions.Like(u.Email, Input.Email));
+                var user = (IdentityUser)null;
+
+                try
+                {
+                    user = _userManager.Users.First(u => EF.Functions.Like(u.Email, Input.Email));
+                }
+                catch 
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    return Page();
+                }
 
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true

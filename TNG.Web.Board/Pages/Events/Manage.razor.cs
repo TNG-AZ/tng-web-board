@@ -39,7 +39,7 @@ namespace TNG.Web.Board.Pages.Events
 
         private Event? _event { get; set; }
         private Event? CalendarEvent
-            => _event ??= google.GetEvent(configuration["CalendarId"]!, eventId!)?.Result;
+            => _event ??= google.GetEvent(eventId!)?.Result;
 
         private List<EventRsvp>? _eventRsvp { get; set; }
         private IEnumerable<EventRsvp> Rsvps

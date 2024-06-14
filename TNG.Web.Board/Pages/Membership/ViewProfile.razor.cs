@@ -67,7 +67,7 @@ namespace TNG.Web.Board.Pages.Membership
                 .Take(10)
                 .Select(async r =>
                 {
-                    var eventData = await Google.GetEvent(CalendarId, r.EventId);
+                    var eventData = await Google.GetEvent(r.EventId);
                     return new EventDetail
                     {
                         EventId = r.EventId,

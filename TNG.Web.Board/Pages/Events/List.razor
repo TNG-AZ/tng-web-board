@@ -23,10 +23,10 @@
             <br />
             <label>Start Date:</label><input type="date" @bind=@CalendarStartDate /><br />
             <label>End Date:</label><input type="date" @bind=@CalendarEndDate/><br/>
-            <button type="button" @onclick=@(() => StateHasChanged())>Submit</button>
+            <button type="button" @onclick=@(() => {_events = null; StateHasChanged();})>Submit</button>
         </Authorized>
     </AuthorizeView>
-@foreach(var calendarEvent in GetUpcomingEvents())
+@foreach(var calendarEvent in GetUpcomingEvents().Result)
 {
         var rsvp = Member?.Events?.FirstOrDefault(e => e.EventId == calendarEvent.Id);
         var rsvpStatus = rsvp?.Status;

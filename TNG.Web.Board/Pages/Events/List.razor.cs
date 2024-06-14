@@ -39,29 +39,19 @@ namespace TNG.Web.Board.Pages.Events
 
         private Member? GetMember()
         {
-            var name = auth.GetIdentity().Result?.Name ?? string.Empty;
+            var name = auth.GetEmail().Result ?? string.Empty;
             return context.Members.Include(m => m.Events).FirstOrDefault(m => EF.Functions.Like(m.EmailAddress, name));
         }
 
-        private string CalendarId
-            => Configuration["CalendarId"] ?? throw new ArgumentNullException(nameof(CalendarId));
-
-        private Google.Apis.Calendar.v3.Data.Events GetEvents()
-        {
-            var request = Google.Calendar.Events.List(CalendarId);
-            request.SingleEvents = true;
-            request.TimeMin = CalendarStartDate;
-            request.TimeMax = CalendarEndDate;
-            return request.Execute();
-        }
 
         private DateTime CalendarStartDate { get; set; } = DateTime.Now.AddDays(-2);
         private DateTime CalendarEndDate { get; set; } = DateTime.Now.AddMonths(1);
 
         private IEnumerable<Event>? CalendarEvents { get; set; }
 
-        private IEnumerable<Event> GetUpcomingEvents()
-            => GetEvents().Items
+        private IEnumerable<Event>? _events { get; set; }
+        private async Task<IEnumerable<Event>> GetUpcomingEvents()
+            => (_events ??= await Google.GetEvents(CalendarStartDate, CalendarEndDate))
             .OrderBy(e => e.Start.DateTime);
 
 
