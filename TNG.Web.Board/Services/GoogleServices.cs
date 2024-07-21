@@ -70,8 +70,6 @@ namespace TNG.Web.Board.Services
             
         }
 
-        private ConcurrentDictionary<string, byte> cacheKeys = new ConcurrentDictionary<string, byte>();
-
         public async Task<Event?> GetEvent(string eventId)
         {
             try
