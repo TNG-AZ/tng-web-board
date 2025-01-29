@@ -18,6 +18,8 @@ namespace TNG.Web.Board.Pages.Events
 {
     public partial class List
     {
+        const int DaysCalenderPreOffset = -2;
+        const int MonthsCalendayPostOffset = 2;
 #nullable disable
         [Inject]
         private ApplicationDbContext context { get; set; }
@@ -44,8 +46,8 @@ namespace TNG.Web.Board.Pages.Events
         }
 
 
-        private DateTime CalendarStartDate { get; set; } = DateTime.Now.AddDays(-2);
-        private DateTime CalendarEndDate { get; set; } = DateTime.Now.AddMonths(1);
+        private DateTime CalendarStartDate { get; set; } = DateTime.Now.AddDays(DaysCalenderPreOffset);
+        private DateTime CalendarEndDate { get; set; } = DateTime.Now.AddMonths(MonthsCalendayPostOffset);
 
         private IEnumerable<Event>? CalendarEvents { get; set; }
 
