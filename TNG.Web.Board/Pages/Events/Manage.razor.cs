@@ -131,7 +131,6 @@ namespace TNG.Web.Board.Pages.Events
                 (_, { Status: IssuesStatus.Danger }) => "table-danger",
                 (_, { Status: IssuesStatus.Warning }) => "table-warning",
                 ({ Paid: false }, _) => "table-warning",
-                ({ Approved: false }, _) => "table-warning",
                 ({ Member.ReceivedProofOfCovid19Vaccination: false}, _) => "table-warning",
                 _ => "table-success"
             };
@@ -148,18 +147,12 @@ namespace TNG.Web.Board.Pages.Events
             await context.SaveChangesAsync();
             StateHasChanged();
         }
-        private async Task ToggleApproved(EventRsvp rsvp)
-        {
-            rsvp.Approved = !(rsvp?.Approved ?? false);
-            await context.SaveChangesAsync();
-            StateHasChanged();
-        }
 
         private enum EmailListEnum
         {
             All,
             GoodStanding,
-            ApprovedAndPaid
+            Paid
         }
 
         BlazoredTextEditor QuillHtml;
@@ -180,9 +173,8 @@ namespace TNG.Web.Board.Pages.Events
                 var members = EmailList switch
                 {
                     EmailListEnum.All => Rsvps.Select(r => r.Member),
-                    EmailListEnum.ApprovedAndPaid => Rsvps
-                        .Where(r => (r.Approved ?? false) 
-                            && ((r.Paid ?? false) || r.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate != null)))
+                    EmailListEnum.Paid => Rsvps
+                        .Where(r => (r.Paid ?? false) || r.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate != null))
                         .Select(r => r.Member),
                     EmailListEnum.GoodStanding => Rsvps.Select(r => r.Member).Where(m => GetMembershipIssues(m).Status == null),
                     _ => Enumerable.Empty<Member>()
@@ -347,8 +339,8 @@ namespace TNG.Web.Board.Pages.Events
         private enum Filtering
         {
             Everyone,
-            PaidAndApproved,
-            PaidAndApprovedAndNotHere
+            Paid,
+            PaidAndNotHere
         }
 
         private Filtering RsvpFiltering { get; set; } = Filtering.Everyone;
@@ -376,11 +368,9 @@ namespace TNG.Web.Board.Pages.Events
                     var filtered = Rsvps
                         .Where(r =>
                             RsvpFiltering == Filtering.Everyone
-                            || (RsvpFiltering == Filtering.PaidAndApproved
-                                && (r.Approved??false)
+                            || (RsvpFiltering == Filtering.Paid
                                 && ((r.Paid??false) || r.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate != null)))
-                            || (RsvpFiltering == Filtering.PaidAndApprovedAndNotHere
-                                && (r.Approved ?? false)
+                            || (RsvpFiltering == Filtering.PaidAndNotHere
                                 && ((r.Paid ?? false) || r.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate != null))
                                 && !(r.Attended??false)))
                         ;

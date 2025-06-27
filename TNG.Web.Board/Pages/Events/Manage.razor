@@ -16,8 +16,8 @@
         <input type="radio" name="emailList" value="@EmailListEnum.GoodStanding" checked="@(EmailList?.Equals(EmailListEnum.GoodStanding))" @onchange="EmailListOnChange" />
         <label>Members in Good Standing</label>
         <br />
-        <input type="radio" name="emailList" value="@EmailListEnum.ApprovedAndPaid" checked="@(EmailList?.Equals(EmailListEnum.ApprovedAndPaid))" @onchange="EmailListOnChange" />
-        <label>Approved and Paid Members</label>
+        <input type="radio" name="emailList" value="@EmailListEnum.Paid" checked="@(EmailList?.Equals(EmailListEnum.Paid))" @onchange="EmailListOnChange" />
+        <label>Paid Members</label>
         <br />
         <label>Subject:</label><input type="text" @bind=@EmailSubject>
         
@@ -120,11 +120,11 @@
                     <input type="radio" checked="@(RsvpFiltering == Filtering.Everyone)"
                         name="Filtering" @onchange="@(() => UpdateFiltering(Filtering.Everyone))" />
                     <label>All RSVPs</label><br/>
-                    <input type="radio" checked="@(RsvpFiltering == Filtering.PaidAndApproved)"
-                           name="Filtering" @onchange="@(() => UpdateFiltering(Filtering.PaidAndApproved))" />
-                    <label>Paid And Approved</label>
-                    <input type="radio" checked="@(RsvpFiltering == Filtering.PaidAndApprovedAndNotHere)"
-                        name="Filtering" @onchange="@(() => UpdateFiltering(Filtering.PaidAndApprovedAndNotHere))" />
+                    <input type="radio" checked="@(RsvpFiltering == Filtering.Paid)"
+                           name="Filtering" @onchange="@(() => UpdateFiltering(Filtering.Paid))" />
+                    <label>Paid</label>
+                    <input type="radio" checked="@(RsvpFiltering == Filtering.PaidAndNotHere)"
+                        name="Filtering" @onchange="@(() => UpdateFiltering(Filtering.PaidAndNotHere))" />
                     <label>Waiting for Arrival</label>
                 </div>
             </div>
@@ -132,7 +132,7 @@
     </CardBody>
 </CollapsibleCard>
 
-<button type="button" @onclick=@(() => {UpdateFiltering(Filtering.PaidAndApprovedAndNotHere); UpdateOrdering(Ordering.Alphabetical);})>Refresh Door View</button>
+<button type="button" @onclick=@(() => {UpdateFiltering(Filtering.PaidAndNotHere); UpdateOrdering(Ordering.Alphabetical);})>Refresh Door View</button>
 
 <div class="table-responsive">
     <table class="table">
@@ -142,7 +142,6 @@
                 <th>Scene Name</th>
                 <th>Status</th>
                 <th>Notes</th>
-                <th>Approval</th>
                 <th>Paid</th>
                 <th>Proof of vax received</th>
                 <th>Membership Issues</th>
@@ -153,7 +152,6 @@
             @foreach (var rsvp in FilteredRsvps)
             {
                 var issues = GetMembershipIssues(rsvp.Member);
-                var approved = rsvp.Approved ?? false;
                 var paid = (rsvp.Paid??false) || rsvp.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate.HasValue);
                 var hasVaxProof = rsvp.Member.ReceivedProofOfCovid19Vaccination;
                 var addedDate = rsvp!.AddedDate.HasValue ? DateTime.SpecifyKind(rsvp.AddedDate.Value, DateTimeKind.Utc).ToAZTime()
@@ -167,9 +165,6 @@
                             <CardBody>
                                 <button type="button" @onclick=@(async () => await ShowProfileEditModal(rsvp.Member))>
                                     @checkIdText
-                                </button>
-                                <button type="button" @onclick=@(async () => await ToggleApproved(rsvp))>
-                                    @(rsvp.Approved ?? false ? "Undo Approval" : "Approve")
                                 </button><br/>
                                 <button type="button" @onclick=@(async () => await TogglePaid(rsvp))>
                                     @(rsvp.Paid ?? false ? "Undo Payment" : "Mark as Paid")
@@ -225,7 +220,6 @@
                         }
                         
                     </td>
-                    <td class="@(!approved ? "table-warning" : string.Empty)">@(approved.ToString())</td>
                     <td class="@(!paid ? "table-warning" : string.Empty)">
                         @if(rsvp.Paid??false)
                         {
