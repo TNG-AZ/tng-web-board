@@ -51,7 +51,14 @@
             <option value="2">Honorary (by board approval only)</option>
         </select>
     </div>
-
+    <button @onclick=@(() => formModel.NewUser = !formModel.NewUser)>@(formModel.NewUser ? "I already have a website account" : "Create a website account")</button>
+    @if (formModel.NewUser)
+    {
+        <div class="form-group">
+            <label>Password:</label>
+            <input class="form-control" type="password" @bind=formModel.Password />
+        </div>
+    }
     <Rules />
 
     <h3>Acknowledgement</h3>

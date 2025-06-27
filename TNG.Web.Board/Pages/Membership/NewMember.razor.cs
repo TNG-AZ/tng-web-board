@@ -1,9 +1,15 @@
 ﻿using Ixnas.AltchaNet;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Policy;
+using System.Text.Encodings.Web;
+using System.Text;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 using TNG.Web.Board.Services;
@@ -30,11 +36,26 @@ namespace TNG.Web.Board.Pages.Membership
         public MemberType MemberType { get; set; }
         [Required]
         public string Altcha { get; set; }
+        public bool NewUser { get; set; } = true;
+        public string Password { get; set;}
     }
 
     public partial class NewMember
     {
 #nullable disable
+        [Inject]
+
+        private IUserStore<IdentityUser> userStore {  get; set; }
+        private IUserEmailStore<IdentityUser> _es { get; set; }
+        private IUserEmailStore<IdentityUser> emailStore { get { return _es ??= (IUserEmailStore<IdentityUser>)userStore; }}
+        [Inject]
+
+        private UserManager<IdentityUser> userManager { get; set; }
+        [Inject]
+
+        private IEmailSender emailSender { get; set; }
+        [Inject]
+        private SignInManager<IdentityUser> signInManager { get; set; }
         [Inject]
         private ApplicationDbContext context { get; set; }
 
@@ -90,7 +111,10 @@ namespace TNG.Web.Board.Pages.Membership
             }
             finally
             {
-                navigation.NavigateTo("/");
+                if (formModel.NewUser)
+                    await CreateLogin();
+                else
+                    navigation.NavigateTo("/");
             }
         }
 
@@ -105,6 +129,57 @@ namespace TNG.Web.Board.Pages.Membership
             if (bool.TryParse(e.Value.ToString(), out var validated) && validated)
             {
                 formModel.Altcha = await jsRuntime.InvokeAsync<string>("getAltcha");
+            }
+        }
+
+        public async Task CreateLogin()
+        {
+
+            var emailExists = await userManager.FindByEmailAsync(formModel.Email);
+            if (emailExists != null)
+            {
+                if (userManager.Options.SignIn.RequireConfirmedAccount)
+                {
+                    await jsRuntime.InvokeVoidAsync("alert", "Check your email for a confirmation code");
+                }
+                navigation.NavigateTo($"/");
+                return;
+            }
+
+
+            var user = Activator.CreateInstance<IdentityUser>();
+
+            await userStore.SetUserNameAsync(user, formModel.Email, CancellationToken.None);
+            await emailStore.SetEmailAsync(user, formModel.Email, CancellationToken.None);
+            var result = await userManager.CreateAsync(user, formModel.Password);
+
+            if (result.Succeeded)
+            {
+
+                var userId = await userManager.GetUserIdAsync(user);
+                var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+                var confirmationLink = $"{navigation.BaseUri}Identity/Account/ConfirmEmail?userId={user.Id}&code={code}";
+
+                await emailSender.SendEmailAsync(formModel.Email, "Confirm your email",
+                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(confirmationLink)}'>clicking here</a>.");
+
+                if (userManager.Options.SignIn.RequireConfirmedAccount)
+                {
+                    await jsRuntime.InvokeVoidAsync("alert", "Check your email for a confirmation code");
+                    navigation.NavigateTo($"/");
+                }
+                else
+                {
+                    await signInManager.SignInAsync(user, isPersistent: false);
+                    navigation.NavigateTo("/");
+                }
+            }
+            else
+            {
+                ErrorMessage = "Invalid Login";
+                await jsRuntime.InvokeVoidAsync("scrollToTop");
             }
         }
     }
