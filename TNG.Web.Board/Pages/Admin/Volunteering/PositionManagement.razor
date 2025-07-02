@@ -1,0 +1,40 @@
+﻿@page "/admin/volunteering/positions"
+@attribute [Authorize(Roles = "Boardmember")]
+@using Microsoft.EntityFrameworkCore
+@using TNG.Web.Board.Data
+@using TNG.Web.Board.Data.DTOs
+<h3>Positions</h3>
+
+<label>New position:</label><input type="text" @bind=positionName/>
+<button @onclick=@(() => CreatePosition())>Create</button>
+
+@foreach(var p in Positions ?? Enumerable.Empty<VolunteerPosition>())
+{
+    <p>@p.Name</p>
+}
+
+@code {
+    string positionName;
+    [Inject]
+    public ApplicationDbContext context { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Positions = await context.VolunteerPositions.ToListAsync();
+    }
+
+    private IList<VolunteerPosition> Positions { get; set; }
+
+
+    private async void CreatePosition()
+    {
+        var pos = await context.AddAsync(new VolunteerPosition()
+            {
+                Name = positionName
+            });
+        await context.SaveChangesAsync();
+
+        Positions.Add(pos.Entity);
+        StateHasChanged();
+    }
+}

@@ -1,0 +1,23 @@
+﻿@page "/admin/volunteering/{eventId}"
+@using TNG.Web.Board.Data.DTOs
+
+<select class="form-control" @onchange="PositionChange">\
+    <option>Select a Position</option>
+    @foreach(var p in Positions ?? Enumerable.Empty<VolunteerPosition>())
+    {
+        <option value="@p.Id">@p.Name</option>
+    }
+</select>
+<button @onclick=@(async () => await AddSlot(SelectedPositionId))>Add Slot</button>
+
+@foreach(var s in Slots ?? Enumerable.Empty<VolunteerEventSlot>())
+{
+    <div>
+        <label>Priority</label><input type="number" @bind=s.Priority />
+        <label>@s.Position.Name</label> 
+        - <label>Time</label> <input type="time" @bind=s.StartTime/>
+        - <label>Duration Minutes</label> <input type="number" @bind=s.DurationMinutes />
+        - <label>Minimum Needed</label> <input type="number" @bind=s.NeededCount />
+    </div>
+}
+<button @onclick=@(() => SyncSlots())>Save</button>

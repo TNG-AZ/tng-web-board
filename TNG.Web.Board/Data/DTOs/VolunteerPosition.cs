@@ -13,7 +13,7 @@ namespace TNG.Web.Board.Data.DTOs
         public bool? RequireRoleApproval { get; set; }
 
 
-        public virtual VolunteerPositionRole RequiredRole { get; set; }
+        public virtual VolunteerPositionRole? RequiredRole { get; set; }
 
         public virtual ICollection<VolunteerEventSlot> EventSlots { get; set; }
     }
