@@ -66,7 +66,8 @@ namespace TNG.Web.Board.Pages.Admin.Volunteering
         private async Task AddSlot(int positionId)
         {
             var pos = await context.VolunteerPositions.FirstOrDefaultAsync(p => p.Id  == positionId);
-            Slots.Add(new() { EventId = eventId, PositionId = positionId, Position = pos });
+            if (pos != null)
+                Slots.Add(new() { EventId = eventId, PositionId = positionId, Position = pos });
         }
 
         private async void SyncSlots()
