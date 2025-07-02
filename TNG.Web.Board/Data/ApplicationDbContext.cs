@@ -31,5 +31,12 @@ namespace TNG.Web.Board.Data
 
         public virtual DbSet<Raffle> Raffles { get; set; }
         public virtual DbSet<RaffleEntry> RaffleEntries { get; set; }
+
+
+        public virtual DbSet<VolunteerEventSlot> VolunteerEventSlots { get; set; }
+        public virtual DbSet<VolunteerPosition> VolunteerPositions { get; set; }
+        public virtual DbSet<VolunteerPositionRole> VolunteerPositionRoles { get; set; }
+        public virtual DbSet<VolunteerRoleMember> VolunteerRoleMembers { get; set; }
+        public virtual DbSet<VolunteerSlotMember> VolunteerSlotMembers { get; set; }
     }
 }

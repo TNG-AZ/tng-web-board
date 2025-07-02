@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TNG.Web.Board.Data;
 
@@ -11,9 +12,11 @@ using TNG.Web.Board.Data;
 namespace TNG.Web.Board.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250630215847_Volunteering")]
+    partial class Volunteering
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -747,7 +750,7 @@ namespace TNG.Web.Board.Data.Migrations
 
                     b.HasIndex("PositionId");
 
-                    b.ToTable("VolunteerEventSlots");
+                    b.ToTable("VolunteerEventSlot");
                 });
 
             modelBuilder.Entity("TNG.Web.Board.Data.DTOs.VolunteerPosition", b =>
@@ -762,9 +765,6 @@ namespace TNG.Web.Board.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("RequireRoleApproval")
-                        .HasColumnType("bit");
-
                     b.Property<int?>("RequiredRoleId")
                         .IsRequired()
                         .HasColumnType("int");
@@ -773,7 +773,7 @@ namespace TNG.Web.Board.Data.Migrations
 
                     b.HasIndex("RequiredRoleId");
 
-                    b.ToTable("VolunteerPositions");
+                    b.ToTable("VolunteerPosition");
                 });
 
             modelBuilder.Entity("TNG.Web.Board.Data.DTOs.VolunteerPositionRole", b =>
@@ -800,36 +800,7 @@ namespace TNG.Web.Board.Data.Migrations
 
                     b.HasIndex("VolunteerPositionRoleId");
 
-                    b.ToTable("VolunteerPositionRoles");
-                });
-
-            modelBuilder.Entity("TNG.Web.Board.Data.DTOs.VolunteerRoleMember", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool?>("Approval")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("MemberId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("RequestedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MemberId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("VolunteerRoleMembers");
+                    b.ToTable("VolunteerPositionRole");
                 });
 
             modelBuilder.Entity("TNG.Web.Board.Data.DTOs.VolunteerSlotMember", b =>
@@ -858,7 +829,7 @@ namespace TNG.Web.Board.Data.Migrations
 
                     b.HasIndex("SlotId");
 
-                    b.ToTable("VolunteerSlotMembers");
+                    b.ToTable("VolunteerSlotMember");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1116,25 +1087,6 @@ namespace TNG.Web.Board.Data.Migrations
                     b.HasOne("TNG.Web.Board.Data.DTOs.VolunteerPositionRole", null)
                         .WithMany("Roles")
                         .HasForeignKey("VolunteerPositionRoleId");
-                });
-
-            modelBuilder.Entity("TNG.Web.Board.Data.DTOs.VolunteerRoleMember", b =>
-                {
-                    b.HasOne("TNG.Web.Board.Data.DTOs.Member", "Member")
-                        .WithMany()
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TNG.Web.Board.Data.DTOs.VolunteerPositionRole", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Member");
-
-                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("TNG.Web.Board.Data.DTOs.VolunteerSlotMember", b =>

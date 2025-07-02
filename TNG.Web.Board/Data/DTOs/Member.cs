@@ -59,5 +59,8 @@ namespace TNG.Web.Board.Data.DTOs
         public virtual IEnumerable<EventRsvpPlusOne> RsvpPlusOnesAsGuest { get; set; }
         public virtual IEnumerable<RaffleEntry> RaffleEntries { get; set; }
         public virtual IEnumerable<Raffle> RaffleWins { get; set; }
+
+        public virtual ICollection<VolunteerPositionRole> VolunteerRoles { get; set; }
+        public virtual ICollection<VolunteerSlotMember> VolunteerSlots { get; set; }
     }
 }

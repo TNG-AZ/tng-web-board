@@ -13,6 +13,7 @@
     <PackageReference Include="Blazor.SignaturePad" Version="7.4.0" />
     <PackageReference Include="Blazored.Modal" Version="7.1.0" />
     <PackageReference Include="Blazored.TextEditor" Version="1.0.8" />
+    <PackageReference Include="ErikEJ.EntityFrameworkCore.SqlServer.DateOnlyTimeOnly" Version="7.0.10" />
     <PackageReference Include="Google.Apis.Calendar.v3" Version="1.60.0.3074" />
     <PackageReference Include="Google.Apis.Gmail.v1" Version="1.60.0.3084" />
     <PackageReference Include="itext7" Version="8.0.1" />
