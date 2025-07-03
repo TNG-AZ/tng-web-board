@@ -37,6 +37,10 @@
             {
                 <button type="button" class="btn btn-info" @onclick=@(() => ShowNotesModal(rsvp))>Manage +1s</button>
             }
+            @if(HasVolunteerSlots)
+            {
+                <button type="button" class="btn" @onclick=@(() => ShowVolunteerModal())>Volunteer</button>
+            }
             <AuthorizeView Roles="Boardmember">
                 <Authorized>
                     <button type="button" @onclick=@(() => navigation.NavigateTo($"/events/manage/{CalendarEvent.Id}")) class="btn">Manage RSVP</button>

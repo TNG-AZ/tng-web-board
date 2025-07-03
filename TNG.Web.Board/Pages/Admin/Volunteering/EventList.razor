@@ -1,0 +1,47 @@
+﻿@page "/admin/volunteering/events/"
+@using System.Web;
+@using Google.Apis.Calendar.v3.Data
+@using TNG.Web.Board.Data.DTOs;
+@using TNG.Web.Board.Utilities;
+
+<div class="container">
+    <AuthorizeView Roles="Boardmember">
+        <Authorized>
+            <br />
+            <label>Start Date:</label><input type="date" @bind=@CalendarStartDate /><br />
+            <label>End Date:</label><input type="date" @bind=@CalendarEndDate/><br/>
+            <button type="button" @onclick=@(async () => {await UpdateCalendarEvents(); StateHasChanged();})>
+                Submit
+            </button>
+        </Authorized>
+    </AuthorizeView>
+@foreach(var calendarEvent in CalendarEvents ?? Enumerable.Empty<Event>())
+{
+    var startTime = calendarEvent.Start.DateTime.ToAZTime();
+    var description = calendarEvent.Description ?? string.Empty;
+    <div class="card">
+        <div class="card-body">
+            <h3 class="card-title"><a href="@($"/events/{calendarEvent.Id}")">@calendarEvent.Summary</a></h3>
+            <button type="button" class="btn btn-info" onclick=@($"copyToClipboard(event, 'https://tngaz.org/events/{calendarEvent.Id}')")>Copy Link</button>
+            <button type="button" class="btn btn-info" onclick=@(() => navigation.NavigateTo($"/admin/volunteering/{calendarEvent.Id}"))>Manage Slots</button>
+            <button type="button" class="btn btn-info" onclick=@(() => ShowVolunteerModal(calendarEvent.Id))>Manage Selection</button>
+            <div class="eventDetails">
+                <h5><i class="bi bi-clock"></i>@($"Happening on {startTime?.DayOfWeek} {startTime:MM/dd/yyyy} at {startTime:hh:mm tt}")</h5>
+            @if(!string.IsNullOrEmpty(calendarEvent.Location))
+            {
+                <h5><a href="https://www.google.com/maps/search/?api=1&query=@HttpUtility.UrlEncode(calendarEvent.Location)"><i class="bi bi-map"></i>@calendarEvent.Location</a></h5>
+            } 
+            </div>
+            <p class="card-text">
+            @{
+                var displayDescription = StringTools.RemoveHtml(description);
+                displayDescription = displayDescription.Substring(0, Math.Min(displayDescription.Length, 300))
+                    + (displayDescription.Length > 300 ? "..." : string.Empty);
+            }        
+            @displayDescription
+            </p>
+        </div>
+    </div>
+    <br/>
+}
+</div>

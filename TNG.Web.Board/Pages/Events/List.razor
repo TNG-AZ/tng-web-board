@@ -35,6 +35,7 @@
         var maybe = GetRsvpMemberList(calendarEvent.Id, EventRsvpStatus.MaybeGoing, isBoard) ?? string.Empty;
         var startTime = calendarEvent.Start.DateTime.ToAZTime();
         var description = calendarEvent.Description ?? string.Empty;
+        var hasVolunteerSlots = context.VolunteerEventSlots?.Any(s => s.EventId == calendarEvent.Id) ?? false;
         <div class="card">
         <div class="card-header">
             <form class="form-inline">
@@ -44,6 +45,10 @@
                     @if(rsvp is not null)
                     {
                         <button type="button" class="btn btn-info" @onclick=@(() => ShowNotesModal(rsvp))>Manage +1s</button>
+                    }
+                    @if (hasVolunteerSlots)
+                    {
+                        <button type="button" class="btn" @onclick=@(() => ShowVolunteerModal(calendarEvent.Id))>Volunteer</button>
                     }
                     <AuthorizeView Roles="Boardmember">
                         <Authorized>

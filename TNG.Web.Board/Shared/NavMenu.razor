@@ -87,6 +87,21 @@
                         <NavLink class="nav-link" href="/admin/emailmanager" Match="NavLinkMatch.All">
                             Email Sender
                         </NavLink>
+                        <NavLink class="nav-link" @onclick="()=>expandVolunteerNav = !expandVolunteerNav" Match="NavLinkMatch.All">
+                            <span class="bi bi-chevron-down" aria-hidden="true"></span> Volunteer
+                        </NavLink>
+                        @if (expandVolunteerNav)
+                        {
+                            <NavLink class="nav-link" href="/admin/volunteering/roles" Match="NavLinkMatch.All">
+                                Roles
+                            </NavLink>
+                            <NavLink class="nav-link" href="/admin/volunteering/positions" Match="NavLinkMatch.All">
+                                Positions
+                            </NavLink>
+                            <NavLink class="nav-link" href="/admin/volunteering/events" Match="NavLinkMatch.All">
+                                Events
+                            </NavLink>
+                        }
                     }
                 </Authorized>
             </AuthorizeView>
@@ -107,6 +122,7 @@
 
     private bool expandMemberNav = false;
     private bool expandAboutNav = false;
+    private bool expandVolunteerNav = false;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 

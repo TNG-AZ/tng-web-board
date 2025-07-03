@@ -1,0 +1,30 @@
+﻿@using System.Web
+@using TNG.Web.Board.Data.DTOs
+@foreach (var s in Slots ?? Enumerable.Empty<VolunteerEventSlot>())
+{
+    <div>
+        <p>
+            @s.Position.Name 
+            @(s.StartTime.HasValue ? $": {s.StartTime} {(s.DurationMinutes.HasValue ? $"-{s.StartTime.Value.AddMinutes(s.DurationMinutes.Value)}" : string.Empty)}" : string.Empty)
+        </p>
+        @foreach(var m in s.SlotMembers ?? Enumerable.Empty<VolunteerSlotMember>())
+        {
+
+            var profileId = m.Member.ProfileUrl ?? m.Member.Id.ToString();
+            var profileName = HttpUtility.HtmlEncode(m.Member.SceneName);
+            var issues = GetIssues(m);
+            var displayClass = issues.Level switch
+            {
+                IssueLevel.Warning => "badge-warning",
+                IssueLevel.Danger => "badge-danger",
+                _ => "badge-primary"
+            };
+            <a href="/members/view/@profileId"><span class='badge badge-pill @displayClass'><i class='bi bi-person'></i>@profileName</span></a>
+            @if (issues.Issues.Any())
+            {
+                <button onclick=@(() => Alert(string.Join(", ", issues.Issues)))>Issues</button>
+            }
+            <button onclick=@(() => ToggleApproval(m))>@((m.Approval ?? false) ? "Remove" : "Approve")</button>
+        }
+    </div>
+}

@@ -12,6 +12,7 @@ using TNG.Web.Board.Utilities;
 using System.Web;
 using Humanizer;
 using System.Collections.Concurrent;
+using TNG.Web.Board.Pages.Events.Modals;
 
 namespace TNG.Web.Board.Pages.Events
 {
@@ -168,6 +169,20 @@ namespace TNG.Web.Board.Pages.Events
             };
             Modal.Show<RSVPNotes>("Add Notes", parameters, options);
         }
+
+        private void ShowVolunteerModal()
+        {
+            var parameters = new ModalParameters()
+                .Add(nameof(VolunteerModal.eventId), eventId);
+            var options = new ModalOptions()
+            {
+                Class = "blazored-modal size-large"
+            };
+            Modal.Show<VolunteerModal>("Volunteer", parameters, options);
+        }
+
+        private bool HasVolunteerSlots
+            => context.VolunteerEventSlots?.Any(s => s.EventId == eventId) ?? false;
 
         private bool shouldRender = true;
 

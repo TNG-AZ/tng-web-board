@@ -5,11 +5,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Dynamic;
 using System.Runtime.CompilerServices;
 using System.Web;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
+using TNG.Web.Board.Pages.Events.Modals;
 using TNG.Web.Board.Pages.Shared;
 using TNG.Web.Board.Services;
 using TNG.Web.Board.Utilities;
@@ -158,6 +160,17 @@ namespace TNG.Web.Board.Pages.Events
                 Class = "blazored-modal size-large"
             };
             Modal.Show<RSVPNotes>("Add Notes", parameters, options);
+        }
+
+        private void ShowVolunteerModal(string eventId)
+        {
+            var parameters = new ModalParameters()
+                .Add(nameof(VolunteerModal.eventId), eventId);
+            var options = new ModalOptions()
+            {
+                Class = "blazored-modal size-large"
+            };
+            Modal.Show<VolunteerModal>("Volunteer", parameters, options);
         }
 
         private bool shouldRender = true;

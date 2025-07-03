@@ -1,0 +1,11 @@
+﻿@page "/admin/volunteering/roles"
+@using TNG.Web.Board.Data.DTOs
+<h3>Positions</h3>
+
+<label>New position:</label><input type="text" @bind=roleName/>
+<button @onclick=@(() => CreateRole())>Create</button>
+
+@foreach(var p in Roles ?? Enumerable.Empty<VolunteerPositionRole>())
+{
+    <p><label>@p.Name</label> - <a href="#">Manage Members</a></p>
+}
