@@ -35,7 +35,7 @@
         var maybe = GetRsvpMemberList(calendarEvent.Id, EventRsvpStatus.MaybeGoing, isBoard) ?? string.Empty;
         var startTime = calendarEvent.Start.DateTime.ToAZTime();
         var description = calendarEvent.Description ?? string.Empty;
-        var hasVolunteerSlots = context.VolunteerEventSlots?.Any(s => s.EventId == calendarEvent.Id) ?? false;
+        var hasVolunteerSlots = (context.VolunteerEventSlots?.Any(s => s.EventId == calendarEvent.Id) ?? false) && Member != null;
         <div class="card">
         <div class="card-header">
             <form class="form-inline">

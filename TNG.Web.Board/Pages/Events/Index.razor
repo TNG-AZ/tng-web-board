@@ -37,7 +37,7 @@
             {
                 <button type="button" class="btn btn-info" @onclick=@(() => ShowNotesModal(rsvp))>Manage +1s</button>
             }
-            @if(HasVolunteerSlots)
+            @if(HasVolunteerSlots && Member != null)
             {
                 <button type="button" class="btn" @onclick=@(() => ShowVolunteerModal())>Volunteer</button>
             }
