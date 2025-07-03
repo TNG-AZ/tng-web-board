@@ -39,7 +39,7 @@
             }
             @if(HasVolunteerSlots && Member != null)
             {
-                <button type="button" class="btn" @onclick=@(() => ShowVolunteerModal())>Volunteer</button>
+                <button type="button" class="btn btn-light" @onclick=@(() => ShowVolunteerModal())>Volunteer</button>
             }
             <AuthorizeView Roles="Boardmember">
                 <Authorized>

@@ -1,52 +1,72 @@
 ﻿@using TNG.Web.Board.Data.DTOs
-<h3>Volunteer</h3>
-@foreach (var s in Slots ?? Enumerable.Empty<VolunteerEventSlot>())
-{
-    <div>
-        <p>
-            @s.Position.Name 
-            @(s.StartTime.HasValue ? $": {s.StartTime} {(s.DurationMinutes.HasValue ? $"-{s.StartTime.Value.AddMinutes(s.DurationMinutes.Value)}" : string.Empty)}" : string.Empty)
-        </p>
-        @{
-            var volunteered = s.SlotMembers.Any(m => m.MemberId == Member.Id);
-        }
-
-        @if (volunteered)
+<table class="table">
+    <thead class="thead-light">
+        <tr>
+            <th>
+                Position
+            </th>
+            <th>
+                Time
+            </th>
+            <th>
+                Action
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Slots ?? Enumerable.Empty<VolunteerEventSlot>())
         {
-            <button disabled="disabled">Volunteered Already</button>
-        }
-        else
-        { 
-            if (s.Position.RequiredRole != null)
-            {
-                var role = Member.VolunteerRoles.FirstOrDefault(r => r.Id == s.Position.RequiredRoleId);
-                if (role != null)
-                {
-                    if (s.Position.RequireRoleApproval ?? false)
+            <tr>
+                <td>
+                    @s.Position.Name
+                </td>
+                <td>
+                    @(s.StartTime.HasValue ? $"{s.StartTime} {(s.DurationMinutes.HasValue ? $"- {s.StartTime.Value.AddMinutes(s.DurationMinutes.Value)}" : string.Empty)}" : string.Empty)
+                </td>
+                <td>
+                    @{
+                        var volunteered = s.SlotMembers.Any(m => m.MemberId == Member.Id);
+                    }
+
+                    @if (volunteered)
                     {
-                        if (role.Approval ?? false)
-                        {
-                            <button @onclick=@(async () => await Volunteer(s))>Volunteer</button>
-                        }
-                        else
-                        {
-                            <button disabled="disabled">Waiting for role approval</button>
-                        }
+                        <button class="btn btn-success" disabled="disabled">Volunteered Already</button>
                     }
                     else
                     {
-                        <button @onclick=@(async () => await Volunteer(s))>Volunteer</button>
+                        if (s.Position.RequiredRole != null)
+                        {
+                            var role = Member.VolunteerRoles.FirstOrDefault(r => r.Id == s.Position.RequiredRoleId);
+                            if (role != null)
+                            {
+                                if (s.Position.RequireRoleApproval ?? false)
+                                {
+                                    if (role.Approval ?? false)
+                                    {
+                                        <button class="btn btn-primary" @onclick=@(async () => await Volunteer(s))>Volunteer</button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-info" disabled="disabled">Waiting for role approval</button>
+                                    }
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary" @onclick=@(async () => await Volunteer(s))>Volunteer</button>
+                                }
+                            }
+                            else
+                            {
+                                <button class="btn btn-info" @onclick=@(async () => await RequestRole(s.Position.RequiredRole))>Request Role @s.Position.RequiredRole.Name</button>
+                            }
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" @onclick=@(async () => await Volunteer(s))>Volunteer</button>
+                        }
                     }
-                }
-                else
-                {
-                    <button @onclick=@(async () => await RequestRole(s.Position.RequiredRole))>Request Role @s.Position.RequiredRole.Name</button>
-                }
-            }
-            else
-            {
-                <button @onclick=@(async () => await Volunteer(s))>Volunteer</button>
-            }
+                </td>
+            </tr>
         }
-    </div>
-}
+    </tbody>
+</table>
