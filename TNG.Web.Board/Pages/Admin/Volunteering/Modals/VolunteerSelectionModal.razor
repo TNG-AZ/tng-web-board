@@ -7,7 +7,7 @@
             @s.Position.Name 
             @(s.StartTime.HasValue ? $": {s.StartTime} {(s.DurationMinutes.HasValue ? $"-{s.StartTime.Value.AddMinutes(s.DurationMinutes.Value)}" : string.Empty)}" : string.Empty)
         </p>
-        @foreach(var m in s.SlotMembers ?? Enumerable.Empty<VolunteerSlotMember>())
+        @foreach(var m in s.SlotMembers?.Where(m => (m.Approval ?? false) || editMode) ?? Enumerable.Empty<VolunteerSlotMember>())
         {
 
             var profileId = m.Member.ProfileUrl ?? m.Member.Id.ToString();
@@ -20,11 +20,15 @@
                 _ => "badge-primary"
             };
             <a href="/members/view/@profileId"><span class='badge badge-pill @displayClass'><i class='bi bi-person'></i>@profileName</span></a>
-            @if (issues.Issues.Any())
+            @if (editMode)
             {
-                <button onclick=@(() => Alert(string.Join(", ", issues.Issues)))>Issues</button>
+                @if (issues.Issues.Any())
+                {
+                    <button onclick=@(() => Alert(string.Join(", ", issues.Issues)))>Issues</button>
+                }
+                <button onclick=@(() => ToggleApproval(m))>@((m.Approval ?? false) ? "Remove" : "Approve")</button>
             }
-            <button onclick=@(() => ToggleApproval(m))>@((m.Approval ?? false) ? "Remove" : "Approve")</button>
+            
         }
     </div>
 }

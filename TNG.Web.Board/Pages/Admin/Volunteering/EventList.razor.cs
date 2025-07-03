@@ -50,10 +50,11 @@ namespace TNG.Web.Board.Pages.Admin.Volunteering
 
         private IEnumerable<Event>? CalendarEvents { get; set; }
 
-        private void ShowVolunteerModal(string eventId)
+        private void ShowVolunteerModal(string eventId, bool editMode = true)
         {
             var parameters = new ModalParameters()
-                .Add(nameof(VolunteerSelectionModal.eventId), eventId);
+                .Add(nameof(VolunteerSelectionModal.eventId), eventId)
+                .Add(nameof(VolunteerSelectionModal.editMode), editMode);
             var options = new ModalOptions()
             {
                 Class = "blazored-modal size-large"

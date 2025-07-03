@@ -16,6 +16,9 @@ namespace TNG.Web.Board.Pages.Admin.Volunteering.Modals
         [Parameter]
         public string eventId { get; set; }
 
+        [Parameter]
+        public bool editMode { get; set; } = true;
+
 #nullable disable
         [Inject]
         private ApplicationDbContext context { get; set; }
