@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 using TNG.Web.Board.Services;
@@ -34,6 +35,8 @@ namespace TNG.Web.Board.Pages.Admin.Volunteering
                 .Include(s => s.SlotMembers)
                 .Where(s => s.EventId == eventId)
                 .ToListAsync();
+
+            await GetCloneEvents();
         }
 
         private Event? _calendarEvent { get; set; }
@@ -89,6 +92,53 @@ namespace TNG.Web.Board.Pages.Admin.Volunteering
             await context.SaveChangesAsync();
 
             Slots = Slots.OrderBy(s => s.Priority).ToList();
+            StateHasChanged();
+        }
+
+        private async Task DeleteSlot(VolunteerEventSlot s)
+        {
+            context.RemoveRange(context.VolunteerSlotMembers.Where(m => m.SlotId == s.Id));
+            await context.SaveChangesAsync();
+            context.Remove(s);
+            await context.SaveChangesAsync();
+            Slots.Remove(s);
+            StateHasChanged();
+        }
+
+
+        const int DaysCalenderPreOffset = -2;
+        const int MonthsCalendayPostOffset = 2;
+
+        private DateTime CloneStartDate { get; set; } = DateTime.Now.AddDays(DaysCalenderPreOffset);
+        private DateTime CloneEndDate { get; set; } = DateTime.Now.AddMonths(MonthsCalendayPostOffset);
+
+        private IEnumerable<Event> CloneEvents { get; set; } = Enumerable.Empty<Event>();
+
+        private string CloneEventId { get; set; }
+
+        private async Task GetCloneEvents()
+        {
+            var events = await Google.GetEvents(CloneStartDate, CloneEndDate);
+            var cloneEvents = new List<Event>();
+            foreach(var e in events)
+            {
+                if (await context.VolunteerEventSlots.AnyAsync(s => s.EventId == e.Id))
+                    cloneEvents.Add(e);
+            }
+            CloneEvents = cloneEvents;
+        }
+
+        private async Task CloneEventSlots()
+        {
+            var slots = await context.VolunteerEventSlots.Where(s => s.EventId == CloneEventId).ToListAsync();
+            foreach(var s in slots)
+            {
+                s.Id = 0;
+                s.EventId = eventId;
+                var e = await context.AddAsync(s);
+                Slots.Add(e.Entity);
+            }
+            await context.SaveChangesAsync();
             StateHasChanged();
         }
     }

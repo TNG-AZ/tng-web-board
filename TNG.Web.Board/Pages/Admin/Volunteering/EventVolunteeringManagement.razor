@@ -1,6 +1,27 @@
 ﻿@page "/admin/volunteering/{eventId}"
 @using TNG.Web.Board.Data.DTOs
 
+@if (!(Slots?.Any() ?? false))
+{
+    <label > Clone from existing event?</label>
+    <label>Start Date:</label>
+    <input type="date" @bind=@CloneStartDate />
+    <br />
+    <label>End Date:</label>
+    <input type="date" @bind=@CloneEndDate />
+    <br />
+    <button onclick=@(async () => await GetCloneEvents())>Search</button>
+    <input list="list" type="text" placeholder="Select/Search" @bind=CloneEventId/>
+    <datalist id="list">
+        @foreach (var e in CloneEvents)
+        {
+            <option value="@e.Id">@e.Summary</option>
+        }
+    </datalist>
+    <button @onclick=@(async () => await CloneEventSlots())>Clone</button>
+    <br />
+    <br />
+}
 <select class="form-control" @onchange="PositionChange">\
     <option>Select a Position</option>
     @foreach(var p in Positions ?? Enumerable.Empty<VolunteerPosition>())
@@ -9,7 +30,6 @@
     }
 </select>
 <button @onclick=@(async () => await AddSlot(SelectedPositionId))>Add Slot</button>
-
 @foreach(var s in Slots ?? Enumerable.Empty<VolunteerEventSlot>())
 {
     <div>
@@ -18,6 +38,7 @@
         - <label>Time</label> <input type="time" @bind=s.StartTime/>
         - <label>Duration Minutes</label> <input type="number" @bind=s.DurationMinutes />
         - <label>Minimum Needed</label> <input type="number" @bind=s.NeededCount />
+        - <button @onclick=@(async () => await DeleteSlot(s))>Delete</button>
     </div>
 }
 <button @onclick=@(() => SyncSlots())>Save</button>
