@@ -42,6 +42,9 @@ namespace TNG.Web.Board.Pages.Membership
 
     public partial class NewMember
     {
+        private long? DiscordId 
+            => navigation.TryGetQueryString<long>("discordId", out var tmp) ? tmp : null;
+
 #nullable disable
         [Inject]
 
@@ -99,7 +102,7 @@ namespace TNG.Web.Board.Pages.Membership
             }
             try
             {
-                await context.Members.AddAsync(new Member()
+                var e = await context.Members.AddAsync(new Member()
                 {
                     LegalName = formModel.LegalName,
                     SceneName = formModel.SceneName,
@@ -108,6 +111,15 @@ namespace TNG.Web.Board.Pages.Membership
                     MemberType = formModel.MemberType,
                 });
                 await context.SaveChangesAsync();
+
+                if (DiscordId != null) {
+                    await context.MembersDiscordIntegrations.AddAsync(new()
+                    {
+                        MemberId = e.Entity.Id,
+                        DiscordId = DiscordId.Value
+                    });
+                    await context.SaveChangesAsync();
+                }
             }
             finally
             {

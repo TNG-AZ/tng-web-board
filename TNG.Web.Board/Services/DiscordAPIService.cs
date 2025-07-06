@@ -1,5 +1,4 @@
-﻿using Azure.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 
@@ -7,6 +6,20 @@ namespace TNG.Web.Board.Services
 {
     public static class DiscordAPIService
     {
+
+        public static IResult GetMemberByDiscordId(IConfiguration configuration, ApplicationDbContext context, string apiKey, long discordId)
+        {
+            if (string.IsNullOrWhiteSpace(apiKey) || apiKey != configuration["DiscordAPIKey"])
+            {
+                return Results.Unauthorized();
+            }
+
+            var discordMembers = context.Members
+                .Include(m => m.MemberDiscords)
+                .Where(m => m.MemberDiscords.Any(d => d.DiscordId == discordId));
+
+            return Results.Ok(discordMembers.Select(m => m.Id));
+        }
 
         public static IResult GetAgedOutMembers(IConfiguration configuration, ApplicationDbContext context, string apiKey)
         {
