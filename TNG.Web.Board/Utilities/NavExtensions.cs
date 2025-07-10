@@ -28,6 +28,12 @@ namespace TNG.Web.Board.Utilities
                     value = (T)(object)valueAsDecimal;
                     return true;
                 }
+
+                if (typeof(T) == typeof(long) && long.TryParse(valueFromQueryString, out var valueAsLong))
+                {
+                    value = (T)(object)valueAsLong;
+                    return true;
+                }
             }
 
             value = default;
