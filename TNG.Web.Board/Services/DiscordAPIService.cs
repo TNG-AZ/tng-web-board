@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
+using TNG.Web.Board.Data.Migrations;
+using TNG.Web.Board.Data.ResponseModels;
 
 namespace TNG.Web.Board.Services
 {
     public static class DiscordAPIService
     {
-
         public static async Task<IResult> GetMemberInfoByDiscordId(IConfiguration configuration, ApplicationDbContext context, string apiKey, long discordId)
         {
             if (string.IsNullOrWhiteSpace(apiKey) || apiKey != configuration["DiscordAPIKey"])
@@ -14,11 +15,29 @@ namespace TNG.Web.Board.Services
                 return Results.Unauthorized();
             }
 
-            var discordMembers = context.Members
+            var discordMembers = await context.Members
                 .Include(m => m.MemberDiscords)
-                .Where(m => m.MemberDiscords.Any(d => d.DiscordId == discordId));
+                .Include(m => m.Payments)
+                .Include(m => m.Suspensions)
+                .Include(m => m.Orientations)
+                .Where(m => m.MemberDiscords.Any(d => d.DiscordId == discordId))
+                .Select(m => new MemberInfoResponse()
+                {
+                    MemberId = m.Id,
+                    SceneName = m.SceneName,
+                    Suspended = m.Suspensions.Any(s => s.EndDate == null || s.EndDate > DateTime.UtcNow),
+                    Status = (m.Payments.Any(p => p.PaidOn >= DateTime.UtcNow.AddYears(-1))
+                        && m.Orientations.Any(o => o.DateReceived >= DateTime.UtcNow.AddYears(-1)))
+                        ? MembershipStatusFlag.TNGMember
+                        : MembershipStatusFlag.CommunityMember
+                })
+                .ToListAsync();
 
-            return Results.Ok(await discordMembers.ToListAsync());
+            
+
+            return Results.Ok((discordMembers?.Any() ?? false) 
+                ? discordMembers 
+                : new List<MemberInfoResponse>() {  new() { Status = MembershipStatusFlag.NotFound} });
         }
 
         public static async Task<IResult> GetMemberByDiscordId(IConfiguration configuration, ApplicationDbContext context, string apiKey, long discordId)
