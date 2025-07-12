@@ -96,6 +96,7 @@ app.MapGet("/api/discord/lapsed/", DiscordAPIService.GetLapsedMembers);
 app.MapGet("/api/discord/current/", DiscordAPIService.GetCurrentMembers);
 app.MapGet("/api/discord/attended/", DiscordAPIService.GetAttendedMembers);
 app.MapGet("/api/discord/byid/{discordId:long}", DiscordAPIService.GetMemberByDiscordId);
+app.MapGet("/api/discord/byid/info/{discordId:long}", DiscordAPIService.GetMemberInfoByDiscordId);
 
 SecretCodeService.SetCode(builder.Configuration["TNGRegistrationCode"]);
 await RolesData.SeedRoles(app.Services);
