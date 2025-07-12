@@ -62,7 +62,7 @@ namespace TNG.Web.Board.Services
             }
             var agedMembers = context.Members
                 .Include(m => m.MemberDiscords)
-                .Where(m => m.MemberDiscords.Any() && m.MemberType == MemberType.Member && m.Birthday < DateTime.UtcNow.AddYears(-40));
+                .Where(m => m.MemberDiscords.Any() && m.MemberType == Data.DTOs.MemberType.Member && m.Birthday < DateTime.UtcNow.AddYears(-40));
 
             return Results.Ok(await agedMembers.SelectMany(m => m.MemberDiscords).Select(m => m.DiscordId).ToListAsync());
         }
@@ -95,7 +95,7 @@ namespace TNG.Web.Board.Services
                 .Include(m => m.Payments)
                 .Include(m => m.Orientations)
                 .Where(m => m.MemberDiscords.Any() && m.Birthday >= DateTime.UtcNow.AddYears(-40)
-                    && (m.MemberType == MemberType.Member || m.MemberType == MemberType.Honorary)
+                    && (m.MemberType == Data.DTOs.MemberType.Member || m.MemberType == Data.DTOs.MemberType.Honorary)
                     && m.Orientations.Any(o => o.DateReceived > DateTime.UtcNow.AddYears(-1))
                     && m.Payments.Any(p => p.PaidOn > DateTime.UtcNow.AddYears(-1)));
 
