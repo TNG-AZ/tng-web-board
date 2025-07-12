@@ -55,8 +55,9 @@
     @if (formModel.NewUser)
     {
         <div class="form-group">
-            <label>Password:</label>
+            <label>Create a website password:</label>
             <input class="form-control" type="password" @bind=formModel.Password />
+            <p class="font-weight-light">Passwords must contain an uppercase character, lowercase character, a digit, and a non-alphanumeric character. Passwords must be at least six characters long.</p>
         </div>
     }
     <Rules />
