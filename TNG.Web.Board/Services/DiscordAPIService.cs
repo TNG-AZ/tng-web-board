@@ -8,6 +8,42 @@ namespace TNG.Web.Board.Services
 {
     public static class DiscordAPIService
     {
+        public static async Task<IResult> GetMemberInfoForAllMembers(IConfiguration configuration, ApplicationDbContext context, string apiKey)
+        {
+            if (string.IsNullOrWhiteSpace(apiKey) || apiKey != configuration["DiscordAPIKey"])
+            {
+                return Results.Unauthorized();
+            }
+
+            var discordMembers = await context.Members
+                .Include(m => m.MemberDiscords)
+                .Include(m => m.Payments)
+                .Include(m => m.Suspensions)
+                .Include(m => m.Orientations)
+                .Where(m => m.MemberDiscords.Any())
+                .Select(m => new MemberInfoResponse()
+                {
+                    DiscordIds = m.MemberDiscords.Select(d => d.DiscordId),
+                    MemberId = m.Id,
+                    SceneName = m.SceneName,
+                    Suspended = m.Suspensions.Any(s => s.EndDate == null || s.EndDate > DateTime.UtcNow),
+                    Status = (m.Payments.Any(p => p.PaidOn >= DateTime.UtcNow.AddYears(-1))
+                        && m.Orientations.Any(o => o.DateReceived >= DateTime.UtcNow.AddYears(-1)))
+                        ? MembershipStatusFlag.TNGMember
+                        : MembershipStatusFlag.CommunityMember
+                })
+                .ToListAsync();
+
+            var discordIds = discordMembers.SelectMany(m => m.DiscordIds).Distinct();
+
+            var aggregate = discordIds.Select(id => new BatchMemberInfoResponse() 
+                { 
+                    DiscordId = id, 
+                    Records = discordMembers.Where(m => m.DiscordIds.Contains(id)) 
+                });
+
+            return Results.Ok(aggregate ?? Enumerable.Empty<BatchMemberInfoResponse>());
+        }
         public static async Task<IResult> GetMemberInfoByDiscordId(IConfiguration configuration, ApplicationDbContext context, string apiKey, long discordId)
         {
             if (string.IsNullOrWhiteSpace(apiKey) || apiKey != configuration["DiscordAPIKey"])
