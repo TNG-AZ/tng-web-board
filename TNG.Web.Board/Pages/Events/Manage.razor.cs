@@ -131,7 +131,6 @@ namespace TNG.Web.Board.Pages.Events
                 (_, { Status: IssuesStatus.Danger }) => "table-danger",
                 (_, { Status: IssuesStatus.Warning }) => "table-warning",
                 ({ Paid: false }, _) => "table-warning",
-                ({ Member.ReceivedProofOfCovid19Vaccination: false}, _) => "table-warning",
                 _ => "table-success"
             };
 

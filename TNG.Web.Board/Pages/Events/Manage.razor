@@ -153,7 +153,6 @@
             {
                 var issues = GetMembershipIssues(rsvp.Member);
                 var paid = (rsvp.Paid??false) || rsvp.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate.HasValue);
-                var hasVaxProof = rsvp.Member.ReceivedProofOfCovid19Vaccination;
                 var addedDate = rsvp!.AddedDate.HasValue ? DateTime.SpecifyKind(rsvp.AddedDate.Value, DateTimeKind.Utc).ToAZTime()
                 : (DateTime?)null;
                 var memberSignatures = Signatures.Where(s => s.MemberId == rsvp.MemberId).Select(s => s.Id);
@@ -235,7 +234,6 @@
                         }
 
                     </td>
-                    <td class="@(!hasVaxProof ? "table-warning" : string.Empty)">@(hasVaxProof.ToString())</td>
                     <td class="@(issues.Status switch { IssuesStatus.Danger => "table-danger", IssuesStatus.Warning => "table-warning", _ => string.Empty })">
                         @string.Join(" ", issues.Issues)
                     </td>
@@ -249,7 +247,6 @@
                     {
                         var member = p.PlusOne;
                         var plusOneIssues = GetMembershipIssues(member);
-                        var plusOneHasVaxProof = member.ReceivedProofOfCovid19Vaccination;
                         var plusOneSignatures = Signatures.Where(s => s.MemberId == member.Id).Select(s => s.Id);
                         var checkIdPlusOneText = GetCheckIdText(member);
                         <tr>
@@ -280,7 +277,6 @@
                             </td>
                             <td></td>
                             <td></td>
-                            <td class="@(!plusOneHasVaxProof ? "table-warning" : string.Empty)">@(plusOneHasVaxProof.ToString())</td>
                             <td class="@(plusOneIssues.Status switch { IssuesStatus.Danger => "table-danger", IssuesStatus.Warning => "table-warning", _ => string.Empty })">
                                 @string.Join(" ", plusOneIssues.Issues)
                             </td>

@@ -56,7 +56,6 @@ namespace TNG.Web.Board.Pages.Membership
                             SceneName = member[4],
                             Birthday = DateTime.TryParse(member[5], out var birthday) ? birthday : null,
                             Email = member[6].ToString().ToLower(),
-                            Covid19VaxProofReceived = !string.IsNullOrEmpty(member[11]),
                             MemberSince = DateTime.TryParse(member[10], out var lastPaid) ? lastPaid.AddYears(-1) : null
                         }
                         );
@@ -72,7 +71,6 @@ namespace TNG.Web.Board.Pages.Membership
                             SceneName = entries.OrderByDescending(g => g.Timestamp).FirstOrDefault(e => !string.IsNullOrEmpty(e.SceneName))?.SceneName,
                             Birthday = entries.Max(e => e.Birthday),
                             Email = entries.OrderByDescending(g => g.Timestamp).FirstOrDefault(e => !string.IsNullOrEmpty(e.Email))?.Email,
-                            Covid19VaxProofReceived = entries.Any(e => e.Covid19VaxProofReceived ?? false),
                             MemberSince = entries.Max(e => e.MemberSince)
                         }).ToList();
 
@@ -110,7 +108,6 @@ namespace TNG.Web.Board.Pages.Membership
                         SceneName = member.SceneName,
                         Birthday = member.Birthday!.Value,
                         EmailAddress = member.Email,
-                        ReceivedProofOfCovid19Vaccination = member.Covid19VaxProofReceived ?? false,
                         HasAttendedSocial = member.MemberSince.HasValue
                     }).Entity;
 

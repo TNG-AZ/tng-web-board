@@ -26,7 +26,6 @@
               <option value=@((int)SuspendedStatusEnum.No)>No</option>
               <option value=@((int)SuspendedStatusEnum.Yes)>Yes</option>
           </select></th>
-      <th scope="col">COVID Vax Status</th>
       <th scope="col">Birthday</th>
       <th scope="col">Email<br/><input type="text" @bind="EmailFilter"/></th>
       <th>DM Training Date</th>
@@ -52,7 +51,6 @@
         <td class="@GetDateClass(paidOnDate)">@(paidOnDate?.ToString("MM/dd/yyyy") ?? "n/a")</td>
         <td class="@GetDateClass(orientationOnDate)">@(orientationOnDate?.ToString("MM/dd/yyyy") ?? "n/a")</td>
         <td class="@(activeSuspension == null ? string.Empty : "table-danger")">@SuspensionDisplay(activeSuspension)</td>
-        <td class="@(member.ReceivedProofOfCovid19Vaccination ? string.Empty : "table-warning")">@(member.ReceivedProofOfCovid19Vaccination ? "Received" : "Unknown")</td>
         <td class="@(member.MemberType == MemberType.Member ? GetBirthdayClass(member.Birthday) : string.Empty)">@member.Birthday.ToString("MM/dd/yyyy")</td>
         <td>@member.EmailAddress</td>
         <td class="@(member.LastDMTrainingDate.HasValue ? GetDMTrainingClass(member.LastDMTrainingDate.Value) : string.Empty)">@member.LastDMTrainingDate?.ToString("yyyy-MM-dd")</td>
