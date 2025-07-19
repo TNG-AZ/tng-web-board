@@ -1,5 +1,6 @@
 ﻿@page "/events/manage/{eventId}"
 @using TNG.Web.Board.Data.DTOs;
+@using TNG.Web.Board.Pages.Admin.Volunteering
 @using TNG.Web.Board.Utilities;
 @using Blazored.TextEditor
 @{
@@ -129,6 +130,16 @@
                 </div>
             </div>
         </div>
+    </CardBody>
+</CollapsibleCard>
+
+<CollapsibleCard CardHeaderTitle="Volunteer Slots">
+    <CardBody>
+        <EventVolunteeringManagement eventId=@eventId/>
+        <br/>
+        <br/>
+        <button type="button" class="btn btn-info" onclick=@(() => ShowVolunteerModal(eventId))>Manage Selection</button>
+        <button type="button" class="btn btn-info" onclick=@(() => ShowVolunteerModal(eventId, false))>View Volunteers</button>
     </CardBody>
 </CollapsibleCard>
 

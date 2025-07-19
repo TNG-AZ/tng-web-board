@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
+using TNG.Web.Board.Pages.Admin.Volunteering.Modals;
 using TNG.Web.Board.Pages.Membership;
 using TNG.Web.Board.Services;
 using TNG.Web.Board.Utilities;
@@ -432,6 +433,18 @@ namespace TNG.Web.Board.Pages.Events
             => (member.MemberType != MemberType.Member || (member.Payments?.Any() ?? false)) && (member.Orientations?.Any() ?? false)
                 ? "Check ID"
                 : "!!!REQUIRED - Check ID!!!";
+
+        private void ShowVolunteerModal(bool editMode = true)
+        {
+            var parameters = new ModalParameters()
+                .Add(nameof(VolunteerSelectionModal.eventId), eventId)
+                .Add(nameof(VolunteerSelectionModal.editMode), editMode);
+            var options = new ModalOptions()
+            {
+                Class = "blazored-modal size-large"
+            };
+            Modal.Show<VolunteerSelectionModal>("Volunteer Selection", parameters, options);
+        }
 
         private bool shouldRender = true;
         protected override bool ShouldRender()
