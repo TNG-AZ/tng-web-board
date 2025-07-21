@@ -30,15 +30,34 @@
     }
 </select>
 <button @onclick=@(async () => await AddSlot(SelectedPositionId))>Add Slot</button>
-@foreach(var s in Slots ?? Enumerable.Empty<VolunteerEventSlot>())
-{
-    <div>
-        <label>Priority</label><input type="number" @bind=s.Priority />
-        <label>@s.Position.Name</label> 
-        - <label>Time</label> <input type="time" @bind=s.StartTime/>
-        - <label>Duration Minutes</label> <input type="number" @bind=s.DurationMinutes />
-        - <label>Minimum Needed</label> <input type="number" @bind=s.NeededCount />
-        - <button @onclick=@(async () => await DeleteSlot(s))>Delete</button>
-    </div>
-}
+<br/>
+<br/>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Position Name</th>
+            <th>Priority</th>
+            <th>Start Time</th>
+            <th>Duration<br/>(Minutes)</th>
+            <th>Minimum Needed</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach(var s in Slots ?? Enumerable.Empty<VolunteerEventSlot>())
+    {
+        <tr>
+            <td>@s.Position.Name</td>
+            <td><input type="number" @bind=s.Priority /></td>
+            <td><input type="time" @bind=s.StartTime/></td>
+            <td><input type="number" @bind=s.DurationMinutes /></td>
+            <td><input type="number" @bind=s.NeededCount /></td>
+            <td>
+                <button @onclick=@(async () => await DeleteSlot(s))>Delete</button>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
 <button @onclick=@(() => SyncSlots())>Save</button>

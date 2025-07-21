@@ -34,6 +34,7 @@ namespace TNG.Web.Board.Pages.Admin.Volunteering
                 .Include(s => s.Position)
                 .Include(s => s.SlotMembers)
                 .Where(s => s.EventId == eventId)
+                .OrderBy(s => s.Priority)
                 .ToListAsync();
 
             await GetCloneEvents();
@@ -139,6 +140,7 @@ namespace TNG.Web.Board.Pages.Admin.Volunteering
                 Slots.Add(e.Entity);
             }
             await context.SaveChangesAsync();
+            slots.OrderBy(s => s.Priority);
             StateHasChanged();
         }
     }
