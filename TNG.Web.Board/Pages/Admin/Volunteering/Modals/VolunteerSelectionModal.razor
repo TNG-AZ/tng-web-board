@@ -47,12 +47,14 @@
                     var profileId = m.Member.ProfileUrl ?? m.Member.Id.ToString();
                     var profileName = HttpUtility.HtmlEncode(m.Member.SceneName);
                     var issues = GetIssues(m);
-                    var displayClass = issues.Level switch
-                    {
-                        IssueLevel.Warning => "badge-warning",
-                        IssueLevel.Danger => "badge-danger",
-                        _ => "badge-primary"
-                    };
+                    var displayClass = editMode
+                        ? issues.Level switch
+                        {
+                            IssueLevel.Warning => "badge-warning",
+                            IssueLevel.Danger => "badge-danger",
+                            _ => "badge-primary"
+                        }
+                        : "badge-primary";
                 }
                 <td>
                     <a href="/members/view/@profileId"><span class='badge badge-pill @displayClass'><i class='bi bi-person'></i>@profileName</span></a>
