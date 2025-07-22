@@ -1,34 +1,71 @@
 ﻿@using System.Web
 @using TNG.Web.Board.Data.DTOs
-@foreach (var s in Slots ?? Enumerable.Empty<VolunteerEventSlot>())
-{
-    <div>
-        <p>
-            @s.Position.Name 
-            @(s.StartTime.HasValue ? $": {s.StartTime} {(s.DurationMinutes.HasValue ? $"-{s.StartTime.Value.AddMinutes(s.DurationMinutes.Value)}" : string.Empty)}" : string.Empty)
-        </p>
-        @foreach(var m in s.SlotMembers?.Where(m => (m.Approval ?? false) || editMode) ?? Enumerable.Empty<VolunteerSlotMember>())
-        {
-
-            var profileId = m.Member.ProfileUrl ?? m.Member.Id.ToString();
-            var profileName = HttpUtility.HtmlEncode(m.Member.SceneName);
-            var issues = GetIssues(m);
-            var displayClass = issues.Level switch
+<table>
+    <thead>
+        <tr>Position</tr>
+        <tr>Volunteers</tr>
+    </thead>
+    <tbody>
+    @foreach (var s in Slots ?? Enumerable.Empty<VolunteerEventSlot>())
+    {
+        <tr>
+            <td rowspan=@Math.Max(s.SlotMembers.Count(), 1)>
+                @s.Position.Name 
+                <br/>
+                @(s.StartTime.HasValue ? $"{s.StartTime} {(s.DurationMinutes.HasValue ? $"-{s.StartTime.Value.AddMinutes(s.DurationMinutes.Value)}" : string.Empty)}" : string.Empty)
+            </td>
+            @if(s.SlotMembers.Any())
             {
-                IssueLevel.Warning => "badge-warning",
-                IssueLevel.Danger => "badge-danger",
-                _ => "badge-primary"
-            };
-            <a href="/members/view/@profileId"><span class='badge badge-pill @displayClass'><i class='bi bi-person'></i>@profileName</span></a>
-            @if (editMode)
-            {
-                @if (issues.Issues.Any())
+                var m = s.SlotMembers.FirstOrDefault();
+                var profileId = m.Member.ProfileUrl ?? m.Member.Id.ToString();
+                var profileName = HttpUtility.HtmlEncode(m.Member.SceneName);
+                var issues = GetIssues(m);
+                var displayClass = issues.Level switch
                 {
-                    <button onclick=@(() => Alert(string.Join(", ", issues.Issues)))>Issues</button>
-                }
-                <button onclick=@(() => ToggleApproval(m))>@((m.Approval ?? false) ? "Remove" : "Approve")</button>
+                    IssueLevel.Warning => "badge-warning",
+                    IssueLevel.Danger => "badge-danger",
+                    _ => "badge-primary"
+                };
+                <td>
+                    <a href="/members/view/@profileId"><span class='badge badge-pill @displayClass'><i class='bi bi-person'></i>@profileName</span></a>
+                        @if (editMode)
+                        {
+                            @if (issues.Issues.Any())
+                            {
+                            <button onclick=@(() => Alert(string.Join(", ", issues.Issues)))>Issues</button>
+                            }
+                        <button onclick=@(() => ToggleApproval(m))>@((m.Approval ?? false) ? "Remove" : "Approve")</button>
+                        }
+                </td>
             }
-            
-        }
-    </div>
-}
+        </tr>
+            @foreach(var m in s.SlotMembers.Skip(1))
+            {
+                <tr>
+                    @{
+                        var profileId = m.Member.ProfileUrl ?? m.Member.Id.ToString();
+                        var profileName = HttpUtility.HtmlEncode(m.Member.SceneName);
+                        var issues = GetIssues(m);
+                        var displayClass = issues.Level switch
+                        {
+                            IssueLevel.Warning => "badge-warning",
+                            IssueLevel.Danger => "badge-danger",
+                            _ => "badge-primary"
+                        };
+                    }
+                    <td>
+                        <a href="/members/view/@profileId"><span class='badge badge-pill @displayClass'><i class='bi bi-person'></i>@profileName</span></a>
+                        @if (editMode)
+                        {
+                            @if (issues.Issues.Any())
+                            {
+                            <button onclick=@(() => Alert(string.Join(", ", issues.Issues)))>Issues</button>
+                            }
+                        <button onclick=@(() => ToggleApproval(m))>@((m.Approval ?? false) ? "Remove" : "Approve")</button>
+                        }
+                    </td>
+                </tr>
+            }    
+    }
+    </tbody>
+</table>
