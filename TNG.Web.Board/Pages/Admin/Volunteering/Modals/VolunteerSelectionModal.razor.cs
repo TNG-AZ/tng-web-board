@@ -3,6 +3,7 @@ using Google.Apis.Calendar.v3.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
+using System.Linq;
 using System.Web;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
@@ -48,41 +49,37 @@ namespace TNG.Web.Board.Pages.Admin.Volunteering.Modals
                 .OrderBy(s => s.Priority)
                 .ToListAsync();
 
-            var email = await auth.GetEmail();
-            Member = await context.Members.Include(m => m.VolunteerRoles).FirstOrDefaultAsync(m => m.EmailAddress == email);
+            foreach (var s in Slots)
+            {
+                AddToggle[s.Id] = false;
+            }
 
-            if (Member == null || !(Slots?.Any() ?? false) || CalendarEvent == null)
+            var email = await auth.GetEmail();
+
+            RSVPMembers = await context.EventRsvps
+                .Include(r => r.Member)
+                .Include(r => r.Member.VolunteerRoles)
+                .Include(r => r.Member.Suspensions)
+                .Where(r => r.EventId == eventId)
+                .Select(r => r.Member)
+                .ToListAsync();
+
+            if (!(Slots?.Any() ?? false) || CalendarEvent == null)
                 nav.NavigateTo("/events");
         }
-
-        private Member Member { get; set; }
 
         private Event CalendarEvent { get; set; }
         private IEnumerable<VolunteerEventSlot> Slots { get; set; }
 
-        private async Task Volunteer(VolunteerEventSlot slot)
+        private Dictionary<int, bool> AddToggle { get; set; } = new Dictionary<int, bool>();
+
+        private void ToggleAdd(int id)
         {
-            var e = await context.AddAsync(new VolunteerSlotMember()
-            {
-                MemberId = Member.Id,
-                SlotId = slot.Id
-            });
-            await context.SaveChangesAsync();
-            slot.SlotMembers.Add(e.Entity);
+            AddToggle[id] = !AddToggle[id];
             StateHasChanged();
         }
 
-        private async Task RequestRole(VolunteerPositionRole role)
-        {
-            var e = await context.AddAsync(new VolunteerRoleMember()
-            {
-                MemberId = Member.Id,
-                RoleId = role.Id
-            });
-            await context.SaveChangesAsync();
-            Member.VolunteerRoles.Add(e.Entity);
-            StateHasChanged();
-        }
+        private IEnumerable<Member> RSVPMembers { get; set; }
 
         private enum IssueLevel
         {
@@ -134,6 +131,23 @@ namespace TNG.Web.Board.Pages.Admin.Volunteering.Modals
                 m.Approval = true;
             e.State = EntityState.Modified;
             await context.SaveChangesAsync();
+            StateHasChanged();
+        }
+
+        private async Task AddToSlot(VolunteerEventSlot slot, Member member)
+        {
+            if (slot.SlotMembers.Any(m => m.Member.Id == member.Id))
+            {
+                Alert("Already volunteered");
+                return;
+            }
+            var e = await context.AddAsync(new VolunteerSlotMember()
+            {
+                SlotId = slot.Id,
+                MemberId = member.Id
+            });
+            await context.SaveChangesAsync();
+            slot.SlotMembers.Add(e.Entity);
             StateHasChanged();
         }
 

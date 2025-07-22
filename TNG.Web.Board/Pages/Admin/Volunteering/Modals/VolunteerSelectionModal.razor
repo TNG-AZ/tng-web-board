@@ -14,6 +14,23 @@
             @s.Position.Name 
             <br/>
             @(s.StartTime.HasValue ? $"{s.StartTime} {(s.DurationMinutes.HasValue ? $"-{s.StartTime.Value.AddMinutes(s.DurationMinutes.Value)}" : string.Empty)}" : string.Empty)
+            @if(editMode)
+            {
+                <br/>
+                <button type="button" class="btn btn-outline-primary" onclick=@(() => ToggleAdd(s.Id))>Add Volunteer</button>
+                @if(AddToggle[s.Id])
+                {
+                    @foreach (var m in RSVPMembers)
+                    {
+                        var profileId = m.ProfileUrl ?? m.Id.ToString();
+                        var profileName = HttpUtility.HtmlEncode(m.SceneName);
+                        
+                        <br/>
+                        <a href="/members/view/@profileId"><span class='badge badge-pill badge-primary'><i class='bi bi-person'></i>@profileName</span></a>
+                        <button onclick=@(async () => await AddToSlot(s, m))>Add</button> 
+                    }
+                }
+            }
         </td>
         @if(slotMembers.Any())
         {

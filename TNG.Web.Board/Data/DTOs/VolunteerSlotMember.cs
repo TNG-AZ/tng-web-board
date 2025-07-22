@@ -13,7 +13,7 @@ namespace TNG.Web.Board.Data.DTOs
         [ForeignKey(nameof(Member))]
         public Guid MemberId { get; set; }
 
-        public DateTime RequestedDateTime { get; set; }
+        public DateTime RequestedDateTime { get; set; } = DateTime.UtcNow;
         public bool? Approval { get; set; }
 
         public virtual VolunteerEventSlot Slot { get; set; }
