@@ -11,6 +11,7 @@
 
 <CollapsibleCard CardHeaderTitle="Email">
     <CardBody>
+        <p>note: VOIDED Rsvps are excluded from email lists, and must be sent manually</p>
         <input type="radio" name="emailList" value="@EmailListEnum.All" checked="@(EmailList?.Equals(EmailListEnum.All))" @onchange="EmailListOnChange" />
         <label>All</label>
         <br/>
@@ -191,6 +192,7 @@
                                 <button type="button" @onclick=@(() => ShowNotesModal(rsvp))>
                                     Manage Notes
                                 </button><br />
+                                <button onclick=@(async () => await VoidRsvp(rsvp))>VOID</button>
                             </CardBody>
                         </CollapsibleCard>
                         @if (plusOnes.Any())
@@ -203,7 +205,16 @@
                         <br/>
                         (@rsvp.Member.EmailAddress)
                     </td>
-                    <td>@rsvp.Status.ToString()@(rsvp.Member.MemberType == MemberType.Guest ? " - Guest" : string.Empty)</td>
+                    <td class="@(rsvp.VoidedDate != null ? "table-danger" : string.Empty)">
+                        @if (rsvp.VoidedDate != null)
+                        {
+                            <p>VOIDED</p>
+                        }
+                        else
+                        {
+                            @rsvp.Status.ToString()@(rsvp.Member.MemberType == MemberType.Guest ? " - Guest" : string.Empty)
+                        }
+                    </td>
                     <td>
                         @if (plusOnes.Any())
                         {

@@ -54,15 +54,21 @@ namespace TNG.Web.Board.Pages.Events
 
         private IEnumerable<EventRsvpPlusOne>? _plusOnes { get; set; }
         private IEnumerable<EventRsvpPlusOne> PlusOnes
-            => _plusOnes ??= context.EventRsvpPlusOnes
+        {
+            get
+            {
+                var r = Rsvps.Where(r => r.VoidedDate == null);
+                return _plusOnes ??= context.EventRsvpPlusOnes
                 .Include(p => p.Member)
                 .Include(p => p.PlusOne)
                 .Include(p => p.PlusOne.Suspensions)
                 .Include(p => p.PlusOne.Orientations)
                 .Include(p => p.PlusOne.Payments)
-                .Where(p => p.EventId == eventId 
-                    && Rsvps.Select(r => r.MemberId).Contains(p.MemberId)
+                .Where(p => p.EventId == eventId
+                    && r.Select(r => r.MemberId).Contains(p.MemberId)
                 ).ToList();
+            }
+        }
 
         private EventFees? _eventFees { get; set; }
         private EventFees? EventFees
@@ -172,11 +178,11 @@ namespace TNG.Web.Board.Pages.Events
             {
                 var members = EmailList switch
                 {
-                    EmailListEnum.All => Rsvps.Select(r => r.Member),
+                    EmailListEnum.All => Rsvps.Where(r => r.VoidedDate == null).Select(r => r.Member),
                     EmailListEnum.Paid => Rsvps
-                        .Where(r => (r.Paid ?? false) || r.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate != null))
+                        .Where(r => r.VoidedDate == null && ((r.Paid ?? false) || r.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate != null)))
                         .Select(r => r.Member),
-                    EmailListEnum.GoodStanding => Rsvps.Select(r => r.Member).Where(m => GetMembershipIssues(m).Status == null),
+                    EmailListEnum.GoodStanding => Rsvps.Where(r => r.VoidedDate == null).Select(r => r.Member).Where(m => GetMembershipIssues(m).Status == null),
                     _ => Enumerable.Empty<Member>()
                 };
 
@@ -444,6 +450,19 @@ namespace TNG.Web.Board.Pages.Events
                 Class = "blazored-modal size-large"
             };
             Modal.Show<VolunteerSelectionModal>("Volunteer Selection", parameters, options);
+        }
+
+        private async Task VoidRsvp(EventRsvp r)
+        {
+            if (await js.InvokeAsync<bool>("confirm", "this cannot be undone, confirm you are voiding this RSVP?"))
+            {
+                var e = context.Attach(r);
+                e.State = EntityState.Modified;
+                r.VoidedDate = DateTime.UtcNow;
+                await context.SaveChangesAsync();
+                _plusOnes = null;
+                StateHasChanged();
+            }
         }
 
         private bool shouldRender = true;

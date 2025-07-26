@@ -148,7 +148,8 @@ namespace TNG.Web.Board.Pages.Events
                 .Include(r => r.Member)
                 .Where(e =>
                      e.EventId == eventId && e.Status == status
-                     && (viewableMemberIds.Contains(e.MemberId) || !e.Member.PrivateProfile || isBoardMember))
+                     && (viewableMemberIds.Contains(e.MemberId) || !e.Member.PrivateProfile || isBoardMember)
+                     && e.VoidedDate == null)
                  .AsEnumerable()
                  .Select(e =>
                  {

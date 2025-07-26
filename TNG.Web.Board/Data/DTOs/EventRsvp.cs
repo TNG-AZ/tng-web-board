@@ -30,6 +30,7 @@ namespace TNG.Web.Board.Data.DTOs
         public bool? Approved { get; set; }
         public bool? Paid { get; set; }
         public DateTime? AddedDate { get; set; } = DateTime.UtcNow;
+        public DateTime? VoidedDate { get; set; }
 
 #nullable enable
         public string? Notes { get; set; }
