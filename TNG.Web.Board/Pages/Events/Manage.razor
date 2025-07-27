@@ -299,7 +299,7 @@
                             <td></td>
                             <td></td>
                             <td class="@(plusOneIssues.Status switch { IssuesStatus.Danger => "table-danger", IssuesStatus.Warning => "table-warning", _ => string.Empty })">
-                                @string.Join(" ", plusOneIssues.Issues)
+                                @string.Join("<br/>", plusOneIssues.Issues)
                             </td>
                             <td>
                                 @p.CreatedDT.ToString("yyyy-MM-dd HH:mm")
