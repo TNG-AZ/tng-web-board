@@ -1,119 +1,121 @@
 ﻿@page "/events/door/{eventId}"
 @using TNG.Web.Board.Data.DTOs;
-@using TNG.Web.Board.Utilities;
-
-@{
-    var startTime = CalendarEvent.Start.DateTime.ToAZTime();
+@if(_isLoading)
+{
+    <div>Loading...</div>
 }
-<h3 class="card-title">Door Whore - <a href="@CalendarEvent.HtmlLink">@CalendarEvent.Summary</a></h3>
-<h5>@($"Happening on {startTime:MM/dd/yyyy} at {startTime:hh:mm tt}")</h5>
+else
+{
+    <h3 class="card-title">Door Whore - <a href="@CalendarEvent?.HtmlLink">@CalendarEvent?.Summary</a></h3>
+    <h5>@($"Happening on {StartTime:MM/dd/yyyy} at {StartTime:hh:mm tt}")</h5>
 
-<div class="table-responsive">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Actions</th>
-                <th>Scene Name</th>
-                <th>Notes</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var rsvp in GetAllRsvps())
-            {
-                var issues = GetMembershipIssues(rsvp.Member);
-                var memberSignatures = Signatures.Where(s => s.MemberId == rsvp.MemberId).Select(s => s.Id);
-                var plusOnes = PlusOnes.Where(p => p.MemberId == rsvp.MemberId);
-                var checkIdText = GetCheckIdText(rsvp.Member);
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>
-                        <CollapsibleCard CardHeaderTitle="Actions">
-                            <CardBody>
-                                <button type="button" @onclick=@(async () => await ShowProfileEditModal(rsvp.Member))>
-                                    @checkIdText
-                                </button><br />
-                                <button type="button" @onclick=@(async () => await ToggleAttended(rsvp))>
-                                    @(rsvp.Attended ?? false ? "Undo Check-In" : "Mark as Here")
-                                </button><br />
-                                <button type="button" @onclick=@(() => ShowNotesModal(rsvp))>
-                                    Manage Notes
-                                </button><br />
-                            </CardBody>
-                        </CollapsibleCard>
-                        @if (plusOnes.Any())
-                        {
-                            <button type="button" @onclick=@(() => ToggleExpand(rsvp.Id))>Expand +1s</button>
-                        }
-                    </td>
-                    <td class=@GetRsvpStatus(rsvp, issues)>
-                        <a href="/members/view/@rsvp.Member.Id">@rsvp.Member.SceneName@(rsvp.Member.MemberType == MemberType.Guest ? " - Guest" : string.Empty)</a>
-                    </td>
-                    <td class="@(issues.Status switch { IssuesStatus.Danger => "table-danger", IssuesStatus.Warning => "table-warning", _ => string.Empty })">
-                        @string.Join(" ", issues.Issues)
-                        @if (checkIdText.Equals("!!!REQUIRED - Check ID!!!"))
-                        {
-                            <p>Check ID for new member</p>
-                        }
-                        @if (plusOnes.Any())
-                        {
-                            var plusOneString = string.Join(", ", plusOnes.Select(p => p.PlusOne.SceneName));
-                            var sentInvoices = rsvp.Member.Invoices.Where(i => i.EventId == eventId);
-                            <p>Plus Ones: @plusOneString</p>
-                            @if (sentInvoices.Any() && (plusOnes.Max(p => p.CreatedDT) > sentInvoices.Max(i => i.SendOnDate)))
-                            {
-                                <p class="alert-warning">Warning: Plus one added after most recent invoice sent</p>
-                            }
-                        }
-                        @if(memberSignatures.Any())
-                        {
-                            foreach(var s in memberSignatures)
-                            {
-                                <button type="button" @onclick=@(async () => await GetSignature(s))>Get Signature</button>
-                            }
-                            <br />
-                        }
-                        @if (!string.IsNullOrEmpty(rsvp.Notes))
-                        {
-                            <p>Notes: @rsvp.Notes</p>
-                        }
-                        
-                    </td>
+                    <th>Actions</th>
+                    <th>Scene Name</th>
+                    <th>Notes</th>
                 </tr>
-                @if(plusOnes.Any() && ExpandedPlusOnes.Contains(rsvp.Id))
+            </thead>
+            <tbody>
+                @foreach (var rsvp in GetAllRsvps())
                 {
-                    foreach (var p in plusOnes)
+                    var issues = GetMembershipIssues(rsvp.Member);
+                    var memberSignatures = Signatures?.Where(s => s.MemberId == rsvp.MemberId).Select(s => s.Id);
+                    var plusOnes = PlusOnes?.Where(p => p.MemberId == rsvp.MemberId);
+                    var checkIdText = GetCheckIdText(rsvp.Member);
+                    <tr>
+                        <td>
+                            <CollapsibleCard CardHeaderTitle="Actions">
+                                <CardBody>
+                                    <button type="button" @onclick=@(async () => await ShowProfileEditModal(rsvp.Member))>
+                                        @checkIdText
+                                    </button><br />
+                                    <button type="button" @onclick=@(async () => await ToggleAttended(rsvp))>
+                                        @(rsvp.Attended ?? false ? "Undo Check-In" : "Mark as Here")
+                                    </button><br />
+                                    <button type="button" @onclick=@(() => ShowNotesModal(rsvp))>
+                                        Manage Notes
+                                    </button><br />
+                                </CardBody>
+                            </CollapsibleCard>
+                            @if (plusOnes?.Any() ?? false)
+                            {
+                                <button type="button" @onclick=@(() => ToggleExpand(rsvp.Id))>Expand +1s</button>
+                            }
+                        </td>
+                        <td class=@GetRsvpStatus(rsvp, issues)>
+                            <a href="/members/view/@rsvp.Member.Id">@rsvp.Member.SceneName@(rsvp.Member.MemberType == MemberType.Guest ? " - Guest" : string.Empty)</a>
+                        </td>
+                        <td class="@(issues.Status switch { IssuesStatus.Danger => "table-danger", IssuesStatus.Warning => "table-warning", _ => string.Empty })">
+                            @string.Join(" ", issues.Issues)
+                            @if (checkIdText.Equals("!!!REQUIRED - Check ID!!!"))
+                            {
+                                <p>Check ID for new member</p>
+                            }
+                            @if (plusOnes?.Any() ?? false)
+                            {
+                                var plusOneString = string.Join(", ", plusOnes.Select(p => p.PlusOne.SceneName));
+                                var sentInvoices = rsvp.Member.Invoices.Where(i => i.EventId == eventId);
+                                <p>Plus Ones: @plusOneString</p>
+                                @if (sentInvoices.Any() && (plusOnes.Max(p => p.CreatedDT) > sentInvoices.Max(i => i.SendOnDate)))
+                                {
+                                    <p class="alert-warning">Warning: Plus one added after most recent invoice sent</p>
+                                }
+                            }
+                            @if (memberSignatures?.Any() ?? false)
+                            {
+                                foreach (var s in memberSignatures)
+                                {
+                                    <button type="button" @onclick=@(async () => await GetSignature(s))>Get Signature</button>
+                                }
+                                <br />
+                            }
+                            @if (!string.IsNullOrEmpty(rsvp.Notes))
+                            {
+                                <p>Notes: @rsvp.Notes</p>
+                            }
+
+                        </td>
+                    </tr>
+                    @if ((plusOnes?.Any() ?? false) && ExpandedPlusOnes.Contains(rsvp.Id))
                     {
-                        var member = p.PlusOne;
-                        var plusOneIssues = GetMembershipIssues(member);
-                        var plusOneSignatures = Signatures.Where(s => s.MemberId == member.Id).Select(s => s.Id);
-                        var checkIdPlusOneText = GetCheckIdText(member);
-                        <tr>
-                            <td>
-                                <button type="button" @onclick=@(async () => await ShowProfileEditModal(member))>
-                                    @checkIdPlusOneText
-                                </button>
-                            </td>
-                            <td class=@GetRsvpStatus(rsvp, issues)>
-                                <a href="/members/view/@member.Id">(+1 of @rsvp.Member.SceneName) @member.SceneName - @member.MemberType</a>
-                            </td>
-                            <td class="@(plusOneIssues.Status switch { IssuesStatus.Danger => "table-danger", IssuesStatus.Warning => "table-warning", _ => string.Empty })">
-                                <p>@string.Join(" ", plusOneIssues.Issues)</p>
-                                @if (checkIdPlusOneText.Equals("!!!REQUIRED - Check ID!!!"))
-                                {
-                                    <p>Check ID for new member</p>
-                                }
-                                @if(plusOneSignatures.Any())
-                                {
-                                    foreach(var s in plusOneSignatures)
+                        foreach (var p in plusOnes)
+                        {
+                            var member = p.PlusOne;
+                            var plusOneIssues = GetMembershipIssues(member);
+                            var plusOneSignatures = Signatures?.Where(s => s.MemberId == member.Id).Select(s => s.Id);
+                            var checkIdPlusOneText = GetCheckIdText(member);
+                            <tr>
+                                <td>
+                                    <button type="button" @onclick=@(async () => await ShowProfileEditModal(member))>
+                                        @checkIdPlusOneText
+                                    </button>
+                                </td>
+                                <td class=@GetRsvpStatus(rsvp, issues)>
+                                    <a href="/members/view/@member.Id">(+1 of @rsvp.Member.SceneName) @member.SceneName - @member.MemberType</a>
+                                </td>
+                                <td class="@(plusOneIssues.Status switch { IssuesStatus.Danger => "table-danger", IssuesStatus.Warning => "table-warning", _ => string.Empty })">
+                                    <p>@string.Join(" ", plusOneIssues.Issues)</p>
+                                    @if (checkIdPlusOneText.Equals("!!!REQUIRED - Check ID!!!"))
                                     {
-                                        <button type="button" @onclick=@(async () => await GetSignature(s))>Get Signature</button>
+                                        <p>Check ID for new member</p>
                                     }
-                                    <br />
-                                }
-                            </td>
-                        </tr>
+                                    @if (plusOneSignatures?.Any() ?? false)
+                                    {
+                                        foreach (var s in plusOneSignatures)
+                                        {
+                                            <button type="button" @onclick=@(async () => await GetSignature(s))>Get Signature</button>
+                                        }
+                                        <br />
+                                    }
+                                </td>
+                            </tr>
+                        }
                     }
                 }
-            }
-        </tbody>
-    </table>
-</div>
+            </tbody>
+        </table>
+    </div>
+}

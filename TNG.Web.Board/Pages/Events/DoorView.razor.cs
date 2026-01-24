@@ -9,6 +9,7 @@ using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 using TNG.Web.Board.Pages.Membership;
 using TNG.Web.Board.Services;
+using TNG.Web.Board.Utilities;
 
 namespace TNG.Web.Board.Pages.Events
 {
@@ -31,44 +32,15 @@ namespace TNG.Web.Board.Pages.Events
         private IModalService Modal { get; set; }
 #nullable enable
 
-        private Event? _event { get; set; }
-        private Event? CalendarEvent
-            => _event ??= google.GetEvent(eventId!)?.Result;
+        private bool _isLoading { get; set; } = true;
 
-        private List<EventRsvp>? _eventRsvp { get; set; }
-        private IEnumerable<EventRsvp> Rsvps
-            => _eventRsvp ??= context.EventRsvps
-                .Include(e => e.Member)
-                .Include(e => e.Member.Suspensions)
-                .Include(e => e.Member.Orientations)
-                .Include(e => e.Member.Payments)
-                .Include(e => e.Member.Invoices)
-                .Where(e => e.EventId == eventId 
-                    && (e.Approved ?? false) 
-                    && ((e.Paid ?? false) || e.Member.Invoices.Any(p => p.EventId == eventId && p.PaidOnDate != null))
-                )
-                .OrderBy(e => e.Member.SceneName).ToList();
-
-        private IEnumerable<EventRsvp> CheckedInRsvps
-            => Rsvps.Where(r => r.Attended ?? false);
-        private IEnumerable<EventRsvp> ToCheckInRsvps
-            => Rsvps.Where(r => !(r.Attended ?? false));
-
-        private IEnumerable<EventRsvp> GetAllRsvps()
+        protected override async Task OnInitializedAsync()
         {
-            foreach (var r in ToCheckInRsvps)
-            {
-                yield return r;
-            }
-            foreach(var r in CheckedInRsvps)
-            {
-                yield return r;
-            }
-        }
+            CalendarEvent = await google.GetEvent(eventId ?? string.Empty);
 
-        private IEnumerable<EventRsvpPlusOne>? _plusOnes { get; set; }
-        private IEnumerable<EventRsvpPlusOne> PlusOnes
-            => _plusOnes ??= context.EventRsvpPlusOnes
+            await LoadRsvps();
+
+            PlusOnes = await context.EventRsvpPlusOnes
                 .Include(p => p.Member)
                 .Include(p => p.PlusOne)
                 .Include(p => p.PlusOne.Suspensions)
@@ -76,17 +48,56 @@ namespace TNG.Web.Board.Pages.Events
                 .Include(p => p.PlusOne.Payments)
                 .Where(p => p.EventId == eventId
                     && Rsvps.Select(r => r.MemberId).Contains(p.MemberId)
-                ).ToList();
+                ).ToListAsync();
 
-        private EventFees? _eventFees { get; set; }
-        private EventFees? EventFees
-            => _eventFees ??= context.EventsFees.FirstOrDefault(f => f.EventId == eventId);
+            EventFees = await context.EventsFees.FirstOrDefaultAsync(f => f.EventId == eventId);
 
-        private IList<Signature>? _signatures { get; set; }
-        private IEnumerable<Signature> Signatures
-            => _signatures ??= context.Signatures
+            Signatures = await context.Signatures
                 .Include(s => s.Member)
-                .Where(s => s.EventId == eventId).ToList();
+                .Where(s => s.EventId == eventId).ToListAsync();
+            _isLoading = false;
+        }
+
+        private async Task LoadRsvps()
+        {
+            Rsvps = await context.EventRsvps
+               .Include(e => e.Member)
+               .Include(e => e.Member.Suspensions)
+               .Include(e => e.Member.Orientations)
+               .Include(e => e.Member.Payments)
+               .Include(e => e.Member.Invoices)
+               .Where(e => e.EventId == eventId
+                   && ((e.Paid ?? false) || e.Member.Invoices.Any(p => p.EventId == eventId && p.PaidOnDate != null))
+               )
+               .OrderBy(e => e.Member.SceneName).ToListAsync();
+        }
+
+        private Event? CalendarEvent { get; set; }
+
+        private DateTime? StartTime => CalendarEvent?.Start.DateTime.ToAZTime();
+
+        private IEnumerable<EventRsvp>? Rsvps { get; set; }
+
+        private IEnumerable<EventRsvp>? CheckedInRsvps
+            => Rsvps?.Where(r => r.Attended ?? false);
+        private IEnumerable<EventRsvp>? ToCheckInRsvps
+            => Rsvps?.Where(r => !(r.Attended ?? false));
+
+        private IEnumerable<EventRsvp> GetAllRsvps()
+        {
+            foreach (var r in ToCheckInRsvps ?? Enumerable.Empty<EventRsvp>())
+            {
+                yield return r;
+            }
+            foreach(var r in CheckedInRsvps ?? Enumerable.Empty<EventRsvp>())
+            {
+                yield return r;
+            }
+        }
+
+        private IEnumerable<EventRsvpPlusOne> PlusOnes { get; set; }
+        private EventFees? EventFees { get; set; }
+        private IEnumerable<Signature> Signatures { get; set; }
 
         private HashSet<Guid> ExpandedPlusOnes = new();
 
@@ -149,9 +160,12 @@ namespace TNG.Web.Board.Pages.Events
 
         private async Task ToggleAttended(EventRsvp rsvp)
         {
+            _isLoading = true;
+            StateHasChanged();
             rsvp.Attended = !(rsvp?.Attended ?? false);
             await context.SaveChangesAsync();
-            _eventRsvp = null;
+            await LoadRsvps();
+            _isLoading = false;
             StateHasChanged();
         }
 
