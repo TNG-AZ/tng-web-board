@@ -144,7 +144,7 @@
     </CardBody>
 </CollapsibleCard>
 
-<button type="button" @onclick=@(() => {UpdateFiltering(Filtering.PaidAndNotHere); UpdateOrdering(Ordering.Alphabetical);})>Refresh Door View</button>
+<button type="button" @onclick=@(async () => await ShowBatchUpdateModal())>Update dues and orientation</button>
 
 <div class="table-responsive">
     <table class="table">

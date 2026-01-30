@@ -1,0 +1,107 @@
+﻿@using Blazored.Modal
+@using Blazored.Modal.Services
+@using TNG.Web.Board.Data
+@using TNG.Web.Board.Data.DTOs
+@using TNG.Web.Board.Data.ViewModels
+
+@inject ApplicationDbContext context
+@inject IJSRuntime js
+
+<table class="table">
+    <thead class="thead-light">
+        <tr>
+            <th>
+                Member
+            </th>
+            <th>
+                Renewing or New
+            </th>
+            <th>
+                Manually Marked As Paid
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var m in Members ?? Enumerable.Empty<MemberStatusUpdate>())
+        {
+            <tr>
+                <td>
+                    @m.SceneName
+                </td>
+                <td>
+                    @((m.LastDues.HasValue && m.LastOrientation.HasValue) ? "Renewing" : "New")
+                </td>
+                <td>
+                    @if (m.ManuallyPaid.HasValue)
+                    {
+                        @(m.ManuallyPaid.Value ? "Manual" : "Via Invoice")
+                    }
+                    else
+                    {
+                        @("Unknown")
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<button @onclick="@(async () => await UpdateAll())"></button>
+
+@code {
+    [Parameter]
+    public IEnumerable<MemberStatusUpdate>? Members { get; set; }
+    [Parameter]
+    public required DateTime EventDate { get; set; }
+
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; }
+
+    private async Task UpdateAll()
+    {
+
+        try
+        {
+            var dues = Members?
+            .Where(m => m.MemberType == MemberType.Member)
+            .Select(m => new MembershipPayment()
+            {
+                MemberId = m.MemberId,
+                PaidOn = EventDate
+            });
+            if (dues?.Any() ?? false)
+                await context.MemberDuesPayments.AddRangeAsync(dues);
+
+            throw new Exception();
+        }
+        catch
+        {
+            if (!await js.InvokeAsync<bool>("confirm", "Failed to add dues, continue?"))
+            {
+                return;
+            }
+        }
+        
+        try
+        {
+            var orientations = Members?
+            .Select(m => new MembershipOrientation()
+            {
+                MemberId = m.MemberId,
+                DateReceived = EventDate
+            });
+            if (orientations?.Any() ?? false)
+                await context.MemberOrientations.AddRangeAsync(orientations);
+        }
+        catch
+        {
+            if (!await js.InvokeAsync<bool>("confirm", "Failed to add orientations, continue?"))
+            {
+                return;
+            }
+        }
+
+        await context.SaveChangesAsync();
+
+        await BlazoredModal.CloseAsync(ModalResult.Ok());
+    }
+}

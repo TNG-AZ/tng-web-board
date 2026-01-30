@@ -12,7 +12,9 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
+using TNG.Web.Board.Data.ViewModels;
 using TNG.Web.Board.Pages.Admin.Volunteering.Modals;
+using TNG.Web.Board.Pages.Events.Modals;
 using TNG.Web.Board.Pages.Membership;
 using TNG.Web.Board.Services;
 using TNG.Web.Board.Utilities;
@@ -463,6 +465,36 @@ namespace TNG.Web.Board.Pages.Events
                 _plusOnes = null;
                 StateHasChanged();
             }
+        }
+
+        private async Task ShowBatchUpdateModal()
+        {
+            var applicableMembers = Rsvps
+                .Where(r =>
+                {
+                    var o = r.Member.Orientations?.Max(o => o.DateReceived) <= DateTime.Now.ToAZTime().AddYears(-1);
+                    var d = r.Member.Payments?.Max(d => d.PaidOn) <= DateTime.Now.ToAZTime().AddYears(-1);
+                    var a = r.Attended ?? false;
+                    return a && o && d;
+                })
+                .Select(r => new MemberStatusUpdate()
+                {
+                    MemberId = r.MemberId,
+                    MemberType = r.Member.MemberType,
+                    SceneName = r.Member.SceneName,
+                    ManuallyPaid = !r.Member.Invoices.Any(i => i.PaidOnDate != null && i.EventId == CalendarEvent!.Id),
+                    LastDues = r.Member.Payments?.Max(d => d.PaidOn),
+                    LastOrientation = r.Member.Orientations?.Max(o => o.DateReceived),
+                });
+            var parameters = new ModalParameters()
+                .Add(nameof(BatchUpdateStatus.Members), applicableMembers)
+                .Add(nameof(BatchUpdateStatus.EventDate), CalendarEvent!.Start.DateTime.ToAZTime()!);
+            var options = new ModalOptions()
+            {
+                Class = "blazored-modal size-large"
+            };
+            var modal = Modal.Show<BatchUpdateStatus>("Batch Update Status", parameters, options);
+            var response = await modal.Result;
         }
 
         private bool shouldRender = true;
