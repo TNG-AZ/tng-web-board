@@ -3,7 +3,6 @@ using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Square.Models;
-using System.Runtime.CompilerServices;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 using TNG.Web.Board.Services;
@@ -109,6 +108,7 @@ namespace TNG.Web.Board.Pages.Events
             return lineItems;
         }
 
+        private bool DisableSend { get; set; }
 
         private async Task SubmitInvoce()
         {
@@ -125,17 +125,32 @@ namespace TNG.Web.Board.Pages.Events
             }
             try
             {
-                var invoiceRef = new Data.DTOs.EventInvoice() { EventId = CalendarEvent.Id, MemberId = InvoiceMember.Id };
-                await context.EventsInvoices.AddAsync(invoiceRef);
-                await context.SaveChangesAsync();
+                DisableSend = true;
+                StateHasChanged();
+                var sending = true;
+                while (sending)
+                {
+                    try
+                    {
+                        var invoiceRef = new Data.DTOs.EventInvoice() { EventId = CalendarEvent.Id, MemberId = InvoiceMember.Id };
+                        await context.EventsInvoices.AddAsync(invoiceRef);
+                        await context.SaveChangesAsync();
 
-                await square.CreateInvoice(
-                    InvoiceMember.EmailAddress,
-                    lineItems,
-                    DueDate,
-                    invoiceId: invoiceRef.Id);
+                        await square.CreateInvoice(
+                            InvoiceMember.EmailAddress,
+                            lineItems,
+                            DueDate,
+                            invoiceId: invoiceRef.Id);
 
-                await BlazoredModal.CloseAsync(ModalResult.Ok());
+                        sending = false;
+                        await BlazoredModal.CloseAsync(ModalResult.Ok());
+                    }
+                    catch
+                    {
+                        if (!await js.InvokeAsync<bool>("confirm", "Failed, try again?"))
+                            sending = false;
+                    }
+                }
             }
             catch (Exception ex) { }
         }

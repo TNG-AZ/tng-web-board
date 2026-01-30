@@ -22,4 +22,4 @@
 <label>Volunteer Free Entry</label>
 <input type="number" min="0" step="1" @bind=@Discount_VolunteerFullCount />
 <br/>
-<button type="button" @onclick=@SubmitInvoce>Send Invoice</button>
+<button type="button" @onclick=@SubmitInvoce disabled="@DisableSend">@(DisableSend ? "Sending..." : "Send Invoice")</button>
