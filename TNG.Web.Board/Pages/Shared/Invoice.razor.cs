@@ -1,6 +1,7 @@
 ﻿using Blazored.Modal;
 using Microsoft.AspNetCore.Components;
-using Square.Models;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Square;
 using TNG.Web.Board.Data.DTOs;
 using TNG.Web.Board.Services;
 using TNG.Web.Board.Utilities;
@@ -49,7 +50,7 @@ namespace TNG.Web.Board.Pages.Shared
             {
                 await square.CreateInvoice(
                 InvoiceMember.EmailAddress,
-                InvoiceItems.Select(i => new OrderLineItem(quantity: i.Quantity.ToString(), name: i.Name, basePriceMoney: new(i.PricePerItem * 100, "USD"))).ToList(),
+                InvoiceItems.Select(i => new OrderLineItem() { Quantity = i.Quantity.ToString(), Name = i.Name, BasePriceMoney = new() { Amount = i.PricePerItem * 100, Currency = Currency.Usd } }).ToList(),
                 DueDate);
 
                 await BlazoredModal.CloseAsync();

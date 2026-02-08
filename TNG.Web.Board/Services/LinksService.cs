@@ -1,5 +1,4 @@
-﻿using Square.Models;
-using TNG.Web.Board.Data.RequestModels;
+﻿using TNG.Web.Board.Data.RequestModels;
 
 namespace TNG.Web.Board.Services
 {

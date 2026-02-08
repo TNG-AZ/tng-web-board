@@ -6,12 +6,10 @@ using TNG.Web.Board.Utilities;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Authorization;
 using TNG.Web.Board.Services;
-using Square.Models;
 using Microsoft.JSInterop;
 using Blazored.Modal;
 using Blazored.Modal.Services;
-using System.Linq;
-using Humanizer;
+using Square;
 
 namespace TNG.Web.Board.Pages.Membership
 {
@@ -122,7 +120,7 @@ namespace TNG.Web.Board.Pages.Membership
             var duesCents = 1200;
             var lineItems = new List<OrderLineItem>
             {
-                new(quantity:"1", name:"Membership Dues", basePriceMoney:new(duesCents, "USD"))
+                new(){Quantity ="1", Name = "Membership Dues", BasePriceMoney = new() { Amount = duesCents, Currency = Currency.Usd } }
             };
             var email = ViewMember!.EmailAddress;
             var dueDate = DateTime.Now.ToAZTime().AddDays(7);

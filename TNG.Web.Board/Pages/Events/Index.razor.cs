@@ -4,14 +4,11 @@ using Google.Apis.Calendar.v3.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
-using System;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 using TNG.Web.Board.Services;
 using TNG.Web.Board.Utilities;
 using System.Web;
-using Humanizer;
-using System.Collections.Concurrent;
 using TNG.Web.Board.Pages.Events.Modals;
 
 namespace TNG.Web.Board.Pages.Events

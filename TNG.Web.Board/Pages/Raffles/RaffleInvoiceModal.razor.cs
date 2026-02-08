@@ -2,12 +2,10 @@
 using Blazored.Modal.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using Square.Models;
-using System.Runtime.CompilerServices;
+using Square;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
 using TNG.Web.Board.Services;
-using TNG.Web.Board.Utilities;
 
 namespace TNG.Web.Board.Pages.Raffles
 {

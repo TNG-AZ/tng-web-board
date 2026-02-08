@@ -1,6 +1,4 @@
-﻿using Elfie.Serialization;
-
-namespace TNG.Web.Board.Utilities
+﻿namespace TNG.Web.Board.Utilities
 {
     public static class DateTimeExtensions
     {

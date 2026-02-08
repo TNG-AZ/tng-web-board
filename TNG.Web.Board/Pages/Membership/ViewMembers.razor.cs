@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Linq;
 using System.Linq.Expressions;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;

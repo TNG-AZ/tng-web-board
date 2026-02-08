@@ -6,9 +6,7 @@ using Google.Apis.Gmail.v1.Data;
 using Google.Apis.Requests;
 using Google.Apis.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Concurrent;
 using TNG.Web.Board.Utilities;
@@ -28,15 +26,11 @@ namespace TNG.Web.Board.Services
             CalendarId = Configuration["CalendarId"];
 
             string[] Scopes = { CalendarService.Scope.Calendar, GmailService.Scope.GmailSend, GmailService.Scope.MailGoogleCom };
-
-            ServiceAccountCredential? credential;
-
             using var stream = new FileStream(Configuration["Google_API_PRIVATE_KEYFILE"]!, FileMode.Open, FileAccess.Read);
-            var confg = Google.Apis.Json.NewtonsoftJsonSerializer.Instance.Deserialize<JsonCredentialParameters>(stream);
-            credential = GoogleCredential.FromJsonParameters(confg)
+            var credential = CredentialFactory.FromStream<ServiceAccountCredential>(stream)
+                .ToGoogleCredential()
                 .CreateScoped(Scopes)
-                .CreateWithUser("board@tngaz.org")
-                .UnderlyingCredential as ServiceAccountCredential;
+                .CreateWithUser("board@tngaz.org");
 
             var baseClient = new BaseClientService.Initializer()
             {
@@ -79,7 +73,7 @@ namespace TNG.Web.Board.Services
                 {
                     return cachedEvent;
                 }
-                var newEvent = Calendar.Events.Get(CalendarId, eventId).Execute();
+                var newEvent = await Calendar.Events.Get(CalendarId, eventId).ExecuteAsync();
                 cache.Set(key, newEvent);
                 return newEvent;
             }
@@ -159,8 +153,8 @@ namespace TNG.Web.Board.Services
             {
                 var call = Calendar.Events.List(CalendarId);
                 call.SingleEvents = true;
-                call.TimeMin = dr.Item1;
-                call.TimeMax = dr.Item2;
+                call.TimeMinDateTimeOffset = dr.Item1;
+                call.TimeMaxDateTimeOffset = dr.Item2;
                 request.Queue<Events>(call,
                     (content, error, i, message) =>
                     {
@@ -171,21 +165,21 @@ namespace TNG.Web.Board.Services
                     });
             }
                
-            request.ExecuteAsync().Wait();
+            await request.ExecuteAsync();
 
-            var emptyDates = queryDates.Where(d => !newEvents.Select(e => e.Start.DateTime?.ToString("MM/dd/yyyy")).Contains(d.ToString("MM/dd/yyyy")));
+            var emptyDates = queryDates.Where(d => !newEvents.Select(e => e.Start.DateTimeDateTimeOffset?.ToString("MM/dd/yyyy")).Contains(d.ToString("MM/dd/yyyy")));
 
             if (newEvents?.Any() ?? false)
             {
                 events.AddRange(newEvents);
             }
             CacheEvents(emptyDates, newEvents).FireAndForget();
-            return events.OrderBy(e => e.Start.DateTime);
+            return events.OrderBy(e => e.Start.DateTimeDateTimeOffset);
         }
 
         public async Task CacheEvents(IEnumerable<DateTime> emptyDates, IEnumerable<Event> events)
         {
-            var groupedEvents = events.GroupBy(e => e.Start.DateTime?.ToString("MM/dd/yyyy"));
+            var groupedEvents = events.GroupBy(e => e.Start.DateTimeDateTimeOffset?.ToString("MM/dd/yyyy"));
             foreach (var eventsByDate in groupedEvents.Where(e => e.Key != null))
             {
                 var key = $"event:{CalendarId}:{eventsByDate.Key}";
