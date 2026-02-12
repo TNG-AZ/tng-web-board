@@ -2,45 +2,30 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using TNG.Web.Board.Data;
-using TNG.Web.Board.Utilities;
-using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol.Plugins;
-using System.Security.Claims;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
 using TNG.Web.Board.Services;
-using Ixnas.AltchaNet;
 
 namespace TNG.Web.Board.Areas.Identity.Pages.Account
 {
-    public class LoginModel : PageModel
+    public class LoginModel(
+        SignInManager<IdentityUser> _signInManager, 
+        UserManager<IdentityUser> _userManager, 
+        ILogger<LoginModel> _logger,
+        AltchaPageService _altcha) : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly ILogger<LoginModel> _logger;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly AltchaPageService _altcha;
 
-        public LoginModel(SignInManager<IdentityUser> signInManager,
-            UserManager<IdentityUser> userManager,
-            ILogger<LoginModel> logger,
-            AltchaPageService altcha)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _logger = logger;
-            _altcha = altcha;
-        }
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -125,28 +110,16 @@ namespace TNG.Web.Board.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-
                 if (string.IsNullOrEmpty(Altcha) || !await _altcha.Validate(Altcha))
                 {
                     ModelState.AddModelError(string.Empty, "Invalid Altcha.");
                     return Page();
                 }
 
-                var user = (IdentityUser)null;
-
-                try
-                {
-                    user = _userManager.Users.First(u => EF.Functions.Like(u.Email, Input.Email));
-                }
-                catch 
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return Page();
-                }
-
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(user, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                var user = await _userManager.FindByEmailAsync(Input.Email);
+                var result = await _signInManager.PasswordSignInAsync(user.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");

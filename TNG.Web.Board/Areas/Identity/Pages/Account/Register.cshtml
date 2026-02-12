@@ -1,7 +1,7 @@
 ﻿@page
-@using TNG.Web.Board.Services;
-@inject AltchaPageService altcha
+@using TNG.Web.Board.Services
 @model RegisterModel
+@inject AltchaPageService altcha
 @{
     ViewData["Title"] = "Register";
     var altchaChallenge = altcha.Generate();
@@ -30,6 +30,7 @@
                 <label asp-for="Input.ConfirmPassword">Confirm Password</label>
                 <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
             </div>
+
             <altcha-widget challengejson="@(altchaChallenge)"></altcha-widget>
             <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
         </form>
