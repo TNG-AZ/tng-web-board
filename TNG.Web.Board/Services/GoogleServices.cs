@@ -73,7 +73,7 @@ namespace TNG.Web.Board.Services
                 {
                     return cachedEvent;
                 }
-                var newEvent = await Calendar.Events.Get(CalendarId, eventId).ExecuteAsync();
+                var newEvent = Calendar.Events.Get(CalendarId, eventId).Execute();
                 cache.Set(key, newEvent);
                 return newEvent;
             }
@@ -83,113 +83,13 @@ namespace TNG.Web.Board.Services
 
         public async Task<IEnumerable<Event>> GetEvents(DateTime startTime, DateTime endTime)
         {
-            var range = Enumerable.Range(0, 1 + endTime.Subtract(startTime).Days)
-                .Select(offset => startTime.AddDays(offset));
-            var events = new List<Event>();
-
-            if (range.Count() < 2)
-            {
-                return Enumerable.Empty<Event>();
-            }
-
-            var queryDates = new List<DateTime>();
-            foreach (var date in range)
-            {
-                var key = $"event:{CalendarId}:{date:MM/dd/yyyy}";
-                if (cache.TryGetValue(key, out IEnumerable<Event>? cachedEvents))
-                {
-                    if (cachedEvents?.Any() ?? false)
-                    {
-                        events.AddRange(cachedEvents);
-                    }
-                }
-                else
-                {
-                    queryDates.Add(date);
-                }
-            }
-            if (queryDates.Count == 1)
-            {
-                var date = queryDates.First();
-                queryDates = new List<DateTime>()
-                {
-                    date.AddDays(-1),
-                    date,
-                    date.AddDays(1)
-                };
-            }
-            if (queryDates.Count() == 0)
-            {
-                return events;
-            }
-
-            var queryDateRanges = new List<Tuple<DateTime, DateTime>>();
-            var startDate = queryDates.FirstOrDefault();
-            var endDate = queryDates.Skip(1).FirstOrDefault();
-            var previousDate = queryDates.FirstOrDefault();
-            foreach (var date in queryDates.Skip(1))
-            {
-                if (date == previousDate.AddDays(1))
-                {
-                    endDate = date;
-                }
-                else
-                {
-                    queryDateRanges.Add(new(startDate, endDate));
-                    startDate = date;
-                    endDate = date.AddDays(1);
-                }
-                previousDate = date;
-            }
-            if(endDate == queryDates.LastOrDefault())
-            {
-                queryDateRanges.Add(new(startDate, queryDates.LastOrDefault()));
-            }
-
-            var newEvents = new ConcurrentBag<Event>();
-
-            var request = new BatchRequest(Calendar);
-            foreach (var dr in queryDateRanges)
-            {
-                var call = Calendar.Events.List(CalendarId);
+            var call = Calendar.Events.List(CalendarId);
                 call.SingleEvents = true;
-                call.TimeMinDateTimeOffset = dr.Item1;
-                call.TimeMaxDateTimeOffset = dr.Item2;
-                request.Queue<Events>(call,
-                    (content, error, i, message) =>
-                    {
-                        foreach (var e in content.Items)
-                        {
-                            newEvents.Add(e);
-                        }
-                    });
-            }
-               
-            await request.ExecuteAsync();
+                call.TimeMinDateTimeOffset = startTime;
+                call.TimeMaxDateTimeOffset = endTime;
 
-            var emptyDates = queryDates.Where(d => !newEvents.Select(e => e.Start.DateTimeDateTimeOffset?.ToString("MM/dd/yyyy")).Contains(d.ToString("MM/dd/yyyy")));
-
-            if (newEvents?.Any() ?? false)
-            {
-                events.AddRange(newEvents);
-            }
-            CacheEvents(emptyDates, newEvents).FireAndForget();
-            return events.OrderBy(e => e.Start.DateTimeDateTimeOffset);
-        }
-
-        public async Task CacheEvents(IEnumerable<DateTime> emptyDates, IEnumerable<Event> events)
-        {
-            var groupedEvents = events.GroupBy(e => e.Start.DateTimeDateTimeOffset?.ToString("MM/dd/yyyy"));
-            foreach (var eventsByDate in groupedEvents.Where(e => e.Key != null))
-            {
-                var key = $"event:{CalendarId}:{eventsByDate.Key}";
-                cache.Set(key, eventsByDate.Select(e => e));
-            }
-            foreach (var date in emptyDates.Take(emptyDates.Count() - 1))
-            {
-                var key = $"event:{CalendarId}:{date:MM/dd/yyyy}";
-                cache.Set(key, Enumerable.Empty<Event>());
-            }
+            var events = call.Execute();
+            return events.Items.OrderBy(e => e.Start.DateTimeDateTimeOffset);
         }
 
         public void ClearEventCache()
