@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
+using TNG.Web.Board.Data.Helpers;
 using TNG.Web.Board.Data.ViewModels;
 using TNG.Web.Board.Pages.Admin.Volunteering.Modals;
 using TNG.Web.Board.Pages.Events.Modals;
@@ -156,13 +157,6 @@ namespace TNG.Web.Board.Pages.Events
             StateHasChanged();
         }
 
-        private enum EmailListEnum
-        {
-            All,
-            GoodStanding,
-            Paid
-        }
-
         BlazoredTextEditor QuillHtml;
 
         private EmailListEnum? EmailList { get; set; }
@@ -181,11 +175,11 @@ namespace TNG.Web.Board.Pages.Events
                 var members = EmailList switch
                 {
                     EmailListEnum.All => Rsvps.Where(r => r.VoidedDate == null).Select(r => r.Member),
+                    EmailListEnum.Attended => Rsvps.Where(r => r.VoidedDate == null && (r.Attended ?? false)).Select(r => r.Member),
                     EmailListEnum.Paid => Rsvps
                         .Where(r => r.VoidedDate == null && ((r.Paid ?? false) || r.Member.Invoices.Any(i => i.EventId == eventId && i.PaidOnDate != null)))
                         .Select(r => r.Member),
-                    EmailListEnum.GoodStanding => Rsvps.Where(r => r.VoidedDate == null).Select(r => r.Member).Where(m => GetMembershipIssues(m).Status == null),
-                    _ => Enumerable.Empty<Member>()
+                    _ => []
                 };
 
                 if (members.Any())

@@ -38,5 +38,7 @@ namespace TNG.Web.Board.Data
         public virtual DbSet<VolunteerPositionRole> VolunteerPositionRoles { get; set; }
         public virtual DbSet<VolunteerRoleMember> VolunteerRoleMembers { get; set; }
         public virtual DbSet<VolunteerSlotMember> VolunteerSlotMembers { get; set; }
+
+        public virtual DbSet<ScheduledEmail> EmailQueue { get; set; }
     }
 }

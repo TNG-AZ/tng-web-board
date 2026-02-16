@@ -70,8 +70,6 @@
             });
             if (dues?.Any() ?? false)
                 await context.MemberDuesPayments.AddRangeAsync(dues);
-
-            throw new Exception();
         }
         catch
         {

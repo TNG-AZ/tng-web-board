@@ -1,5 +1,6 @@
 ﻿@page "/events/manage/{eventId}"
 @using TNG.Web.Board.Data.DTOs;
+@using TNG.Web.Board.Data.Helpers
 @using TNG.Web.Board.Pages.Admin.Volunteering
 @using TNG.Web.Board.Utilities;
 @using Blazored.TextEditor
@@ -15,10 +16,10 @@
         <input type="radio" name="emailList" value="@EmailListEnum.All" checked="@(EmailList?.Equals(EmailListEnum.All))" @onchange="EmailListOnChange" />
         <label>All</label>
         <br/>
-        <input type="radio" name="emailList" value="@EmailListEnum.GoodStanding" checked="@(EmailList?.Equals(EmailListEnum.GoodStanding))" @onchange="EmailListOnChange" />
+        <input type="radio" name="emailList" value="@EmailListEnum.Paid" checked="@(EmailList?.Equals(EmailListEnum.Paid))" @onchange="EmailListOnChange" />
         <label>Members in Good Standing</label>
         <br />
-        <input type="radio" name="emailList" value="@EmailListEnum.Paid" checked="@(EmailList?.Equals(EmailListEnum.Paid))" @onchange="EmailListOnChange" />
+        <input type="radio" name="emailList" value="@EmailListEnum.Attended" checked="@(EmailList?.Equals(EmailListEnum.Attended))" @onchange="EmailListOnChange" />
         <label>Paid Members</label>
         <br />
         <label>Subject:</label><input type="text" @bind=@EmailSubject>
