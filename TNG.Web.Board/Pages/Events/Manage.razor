@@ -17,10 +17,10 @@
         <label>All</label>
         <br/>
         <input type="radio" name="emailList" value="@EmailListEnum.Paid" checked="@(EmailList?.Equals(EmailListEnum.Paid))" @onchange="EmailListOnChange" />
-        <label>Members in Good Standing</label>
+        <label>Paid</label>
         <br />
         <input type="radio" name="emailList" value="@EmailListEnum.Attended" checked="@(EmailList?.Equals(EmailListEnum.Attended))" @onchange="EmailListOnChange" />
-        <label>Paid Members</label>
+        <label>Attended</label>
         <br />
         <label>Subject:</label><input type="text" @bind=@EmailSubject>
         
