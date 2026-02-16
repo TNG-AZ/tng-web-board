@@ -477,8 +477,8 @@ namespace TNG.Web.Board.Pages.Events
                     MemberType = r.Member.MemberType,
                     SceneName = r.Member.SceneName,
                     ManuallyPaid = !r.Member.Invoices.Any(i => i.PaidOnDate != null && i.EventId == CalendarEvent!.Id),
-                    LastDues = r.Member.Payments?.Max(d => d.PaidOn),
-                    LastOrientation = r.Member.Orientations?.Max(o => o.DateReceived),
+                    LastDues = (r.Member.Orientations?.Any() ?? false) ? r.Member.Payments?.Max(d => d.PaidOn) : null,
+                    LastOrientation = (r.Member.Payments?.Any() ?? false) ? r.Member.Orientations?.Max(o => o.DateReceived) : null,
                 });
             var parameters = new ModalParameters()
                 .Add(nameof(BatchUpdateStatus.Members), applicableMembers)
