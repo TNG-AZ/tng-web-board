@@ -466,8 +466,8 @@ namespace TNG.Web.Board.Pages.Events
             var applicableMembers = Rsvps
                 .Where(r =>
                 {
-                    var o = r.Member.Orientations?.Max(o => o.DateReceived) <= DateTime.Now.ToAZTime().AddYears(-1);
-                    var d = r.Member.Payments?.Max(d => d.PaidOn) <= DateTime.Now.ToAZTime().AddYears(-1);
+                    var o = !(r.Member.Orientations?.Any() ?? false) || r.Member.Orientations?.Max(o => o.DateReceived) <= DateTime.Now.ToAZTime().AddYears(-1);
+                    var d = !(r.Member.Payments?.Any() ?? false) || r.Member.Payments?.Max(d => d.PaidOn) <= DateTime.Now.ToAZTime().AddYears(-1);
                     var a = r.Attended ?? false;
                     return a && o && d;
                 })
