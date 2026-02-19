@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TNG.Web.Board.Utilities;
 
 namespace TNG.Web.Board.Data.DTOs
 {
@@ -18,7 +19,7 @@ namespace TNG.Web.Board.Data.DTOs
         [Key]
         public int Id { get; set; }
         [Required]
-        public DateTime SendAtDateTime { get; set; }
+        public DateTime SendAtDateTime { get; set; } = DateTime.Now.ToAZTime();
         public bool? Success { get; set; }
         public int AttemptCount { get; set; } = 0;
         [Required]

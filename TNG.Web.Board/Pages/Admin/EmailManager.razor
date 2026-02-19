@@ -37,6 +37,8 @@
 </BlazoredTextEditor>
 
 <button type="button" @onclick=@(async () => await SendEmail())>Send Email</button>
+<button type="button" @onclick="@(async () => await OpenEmailScheduler())">Schedule</button>
+
 <br />
 <br />
 <br />

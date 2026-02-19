@@ -17,6 +17,7 @@ using TNG.Web.Board.Data.ViewModels;
 using TNG.Web.Board.Pages.Admin.Volunteering.Modals;
 using TNG.Web.Board.Pages.Events.Modals;
 using TNG.Web.Board.Pages.Membership;
+using TNG.Web.Board.Pages.Shared.Modals;
 using TNG.Web.Board.Services;
 using TNG.Web.Board.Utilities;
 
@@ -489,6 +490,35 @@ namespace TNG.Web.Board.Pages.Events
             };
             var modal = Modal.Show<BatchUpdateStatus>("Batch Update Status", parameters, options);
             var response = await modal.Result;
+        }
+
+        private async Task OpenEmailScheduler()
+        {
+            var email = new ScheduledEmail()
+            {
+                Subject = EmailSubject,
+                Body = await QuillHtml.GetHTML(),
+                EventId = CalendarEvent!.Id,
+                EventRecipientFilter = EmailList switch
+                {
+                    EmailListEnum.Paid => EventEmailRecipientFilter.Paid,
+                    EmailListEnum.Attended => EventEmailRecipientFilter.Attended,
+                    _ => EventEmailRecipientFilter.All,
+                }
+            };
+            var eventName = CalendarEvent!.Summary;
+
+            var parameters = new ModalParameters()
+                .Add(nameof(QueueEmail.email), email)
+                .Add(nameof(QueueEmail.EventName), eventName);
+            var options = new ModalOptions()
+            {
+                Class = "blazored-modal size-large"
+            };
+            var modal = Modal.Show<QueueEmail>("Queue Email", parameters, options);
+            var response = await modal.Result;
+            await js.InvokeVoidAsync("alert", response.Confirmed ? "Scheduled" : "Failed");
+
         }
 
         private bool shouldRender = true;

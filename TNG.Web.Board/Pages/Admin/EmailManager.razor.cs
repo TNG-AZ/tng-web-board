@@ -1,10 +1,14 @@
-﻿using Blazored.TextEditor;
+﻿using Blazored.Modal;
+using Blazored.Modal.Services;
+using Blazored.TextEditor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.JSInterop;
 using TNG.Web.Board.Data;
 using TNG.Web.Board.Data.DTOs;
+using TNG.Web.Board.Data.Helpers;
+using TNG.Web.Board.Pages.Shared.Modals;
 using TNG.Web.Board.Services;
 
 namespace TNG.Web.Board.Pages.Admin
@@ -20,6 +24,8 @@ namespace TNG.Web.Board.Pages.Admin
         private GoogleServices google { get; set; }
         [Inject]
         private IJSRuntime js { get; set; }
+        [CascadingParameter]
+        private IModalService Modal { get; set; }
 
         private BlazoredTextEditor QuillHtml;
 #nullable enable
@@ -79,6 +85,26 @@ namespace TNG.Web.Board.Pages.Admin
                 await QuillHtml.LoadHTMLContent("Message has been sent");
                 StateHasChanged();
             }
+        }
+
+        private async Task OpenEmailScheduler()
+        {
+            var email = new ScheduledEmail()
+            {
+                Subject = EmailSubject,
+                Body = await QuillHtml.GetHTML(),
+                RecipientsCSV = string.Join(", ",FilteredMembers.Select(m => m.EmailAddress))
+            };
+            var parameters = new ModalParameters()
+                .Add(nameof(QueueEmail.email), email);
+            var options = new ModalOptions()
+            {
+                Class = "blazored-modal size-large"
+            };
+            var modal = Modal.Show<QueueEmail>("Queue Email", parameters, options);
+            var response = await modal.Result;
+            await js.InvokeVoidAsync("alert", response.Confirmed ? "Scheduled" : "Failed");
+
         }
     }
 }

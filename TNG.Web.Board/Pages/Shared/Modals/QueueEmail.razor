@@ -1,0 +1,74 @@
+﻿@using Blazored.Modal
+@using Blazored.Modal.Services
+@using Microsoft.EntityFrameworkCore
+@using TNG.Web.Board.Data
+@using TNG.Web.Board.Data.DTOs
+
+@inject ApplicationDbContext context
+
+@if (email != null)
+{
+    @error
+    if (!string.IsNullOrWhiteSpace(EventName))
+    {
+        <h3>EventName</h3>
+        <label>Filter</label>
+        <p>note: VOIDED Rsvps are excluded from email lists, and must be sent manually</p>
+        <input type="radio" name="emailList" value="@EventEmailRecipientFilter.All" checked="@(email.EventRecipientFilter?.Equals(EventEmailRecipientFilter.All))" @onchange="EmailListOnChange" />
+        <label>All</label>
+        <br />
+        <input type="radio" name="emailList" value="@EventEmailRecipientFilter.Paid" checked="@(email.EventRecipientFilter?.Equals(EventEmailRecipientFilter.Paid))" @onchange="EmailListOnChange" />
+        <label>Paid</label>
+        <br />
+        <input type="radio" name="emailList" value="@EventEmailRecipientFilter.Attended" checked="@(email.EventRecipientFilter?.Equals(EventEmailRecipientFilter.Attended))" @onchange="EmailListOnChange" />
+        <label>Attended</label>
+    }
+    <label>Subject</label>
+    <input type="text" @bind="email.Subject" />
+    <br />
+    <label>Body:</label>
+    <textarea @bind="email.Body"></textarea>
+    <label>Manual recipient comma separated values</label><input type="text" @bind="email.RecipientsCSV"/>
+    <label>Send When?</label><input type="datetime-local" @bind="email.SendAtDateTime" />
+    <br />
+    <button onclick="@(async () => await Schedule())">Schedule</button>
+}
+
+
+@code {
+    [Parameter]
+    public ScheduledEmail email { get; set; }
+    [Parameter]
+    public string? EventName { get; set; }
+
+    [CascadingParameter]
+    public BlazoredModalInstance BlazoredModal { get; set; }
+
+    private string? error { get; set; }
+
+    private void EmailListOnChange(ChangeEventArgs args)
+    {
+        email.EventRecipientFilter = Enum.TryParse<EventEmailRecipientFilter>(args.Value?.ToString(), out var value) ? value : null;
+    }
+
+    private async Task Schedule()
+    {
+        error = null;
+        if (string.IsNullOrWhiteSpace(email.Subject) || string.IsNullOrWhiteSpace(email.Body))
+        {
+            error = "invalid state";
+            StateHasChanged();
+            return;
+        }
+        if (email.Id == 0)
+            await context.EmailQueue.AddAsync(email);
+        else
+        {
+            var entity = context.EmailQueue.Attach(email);
+            entity.State = EntityState.Modified;
+        }
+        await context.SaveChangesAsync();
+
+        await BlazoredModal.CloseAsync(ModalResult.Ok());
+    }
+}
