@@ -207,7 +207,7 @@ namespace TNG.Web.Board.Pages.Events
             var parameters = new ModalParameters()
                 .Add(nameof(EventInvoice.InvoiceMember), invoiceMember)
                 .Add(nameof(EventInvoice.CalendarEvent), CalendarEvent)
-                .Add(nameof(EventInvoice.Fees), EventFees ?? new() { MembershipDues = 12, GuestEntry = 10, MemberEntry = 8});
+                .Add(nameof(EventInvoice.Fees), EventFees ?? new() { MembershipDues = 15, GuestEntry = 12, MemberEntry = 10});
             var options = new ModalOptions()
             {
                 Class = "blazored-modal size-large"
@@ -240,9 +240,9 @@ namespace TNG.Web.Board.Pages.Events
                 var fees = new EventFees()
                 {
                     EventId = eventId,
-                    MemberEntry = 8,
-                    GuestEntry = 10,
-                    MembershipDues = 12
+                    MemberEntry = 10,
+                    GuestEntry = 12,
+                    MembershipDues = 15
                 };
                 await context.EventsFees.AddAsync(fees);
                 await context.SaveChangesAsync();
